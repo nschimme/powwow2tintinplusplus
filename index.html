@@ -359,7 +359,7 @@
                                     outputLines.push(`#CLASS {${groupName}} {CLOSE}`);
                                 }
                                 if (aliasCommands.includes('POWWOW_DELAYED_SUBST_')) {
-                                    outputLines.push(`#COMMENT TODO: Manually handle Powwow delayed substitution for POWWOW_DELAYED_SUBST_X in the alias above.`);
+                                    outputLines.push(`#COMMENT TODO: Powwow delayed substitution (e.g., \\$1) was used here (POWWOW_DELAYED_SUBST_X). TinTin++ does not have a direct equivalent. Consider setting a variable in a prior command within this alias if possible, or restructuring the logic. Example: #VARIABLE {temp_var} {%X}; some_command {@temp_var}`);
                                 }
                             } else {
                                 outputLines.push(`#comment UNCONVERTED ALIAS: ${line}`);
@@ -388,7 +388,7 @@
                                     outputLines.push(`#CLASS {${groupName}} {CLOSE}`);
                                 }
                                 if ((actionCommands && actionCommands.includes('POWWOW_DELAYED_SUBST_')) || actionPattern.includes('POWWOW_DELAYED_SUBST_')) {
-                                    outputLines.push(`#COMMENT TODO: Manually handle Powwow delayed substitution for POWWOW_DELAYED_SUBST_X in the action above.`);
+                                    outputLines.push(`#COMMENT TODO: Powwow delayed substitution (e.g., \\$1) was used here (POWWOW_DELAYED_SUBST_X). TinTin++ does not have a direct equivalent. Consider if the logic can be achieved by capturing to a variable first or restructuring. Example: #VARIABLE {temp_var} {%X}; some_command {@temp_var}`);
                                 }
                             } else {
                                 outputLines.push(`#comment UNCONVERTED ACTION: ${line}`);
@@ -491,7 +491,7 @@
                                 if (groupName) outputLines.push(`#CLASS {${groupName}} {CLOSE}`);
 
                                 if (tickerCommands.includes('POWWOW_DELAYED_SUBST_')) {
-                                    outputLines.push(`#COMMENT TODO: Manually handle Powwow delayed substitution for POWWOW_DELAYED_SUBST_X in the ticker above.`);
+                                    outputLines.push(`#COMMENT TODO: Powwow delayed substitution (e.g., \\$1) was used here (POWWOW_DELAYED_SUBST_X). TinTin++ does not have a direct equivalent. For tickers, this is especially tricky. You might need to use a script that sets a global variable, and then the ticker action uses that global variable. Or, avoid delayed substitution in ticker commands if possible.`);
                                 }
                             } else { outputLines.push(`#comment UNCONVERTED TICKER/AT/IN: ${line}`); }
                             break;
@@ -534,6 +534,28 @@
                             } else { outputLines.push(`#comment UNCONVERTED FOR: ${line}`);}
                             break;
                         
+                        case 'prompt':
+                            // Basic conversion attempt, similar to an action
+                            parts = args.split(/=(.+)/);
+                            if (parts.length >= 2) {
+                                // Group name handling would need to be generalized or added here if applicable
+                                // For now, omitting groupName specific logic for #PROMPT
+                                let tintinCmd = `#PROMPT {${convertSyntax(parts[0])}} {${processPowwowCommands(parts[1])}}`;
+                                outputLines.push(tintinCmd);
+                            } else {
+                                // Powwow #prompt might not always have an = part, e.g. just #prompt {pattern} for #isprompt
+                                // So, we might just convert the pattern part if no "=" is found.
+                                if (args.trim()) {
+                                   outputLines.push(`#PROMPT {${convertSyntax(args.trim())}} {}`); // Empty command for TT++
+                                } else {
+                                   outputLines.push(`#comment UNCONVERTED PROMPT: ${line}`);
+                                }
+                            }
+                            outputLines.push(`#COMMENT INFO: Powwow '#prompt' (for MUD prompt recognition via #isprompt) is fundamentally different from TinTin++ '#prompt' (for displaying text on a status line).`);
+                            outputLines.push(`#COMMENT INFO: The original Powwow #prompt command (likely containing '#isprompt') needs manual translation to TinTin++ logic.`);
+                            outputLines.push(`#COMMENT INFO: You may need separate TinTin++ #actions to capture prompt data into variables, then use those variables in a TinTin++ #prompt command for status bar display, or use #config {INPUT PREFIX} for simple prompt markers.`);
+                            break;
+
                         default:
                             outputLines.push(`#comment UNSUPPORTED: ${line}`);
                             break;

@@ -60,14 +60,14 @@ The converter handles a variety of Powwow commands and syntax, including:
 While the converter handles many common Powwow features, some aspects will likely require manual intervention:
 
 *   **Complex Nested Logic:** Highly complex or deeply nested Powwow commands, especially within aliases, actions, or multi-line braced blocks, might not convert perfectly and will require careful review and adjustment.
-*   **Powwow Delayed Substitution (`\$N`):** This feature (where `\$N` is substituted later, often after an `#input` or similar command) is converted to a placeholder like `POWWOW_DELAYED_SUBST_N`. A `#COMMENT` is added, prompting manual handling. TinTin++ does not have a direct, identical equivalent for this specific type of delayed variable expansion. Users will need to restructure the logic, possibly using intermediate variables, different command sequencing, or TinTin++'s `#delay` command.
+*   **Powwow Delayed Substitution (`\$N`):** The converter replaces Powwow's delayed substitution (e.g., `\$1`) with a `POWWOW_DELAYED_SUBST_X` placeholder and an improved `#COMMENT`. This comment now suggests workarounds, like using an intermediate TinTin++ variable (e.g., `#VARIABLE {temp_var} {%X}; some_command {@temp_var}`) as TinTin++ lacks a direct equivalent. Users will still need to restructure the logic, possibly using different command sequencing, or TinTin++'s `#delay` command for more complex scenarios.
 *   **Regular Expressions in Actions/Prompts:**
     *   Powwow's native pattern matching (`$N` for a single word, `&N` for a sequence of characters until end of line or next pattern) and its optional POSIX ERE for actions (using `%label` on the `#action` line) are converted to TinTin++'s PCRE (Perl Compatible Regular Expressions).
     *   While basic parameter substitutions (`$N` -> `%N`) are made, complex regex patterns might need manual fine-tuning to ensure identical behavior due to differences between Powwow's matching and PCRE.
 *   **`#prompt` Command:**
-    *   The conversion for Powwow's `#prompt` command is very basic. Powwow's `#prompt` is often used with its internal `#isprompt` mechanism to define multi-line prompts or react to specific prompt sequences.
-    *   TinTin++'s `#prompt` command is different; it's primarily for displaying text on a status bar or a separate window.
-    *   Users should carefully review and likely rewrite Powwow prompt logic using TinTin++'s trigger system (`#ACTION`, `#SUBSTITUTE`, `#HIGHLIGHT`) and potentially `#PROMPT` for display if needed.
+    *   The conversion for Powwow's `#prompt` is superficial due to fundamental differences. Powwow `#prompt` is for MUD prompt *recognition* (often using an internal `#isprompt`), while TinTin++ `#prompt` is for *displaying* text on a status line. The converter now adds detailed in-code comments to the output when it encounters a Powwow `#prompt`.
+    *   These comments clarify this difference and suggest users may need to implement separate TinTin++ `#ACTION` triggers to capture prompt information into variables, then use those variables in a TinTin++ `#PROMPT` command for display, or use `#CONFIG {INPUT PREFIX}` for simple prompt markers.
+    *   Users should carefully review and likely rewrite Powwow prompt logic.
 *   **`#exe` and `#send` with Shell/File I/O:**
     *   Basic file sending (`#send <file>` -> `#TEXTIN`) and shell execution (`#send !cmd` -> `#SYSTEM`) are handled.
     *   However, more complex uses of `#exe` or `#send` involving dynamic expression evaluation for filenames or shell commands (e.g., `#send <@filename_var`) might need manual review and adjustment.
