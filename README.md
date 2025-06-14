@@ -17,12 +17,15 @@ This tool helps migrate MUD (Multi-User Dungeon) scripts from the Powwow client 
 
 The converter handles a variety of Powwow commands and syntax, including:
 
+*   **Recursive Command Processing:** Powwow commands nested within other commands (e.g., `#print` inside an `#action`'s command block, or commands within an `#alias` definition) are now recursively processed and converted to their TinTin++ equivalents. This significantly improves the accuracy of complex script conversions.
 *   **Aliases:**
     *   Basic conversion of `#alias name=commands` to `#ALIAS {name} {commands}`.
-    *   Parameter mapping: Powwow `$N` (e.g., `$1`) is converted to TinTin++ `%N` (e.g., `%1`).
+    *   Parameter mapping: Powwow `$N` (e.g., `$1`) is converted to TinTin++ `%N` (e.g., `%1`). Powwow `&N` (string match) is also converted to `%N`.
+    *   Commands within alias definitions are recursively converted.
     *   Group/Label syntax (`#alias >label@groupname name=commands`) is parsed. Actions and aliases with `@groupname` are wrapped in `#CLASS {groupname} {OPEN/CLOSE}`. The `>label` part is currently ignored for priority.
 *   **Actions:**
     *   Basic conversion of `#action {pattern}=commands` to `#ACTION {pattern} {commands}`.
+    *   Commands within action definitions (the part after `=`) are recursively converted.
     *   Parameter mapping: Powwow `$N` (word match) and `&N` (string match) are converted to TinTin++ `%N`.
     *   Pattern conversion: Basic attempts are made to convert Powwow patterns.
     *   Gagging: Actions with an empty command part are converted to `#GAG {pattern}`.
@@ -32,20 +35,28 @@ The converter handles a variety of Powwow commands and syntax, including:
     *   Powwow `@varName` (named variable) converted to TinTin++ `$varName`.
     *   Powwow `$varName` (named variable, less common) converted to TinTin++ `$varName`.
     *   Values assigned to variables are processed for nested commands/substitutions.
-*   **Control Flow:**
-    *   `#if (condition) {true_block} #else {false_block}` is converted to `#IF {condition} {true_block} {#ELSE} {false_block}`. A comment is added to prompt manual verification. (Note: Powwow's braces for blocks are optional and might not always be present; the converter primarily looks for the `#else` keyword).
+*   **Control Flow (`#if`, `#while`, `#for`):**
+    *   `#if (condition) {true_block} #else {false_block}` is converted to `#IF {condition} {true_block} {#ELSE} {false_block}`. A comment is added to prompt manual verification.
     *   `#while (condition) {command_block}` is converted to `#WHILE {condition} {command_block}`.
     *   `#for (init_expr; condition_expr; loop_expr) {command_block}` is converted to a TinTin++ structure: `init_cmds; #WHILE {condition_expr} {command_block; loop_cmds}`. A comment is added for manual verification.
-*   **Specific Commands:**
-    *   `#mark {text}={highlight_options}` (less common) might be partially converted to `#HIGHLIGHT`. (Powwow's `#mark` is more for specific highlighting rules, TinTin++ `#HIGHLIGHT` is more general).
-    *   `#emulate text` is converted to `#SHOWME {text}`.
+    *   Command blocks within these structures are recursively processed.
+*   **Key Bindings (`#bind`):**
+    *   `#bind key=command` is converted to `#KEY {key} {command}`.
+    *   Common key names (e.g., 'Up', 'F1', 'Enter') are mapped to TinTin++ equivalents (e.g., '<Up>', '<F1>', '<Enter>').
+    *   Basic Emacs-style key prefixes like `C-key` (e.g., `C-c` -> `^c`) and `M-key` (e.g., `M-x` -> `\ex`) are converted. Complex or unrecognized sequences will generate a TODO comment.
+    *   Powwow internal functions used in binds (e.g., `&prev-line`) will generate a TODO comment as they require manual reimplementation.
+*   **Specific Commands (`#print`, `#emulate`, `#send`):**
+    *   `#mark {text}={highlight_options}` (less common) might be partially converted to `#HIGHLIGHT`.
+    *   `#print text` is converted to `#SHOWME {text}` (arguments recursively processed).
+    *   `#emulate text` is converted to `#SHOWME {text}` (arguments recursively processed).
     *   `#send < filename` is converted to `#TEXTIN {filename}`.
     *   `#send !shell_command` is converted to `#SYSTEM {shell_command}`.
-    *   `#send text_to_mud` is processed like direct text input (parameters are converted).
+    *   For `#send text_to_mud`, it is processed recursively, converting any embedded Powwow commands.
     *   `#in <label>(delay_ms) {commands}` / `#at <label>(delay_ms) {commands}` (Tickers) are converted to `#TICKER {label} {commands} {delay_sec}` (delay is converted from milliseconds to seconds). Group syntax is also handled.
-    *   `#bind key=command` is converted to `#KEY {key} {command}`.
     *   `#reset <type>` (e.g., `#reset alias`) is converted to TinTin++ equivalents like `#KILL ALIASES {*}*`.
-*   **Command Chaining:** Semicolon-separated commands, often found within Powwow's curly-braced `{}` blocks, are generally handled. The converter attempts to split these and process them individually.
+*   **Powwow Expressions & Functions:**
+    *   Basic Powwow variable dereferences like `#($foo)` or `#(@bar)` may be converted to TinTin++ equivalents (e.g., `@foo` or `$bar` respectively, with a TODO comment for verification). More complex expressions like `#(...)` or specific functions (e.g., `attr()`, `isprompt()`) are replaced with placeholders like `POWWOW_EXPRESSION_NEEDS_MANUAL_CONVERSION` or `POWWOW_FUNCTION_NEEDS_MANUAL_CONVERSION` and generate a TODO comment.
+*   **Command Chaining:** Semicolon-separated commands, often found within Powwow's curly-braced `{}` blocks, are generally handled. The converter attempts to split these and process them individually (recursively).
 *   **Escaped Characters:** Basic support for Powwow's escaped characters (`\;`, `\{`, `\}`, `\#`, `\\\\`) is implemented, aiming to treat them as literal characters in the TinTin++ output.
 *   **Comments:**
     *   Single-line comments `// comment` are converted to `#comment comment`.
@@ -59,15 +70,22 @@ The converter handles a variety of Powwow commands and syntax, including:
 
 While the converter handles many common Powwow features, some aspects will likely require manual intervention:
 
-*   **Complex Nested Logic:** Highly complex or deeply nested Powwow commands, especially within aliases, actions, or multi-line braced blocks, might not convert perfectly and will require careful review and adjustment.
-*   **Powwow Delayed Substitution (`\$N`):** The converter replaces Powwow's delayed substitution (e.g., `\$1`) with a `POWWOW_DELAYED_SUBST_X` placeholder and an improved `#COMMENT`. This comment now suggests workarounds, like using an intermediate TinTin++ variable (e.g., `#VARIABLE {temp_var} {%X}; some_command {@temp_var}`) as TinTin++ lacks a direct equivalent. Users will still need to restructure the logic, possibly using different command sequencing, or TinTin++'s `#delay` command for more complex scenarios.
+*   **Complex Nested Logic:** While recursive processing is implemented, extremely deep or convoluted nesting might still pose challenges and should be reviewed carefully.
+*   **Powwow Delayed Substitution (`\$N` and `\$varname`):**
+    *   Powwow delayed parameter substitution (e.g., `\$1`) is replaced by a `POWWOW_DELAYED_SUBST_X` placeholder. The generated TODO comment now provides more specific suggestions for manual conversion, such as using an intermediate TinTin++ variable.
+    *   **Delayed Variable Substitution (`\$varname`):** Powwow's delayed *variable* substitution (e.g., `\$foo`) is replaced by `POWWOW_DELAYED_VAR_SUBST_foo`. This also requires manual reimplementation, likely involving temporary variables or scripting, as TinTin++ does not have a direct equivalent for this specific type of delayed evaluation. A TODO comment is generated.
+*   **Powwow Expressions and Functions:**
+    *   Placeholders like `POWWOW_EXPRESSION_NEEDS_MANUAL_CONVERSION` and `POWWOW_FUNCTION_NEEDS_MANUAL_CONVERSION` indicate that Powwow-specific expressions (e.g., `#(...)` syntax for arbitrary calculations) or client functions (e.g., `attr()`, `noattr()`, `isprompt()`) were found. These constructs do not have direct TinTin++ equivalents and must be manually translated into TinTin++ variables, scripting, or built-in functions. The heuristic conversions for simple `#($foo)` or `#(@bar)` should also be verified.
 *   **Regular Expressions in Actions/Prompts:**
     *   Powwow's native pattern matching (`$N` for a single word, `&N` for a sequence of characters until end of line or next pattern) and its optional POSIX ERE for actions (using `%label` on the `#action` line) are converted to TinTin++'s PCRE (Perl Compatible Regular Expressions).
     *   While basic parameter substitutions (`$N` -> `%N`) are made, complex regex patterns might need manual fine-tuning to ensure identical behavior due to differences between Powwow's matching and PCRE.
 *   **`#prompt` Command:**
     *   The conversion for Powwow's `#prompt` is superficial due to fundamental differences. Powwow `#prompt` is for MUD prompt *recognition* (often using an internal `#isprompt`), while TinTin++ `#prompt` is for *displaying* text on a status line. The converter now adds detailed in-code comments to the output when it encounters a Powwow `#prompt`.
+    *   Commands within a Powwow prompt definition are recursively processed, but the fundamental incompatibility of the `#prompt` purpose remains.
     *   These comments clarify this difference and suggest users may need to implement separate TinTin++ `#ACTION` triggers to capture prompt information into variables, then use those variables in a TinTin++ `#PROMPT` command for display, or use `#CONFIG {INPUT PREFIX}` for simple prompt markers.
     *   Users should carefully review and likely rewrite Powwow prompt logic.
+*   **Key Bindings (`#bind`):**
+    *   While common and basic Emacs-style key bindings are converted, very complex Powwow key sequences, those involving terminal-specific escape codes not automatically recognized, or Powwow internal functions (`&function`) will generate TODO comments and require manual configuration in TinTin++. TinTin++ uses `<0xXX>` for byte codes if needed.
 *   **`#exe` and `#send` with Shell/File I/O:**
     *   Basic file sending (`#send <file>` -> `#TEXTIN`) and shell execution (`#send !cmd` -> `#SYSTEM`) are handled.
     *   However, more complex uses of `#exe` or `#send` involving dynamic expression evaluation for filenames or shell commands (e.g., `#send <@filename_var`) might need manual review and adjustment.
@@ -88,5 +106,4 @@ Details on how to contribute to the development of this converter will be added 
 
 ## License
 
-This tool is provided as-is, without any warranty. Users are encouraged to back up their original scripts and use the converted output at their own risk.
-The code for the converter itself is open source (e.g., MIT License - to be formally added).
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.

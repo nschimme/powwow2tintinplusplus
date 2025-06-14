@@ -209,55 +209,408 @@
         const convertBtn = document.getElementById('convert-btn');
         const copyTooltip = document.getElementById('copy-tooltip');
 
-        function processPowwowCommands(powwowCommandString) {
-            let commands = powwowCommandString;
-            if (commands.startsWith('{') && commands.endsWith('}')) {
-                commands = commands.substring(1, commands.length - 1);
-            }
-            const individualCommands = commands.split(';');
-            const processedCommands = individualCommands.map(cmd => convertSyntax(cmd.trim()));
-            return processedCommands.join('; ');
-        }
-
+        // Focus: parameter/variable substitution and escape sequence handling.
         function convertSyntax(str) {
             // Phase 1: Replace Powwow escapes with placeholders
-            // Handle escaped backslashes first to prevent double escaping or misinterpretation of other escapes
             str = str.replace(/\\\\/g, '__POWWOW_ESCAPED_BACKSLASH__');
             str = str.replace(/\\;/g, '__POWWOW_ESCAPED_SEMICOLON__');
             str = str.replace(/\\\{/g, '__POWWOW_ESCAPED_OPEN_BRACE__');
             str = str.replace(/\\\}/g, '__POWWOW_ESCAPED_CLOSE_BRACE__');
-            // This needs to be specific for \# not to interfere with other # uses if any.
             str = str.replace(/\\\#/g, '__POWWOW_ESCAPED_HASH__');
 
-            // Phase 1.5: Original variable and parameter substitutions
-            // IMPORTANT: Order of replacement matters here.
-
-            // 1. Replace Powwow \$N (e.g., \$1 for delayed substitution) with a placeholder
-            // This regex looks for a backslash (that's not part of our backslash placeholder) followed by $N
+            // Phase 1.5: Variable and parameter substitutions (ORDER MATTERS)
+            // 1. Delayed parameter substitution (e.g., \$1)
             str = str.replace(/(?<!__POWWOW_ESCAPED_BACKSLASH__)\\\$(\d+)/g, 'POWWOW_DELAYED_SUBST_$1');
+            // 2. New: Delayed variable substitution (e.g., \$varname)
+            str = str.replace(/(?<!__POWWOW_ESCAPED_BACKSLASH__)\\$([a-zA-Z_]\w*)/g, 'POWWOW_DELAYED_VAR_SUBST_$1');
 
-            // 2. Replace Powwow $N (e.g., $1) or &N (e.g., &1) with TinTin++ %N
-            str = str.replace(/([$&])(\d+)/g, '%$2');
-            // 3. Replace Powwow @N (e.g., @1) with TinTin++ $powwow_at[N]
-            str = str.replace(/@(\d+)/g, '\\$powwow_at[$1]');
-            // 4. Replace Powwow @varName (e.g., @myVar) with TinTin++ $myVar
-            str = str.replace(/@([a-zA-Z_]\w*)/g, '\\$$$1');
-            // 5. Replace Powwow $varName (e.g., $myVar) with TinTin++ $myVar
-            // Ensure this doesn't conflict with POWWOW_DELAYED_SUBST_ if it also contains $
-             str = str.replace(/(?<!POWWOW_DELAYED_SUBST_)\$([a-zA-Z_]\w*)/g, '\\$$$1');
+            // 3. New: Specific Powwow functions to placeholders
+            // Using \b for word boundary to avoid matching parts of longer words.
+            str = str.replace(/\b(attr|noattr|isprompt)\s*\((.*?)\)/g, 'POWWOW_FUNCTION_NEEDS_MANUAL_CONVERSION');
+
+            // 4. New: Simple Powwow variable dereferences (BEFORE general #() expression)
+            // Using \\$ for literal $ in JS replacement string for TinTin++ $variable
+            str = str.replace(/#\(\$([a-zA-Z_]\w*)\)/g, '@$1');      // #($foo) -> @foo (TinTin++ variable, assuming $foo was like a global)
+            str = str.replace(/@\(\$([a-zA-Z_]\w*)\)/g, '@$1');      // @($foo) -> @foo
+            str = str.replace(/#\(@([a-zA-Z_]\w*)\)/g, '\\$$$1');    // #(@bar) -> $bar (TinTin++ local/param variable)
+            str = str.replace(/@\(@([a-zA-Z_]\w*)\)/g, '\\$$$1');    // @(@bar) -> $bar
+
+            // 5. New: General Powwow expressions #(...) to placeholder
+            str = str.replace(/#\((.*?)\)/g, 'POWWOW_EXPRESSION_NEEDS_MANUAL_CONVERSION');
+
+            // 6. Standard parameters & variables (existing)
+            str = str.replace(/([$&])(\d+)/g, '%$2'); // $N or &N -> %N
+            str = str.replace(/@(\d+)/g, '\\$powwow_at[$1]'); // @N -> $powwow_at[N] (assuming @N are special Powwow variables)
+            str = str.replace(/@([a-zA-Z_]\w*)/g, '\\$$$1'); // @varName -> $varName (TinTin++ variable)
+            // $varName -> $varName (TinTin++ variable) - ensure it doesn't mess up $powwow_at[N]
+            // Also ensure it doesn't conflict with POWWOW_DELAYED_VAR_SUBST_ if that contained $
+            str = str.replace(/(?<!POWWOW_DELAYED_VAR_SUBST_)(?<!POWWOW_DELAYED_SUBST_)(?<!__POWWOW_ESCAPED_BACKSLASH__)\$([a-zA-Z_]\w*)/g, '\\$$$1');
 
 
-            // Phase 2: Revert placeholders to TinTin++ literal equivalents
+            // Phase 2: Revert initial escape placeholders
             str = str.replace(/__POWWOW_ESCAPED_SEMICOLON__/g, ';');
             str = str.replace(/__POWWOW_ESCAPED_OPEN_BRACE__/g, '{');
             str = str.replace(/__POWWOW_ESCAPED_CLOSE_BRACE__/g, '}');
             str = str.replace(/__POWWOW_ESCAPED_HASH__/g, '#');
-            // Replace placeholder with a string that represents a single backslash for JS.
-            // In a JS string literal, a single backslash is '\\'.
             str = str.replace(/__POWWOW_ESCAPED_BACKSLASH__/g, '\\\\');
             return str;
         }
 
+        // Processes a command string that might contain multiple commands separated by semicolons,
+        // or a single command, or a block of commands in {}.
+        function processPowwowCommands(powwowCommandString) {
+            let commandsStr = powwowCommandString.trim();
+            if (commandsStr.startsWith('{') && commandsStr.endsWith('}')) {
+                commandsStr = commandsStr.substring(1, commandsStr.length - 1).trim();
+            }
+
+            if (commandsStr === '') return '';
+
+            // If no semicolons and not a block, it might be a single command or literal
+            if (!commandsStr.includes(';')) {
+                if (commandsStr.startsWith('#')) {
+                    return convertSinglePowwowCommand(commandsStr);
+                } else {
+                    return convertSyntax(commandsStr); // Literal string or MUD command
+                }
+            }
+
+            // Multiple commands
+            const individualCommands = commandsStr.split(';');
+            const processedCommands = individualCommands.map(cmd => {
+                const trimmedCmd = cmd.trim();
+                if (trimmedCmd.startsWith('#')) {
+                    return convertSinglePowwowCommand(trimmedCmd);
+                } else if (trimmedCmd !== '') {
+                    return convertSyntax(trimmedCmd);
+                }
+                return ''; // Handle empty parts from multiple semicolons e.g. cmd1;;cmd2
+            }).filter(cmd => cmd !== ''); // Remove empty results
+            return processedCommands.join('; ');
+        }
+
+        // New function to handle a single Powwow command line
+        function convertSinglePowwowCommand(fullCommandString) {
+            let line = fullCommandString.trim();
+            let output = []; // Can be multiple lines due to comments
+
+            // Group Enable/Disable/Toggle (handled early as they are distinct)
+            const groupCmdMatch = line.match(/^#\s*([<=>%+-])([\w_]+)\s*$/);
+            if (groupCmdMatch) {
+                const [, symbol, groupNameVal] = groupCmdMatch;
+                const groupName = groupNameVal.trim();
+                if (symbol === '=' || symbol === '+') {
+                    return `#COMMENT TODO: To enable group '${groupName}', ensure its actions/aliases are loaded, e.g., #CLASS {${groupName}} {READ} {${groupName}.tin}`;
+                } else if (symbol === '<' || symbol === '-') {
+                    return `#CLASS {${groupName}} {KILL}`;
+                } else if (symbol === '%') {
+                    return `#COMMENT TODO: Manual conversion for toggling group '${groupName}'. TinTin++ does not have a direct group toggle. You might need to use #CLASS {${groupName}} {KILL} or #CLASS {${groupName}} {OPEN} based on state variables.`;
+                }
+            }
+
+            const commandMatch = line.match(/^#\s*([a-zA-Z<=>%+-][\w<=>%+-]*)\s*(.*)/);
+            if (!commandMatch) {
+                return convertSyntax(line); // Should not happen if line starts with # and not groupCmd
+            }
+
+            let command = commandMatch[1].toLowerCase();
+            let args = commandMatch[2].trim();
+            let parts;
+
+            switch (command) {
+                case 'alias':
+                    const aliasMatch = line.match(/^#\s*alias\s*(?:>(\w+)(?:@(\w+))?\s+)?([^=]+)=(.+)/i);
+                    if (aliasMatch) {
+                        const [, label, groupName, aliasNameStr, aliasCommandsStr] = aliasMatch;
+                        const aliasName = aliasNameStr.trim();
+                        const processedAliasCommands = processPowwowCommands(aliasCommandsStr.trim());
+
+                        if (groupName) output.push(`#CLASS {${groupName}} {OPEN}`);
+                        output.push(`#ALIAS {${aliasName}} {${processedAliasCommands}}`);
+                        if (groupName) output.push(`#CLASS {${groupName}} {CLOSE}`);
+
+                        if (processedAliasCommands.includes('POWWOW_DELAYED_SUBST_')) {
+                             output.push(`#COMMENT TODO: Powwow delayed parameter substitution (e.g., \\$1 became POWWOW_DELAYED_SUBST_X) was used. TinTin++ lacks a direct equivalent. Manual rewrite needed. Consider: 1. If inside an alias, passing the arg to an intermediate variable: '#VAR {temp_arg} {%X}; next_cmd {@temp_arg}'. 2. Re-evaluating if delayed sub. is truly needed or if direct '%X' works.`);
+                        }
+                    } else {
+                        output.push(`#comment UNCONVERTED ALIAS: ${line}`);
+                    }
+                    break;
+
+                case 'action':
+                    const actionMatch = line.match(/^#\s*action\s*(?:>(\w+)(?:@(\w+))?\s+)?([^=]+)=(.+)?/i);
+                    if (actionMatch) {
+                        const [, label, groupName, actionPatternStr, actionCommandsStr] = actionMatch;
+                        const actionPattern = convertSyntax(actionPatternStr.trim());
+                        const actionCommands = actionCommandsStr ? actionCommandsStr.trim() : "";
+
+                        if (groupName) output.push(`#CLASS {${groupName}} {OPEN}`);
+                        if (actionCommands === "") {
+                            output.push(`#GAG {${actionPattern}}`);
+                        } else {
+                            const processedActionCommands = processPowwowCommands(actionCommands);
+                            output.push(`#ACTION {${actionPattern}} {${processedActionCommands}}`);
+                            if (processedActionCommands.includes('POWWOW_DELAYED_SUBST_')) {
+                               output.push(`#COMMENT TODO: Powwow delayed parameter substitution (e.g., \\$1 became POWWOW_DELAYED_SUBST_X) was used. TinTin++ lacks a direct equivalent. Manual rewrite needed. Consider: 1. If inside an alias, passing the arg to an intermediate variable: '#VAR {temp_arg} {%X}; next_cmd {@temp_arg}'. 2. Re-evaluating if delayed sub. is truly needed or if direct '%X' works.`);
+                            }
+                        }
+                        if (groupName) output.push(`#CLASS {${groupName}} {CLOSE}`);
+                         if (actionPattern.includes('POWWOW_DELAYED_SUBST_')) { // Though less common in patterns
+                             output.push(`#COMMENT TODO: Powwow delayed parameter substitution (e.g., \\$1 became POWWOW_DELAYED_SUBST_X) was used in pattern. Review logic.`);
+                         }
+                    } else {
+                        output.push(`#comment UNCONVERTED ACTION: ${line}`);
+                    }
+                    break;
+
+                case 'var':
+                    parts = args.split(/=(.+)/);
+                    if (parts.length >= 2) {
+                        let varName = parts[0].trim();
+                        let varValueRaw = parts[1] ? parts[1].trim() : "";
+                        let processedVarValue = processPowwowCommands(varValueRaw);
+                        if (varName.startsWith('@')) {
+                            varName = varName.match(/^@\d+$/) ? `powwow_at[${varName.substring(1)}]` : varName.substring(1);
+                        } else if (varName.startsWith('$')) {
+                            varName = varName.match(/^\$\d+$/) ? `powwow_dollar[${varName.substring(1)}]` : varName.substring(1);
+                        }
+                        output.push(`#VARIABLE {${varName}} {${processedVarValue}}`);
+                        if (processedVarValue.includes('POWWOW_DELAYED_SUBST_')) {
+                             output.push(`#COMMENT TODO: Powwow delayed parameter substitution (e.g., \\$1 became POWWOW_DELAYED_SUBST_X) was used in variable value. Review logic.`);
+                        }
+                    } else {
+                        output.push(`#comment UNCONVERTED VARIABLE: ${line}`);
+                    }
+                    break;
+
+                case 'bind':
+                    parts = args.split(/=(.+)/);
+                    if (parts.length >= 2) {
+                        let keyPart = parts[0].trim();
+                        const commandPartRaw = parts[1].trim();
+
+                        // Handle Emacs-style Meta keys first
+                        keyPart = keyPart.replace(/^(?:M-|A-|ESC-)([\S])$/i, "\\e$1"); // M-x -> \ex, M-; -> \e;
+
+                        // Handle Emacs-style Control keys
+                        keyPart = keyPart.replace(/^(?:C-|\^)([a-zA-Z])$/, "^$1");
+                        keyPart = keyPart.replace(/^(?:C-|\^)([\[\]\\\^_@\?])$/, "^$1");
+
+                        // Standard Key replacements
+                        const keyMappings = {
+                            "Up": "<Up>", "Down": "<Down>", "Left": "<Left>", "Right": "<Right>",
+                            "Home": "<Home>", "End": "<End>",
+                            "PgUp": "<PageUp>", "PageUp": "<PageUp>",
+                            "PgDn": "<PageDown>", "PageDown": "<PageDown>",
+                            "Ins": "<Insert>", "Insert": "<Insert>",
+                            "Del": "<Delete>", "Delete": "<Delete>",
+                            "Space": "<Space>", "Tab": "<Tab>",
+                            "Enter": "<Enter>", "Esc": "<Escape>"
+                        };
+                        for (const k in keyMappings) {
+                            if (keyPart.toLowerCase() === k.toLowerCase()) { // Case-insensitive match for whole key name
+                                keyPart = keyMappings[k];
+                                break;
+                            }
+                        }
+                        keyPart = keyPart.replace(/^F(\d+)$/i, "<F$1>");
+
+                        const processedCommandPart = processPowwowCommands(commandPartRaw);
+                        output.push(`#KEY {${keyPart}} {${processedCommandPart}}`);
+
+                        if (!keyPart.startsWith("<") && !keyPart.endsWith(">") && !keyPart.startsWith("\\e") && !keyPart.startsWith("^")) {
+                             if (keyPart.includes("[[") || keyPart.includes("^[")) { // Common ANSI sequence indicators
+                                output.push(`#COMMENT TODO: Key "${parts[0].trim()}" appears to be a control sequence. Manual mapping for "${keyPart}" to TinTin++ <key> format or terminal settings may be needed.`);
+                             }
+                        }
+                        if (processedCommandPart.includes('&') && !processedCommandPart.match(/%[0-9]+/)) {
+                            output.push(`#COMMENT TODO: Command part "${commandPartRaw}" may contain Powwow internal functions (e.g., &func). These need manual reimplementation in TinTin++.`);
+                        }
+                         if (processedCommandPart.includes('POWWOW_DELAYED_SUBST_')) {
+                             output.push(`#COMMENT TODO: Powwow delayed parameter substitution (e.g., \\$1 became POWWOW_DELAYED_SUBST_X) was used in bind command. Review logic.`);
+                        }
+                    } else {
+                        output.push(`#comment UNCONVERTED BIND: ${line}`);
+                    }
+                    break;
+
+                case 'mark':
+                     parts = args.split(/=(.+)/);
+                     if (parts.length >= 2) {
+                        let markValue = processPowwowCommands(parts[1]);
+                        output.push(`#HIGHLIGHT {${convertSyntax(parts[0])}} {${markValue}}`);
+                        if (markValue.includes('POWWOW_DELAYED_SUBST_')) {
+                             output.push(`#COMMENT TODO: Powwow delayed parameter substitution used in mark/highlight. Review logic.`);
+                        }
+                     } else {
+                        output.push(`#comment UNCONVERTED MARK: ${line}`);
+                     }
+                     break;
+
+                case 'print':
+                    const processedPrintArgs = processPowwowCommands(args);
+                    output.push(`#SHOWME {${processedPrintArgs}}`);
+                     if (processedPrintArgs.includes('POWWOW_DELAYED_SUBST_')) {
+                         output.push(`#COMMENT TODO: Powwow delayed parameter substitution used in print/showme. Review logic.`);
+                    }
+                    break;
+                case 'emulate':
+                    const processedEmulateArgs = processPowwowCommands(args);
+                    output.push(`#SHOWME {${processedEmulateArgs}}`);
+                    if (processedEmulateArgs.includes('POWWOW_DELAYED_SUBST_')) {
+                         output.push(`#COMMENT TODO: Powwow delayed parameter substitution used in emulate/showme. Review logic.`);
+                    }
+                    break;
+
+                case 'send':
+                    const sendFileMatch = args.match(/^<\s*(\S+)/);
+                    const sendShellMatch = args.match(/^!\s*(.+)/);
+                    if (sendFileMatch) {
+                        output.push(`#TEXTIN {${sendFileMatch[1].trim()}}`);
+                    } else if (sendShellMatch) {
+                        output.push(`#SYSTEM {${sendShellMatch[1].trim()}}`); // Shell command itself is not processed further by convertSyntax
+                    } else {
+                        const processedSendArgs = processPowwowCommands(args);
+                        output.push(processedSendArgs);
+                        if (processedSendArgs.includes('POWWOW_DELAYED_SUBST_')) {
+                            output.push(`#COMMENT TODO: Powwow delayed parameter substitution used in send. Review logic.`);
+                        }
+                    }
+                    break;
+
+                case 'reset': // No command processing for args typically
+                    let type = args.toLowerCase().trim();
+                    if (type === 'alias' || type === 'aliases') output.push(`#KILL ALIASES {*}*`);
+                    else if (type === 'action' || type === 'actions') output.push(`#KILL ACTIONS {*}*`);
+                    else if (type === 'variable' || type === 'var' || type === 'variables') output.push(`#KILL VARIABLES {*}*`);
+                    else if (type === 'mark' || type === 'marks' || type === 'highlight' || type === 'highlights') output.push(`#KILL HIGHLIGHTS {*}*`);
+                    else if (type === 'at' || type === 'in' || type === 'ticker' || type === 'tickers') output.push(`#KILL TICKERS {*}*`);
+                    else if (type === 'bind' || type === 'binds' || type === 'key') output.push(`#KILL MACROS {*}*`); // TinTin++ uses #MACRO for keybinds, so #KILL MACROS
+                    else if (type === 'all') {
+                        output.push(`#KILL ALIASES {*}*`, `#KILL ACTIONS {*}*`, `#KILL VARIABLES {*}*`, `#KILL HIGHLIGHTS {*}*`, `#KILL TICKERS {*}*`, `#KILL MACROS {*}*`, `#COMMENT --- RESET ALL ---`);
+                    } else { output.push(`#comment UNCONVERTED RESET: ${line}`); }
+                    break;
+
+                case 'in':
+                case 'at':
+                    const tickerMatch = line.match(/^#\s*(?:in|at)\s*(?:>(\w+)(?:@(\w+))?\s+)?(\w+)\s*\((.*?)\)\s*(.*)/i);
+                    if (tickerMatch) {
+                        const [,label, groupName, tickerLabel, delayStr, tickerCmdStr] = tickerMatch;
+                        const delayMs = parseInt(delayStr, 10);
+                        const delaySec = !isNaN(delayMs) ? (delayMs / 1000).toFixed(2) : "1.00";
+                        const tickerCommands = processPowwowCommands(tickerCmdStr.trim());
+
+                        if (groupName) output.push(`#CLASS {${groupName}} {OPEN}`);
+                        output.push(`#TICKER {${tickerLabel}} {${tickerCommands}} ${delaySec}`);
+                        if (groupName) output.push(`#CLASS {${groupName}} {CLOSE}`);
+
+                        if (tickerCommands.includes('POWWOW_DELAYED_SUBST_')) {
+                            output.push(`#COMMENT TODO: Powwow delayed parameter substitution (e.g., \\$1 became POWWOW_DELAYED_SUBST_X) was used in ticker. Review logic.`);
+                        }
+                    } else { output.push(`#comment UNCONVERTED TICKER/AT/IN: ${line}`); }
+                    break;
+
+                case 'if':
+                     const ifMatch = line.match(/^#if\s*\((.*?)\)\s*(.*?)(?:\s*#else\s*(.*))?$/i);
+                     if (ifMatch) {
+                         const [, condition, trueBlockStr, falseBlockStr] = ifMatch;
+                         const trueBlock = trueBlockStr.trim();
+                         const falseBlock = falseBlockStr ? falseBlockStr.trim() : null;
+
+                        let processedTrueBlock = processPowwowCommands(trueBlock);
+                        let processedFalseBlock = falseBlock ? processPowwowCommands(falseBlock) : null;
+
+                         let tintinIf = `#IF {${convertSyntax(condition.trim())}} {${processedTrueBlock}}`;
+                         if (processedFalseBlock !== null) {
+                             tintinIf += ` {#ELSE} {${processedFalseBlock}}`;
+                         }
+                         output.push(tintinIf);
+                         output.push(`#COMMENT INFO: Please manually verify the logic of the converted #IF statement.`);
+                         if (processedTrueBlock.includes('POWWOW_DELAYED_SUBST_') || (processedFalseBlock && processedFalseBlock.includes('POWWOW_DELAYED_SUBST_'))) {
+                            output.push(`#COMMENT TODO: Powwow delayed parameter substitution (e.g., \\$1 became POWWOW_DELAYED_SUBST_X) was used in #if block. Review logic.`);
+                         }
+                     } else { output.push(`#comment UNCONVERTED IF: ${line}`); }
+                     break;
+
+                case 'while':
+                    const whileMatch = line.match(/^#\s*while\s*\((.*?)\)\s*(.*)/i);
+                    if (whileMatch) {
+                        const [, condition, command_block] = whileMatch;
+                        const processedCmdBlock = processPowwowCommands(command_block.trim());
+                        output.push(`#WHILE {${convertSyntax(condition.trim())}} {${processedCmdBlock}}`);
+                        if (processedCmdBlock.includes('POWWOW_DELAYED_SUBST_')) {
+                            output.push(`#COMMENT TODO: Powwow delayed parameter substitution (e.g., \\$1 became POWWOW_DELAYED_SUBST_X) was used in #while block. Review logic.`);
+                        }
+                    } else { output.push(`#comment UNCONVERTED WHILE: ${line}`);}
+                    break;
+
+                case 'for':
+                    const forMatch = line.match(/^#\s*for\s*\(([^;]*);([^;]*);([^)]*)\)\s*(.*)/i);
+                    if (forMatch) {
+                        const [, initExpr, checkExpr, loopExpr, command_block] = forMatch;
+                        let processedInit = "";
+                        let processedLoop = "";
+                        let processedCmdBlockFor = processPowwowCommands(command_block.trim());
+
+                        if (initExpr.trim()) {
+                           processedInit = processPowwowCommands(initExpr.trim());
+                           output.push(processedInit + ";");
+                        }
+                        output.push(`#WHILE {${convertSyntax(checkExpr.trim())}} {`);
+                        output.push(`  ${processedCmdBlockFor};`);
+                        if (loopExpr.trim()) {
+                            processedLoop = processPowwowCommands(loopExpr.trim());
+                            output.push(`  ${processedLoop};`);
+                        }
+                        output.push("}");
+                        output.push(`#COMMENT TODO: Manually verify this #for loop conversion.`);
+                        if (processedInit.includes('POWWOW_DELAYED_SUBST_') || processedCmdBlockFor.includes('POWWOW_DELAYED_SUBST_') || processedLoop.includes('POWWOW_DELAYED_SUBST_')) {
+                            output.push(`#COMMENT TODO: Powwow delayed parameter substitution (e.g., \\$1 became POWWOW_DELAYED_SUBST_X) was used in #for loop components. Review logic.`);
+                        }
+                    } else { output.push(`#comment UNCONVERTED FOR: ${line}`);}
+                    break;
+
+                case 'prompt':
+                    parts = args.split(/=(.+)/);
+                    let processedPromptCommands = "";
+                    if (parts.length >= 2) {
+                        processedPromptCommands = processPowwowCommands(parts[1]);
+                        output.push(`#PROMPT {${convertSyntax(parts[0])}} {${processedPromptCommands}}`);
+                    } else {
+                        if (args.trim()) {
+                           output.push(`#PROMPT {${convertSyntax(args.trim())}} {}`);
+                        } else {
+                           output.push(`#comment UNCONVERTED PROMPT: ${line}`);
+                        }
+                    }
+                    output.push(`#COMMENT INFO: Powwow '#prompt' (MUD prompt recognition) differs from TinTin++ '#prompt' (status bar). Manual translation required.`);
+                    output.push(`#COMMENT INFO: Original Powwow #prompt command (often with '#isprompt') needs manual porting to TinTin++ actions/triggers.`);
+                    if (processedPromptCommands.includes('POWWOW_DELAYED_SUBST_')) {
+                        output.push(`#COMMENT TODO: Powwow delayed parameter substitution (e.g., \\$1 became POWWOW_DELAYED_SUBST_X) was used in #prompt commands. Review logic.`);
+                    }
+                    break;
+
+                default:
+                    output.push(`#comment UNSUPPORTED: ${line}`);
+                    break;
+            }
+
+            let finalOutputString = output.join('\n'); // Initial join
+
+            // Add general comments for delayed variable substitution or expressions/functions if they exist in any generated line
+            // Check the raw 'output' array content before it's purely one string to avoid feedback loops on comments themselves
+            const rawOutputForCheck = output.join('\n');
+
+            if (rawOutputForCheck.includes('POWWOW_DELAYED_VAR_SUBST_')) {
+                finalOutputString += "\n#COMMENT TODO: Powwow delayed variable substitution (e.g., \\$varname became POWWOW_DELAYED_VAR_SUBST_varname) was used. TinTin++ does not have a direct equivalent for delayed *variable* evaluation. Manual rewrite needed. Consider using scripting or temporary variables set at the time of execution.";
+            }
+            if (rawOutputForCheck.includes('POWWOW_EXPRESSION_NEEDS_MANUAL_CONVERSION') || rawOutputForCheck.includes('POWWOW_FUNCTION_NEEDS_MANUAL_CONVERSION')) {
+                finalOutputString += "\n#COMMENT TODO: Powwow-specific expressions or functions (e.g., #(...), attr(...), isprompt(...)) were replaced by placeholders. These require manual translation to TinTin++ equivalents or scripting logic.";
+            }
+            return finalOutputString;
+        }
+
+        // Main entry point for script conversion
         function convertScript() {
             const inputScript = powwowInput.value;
             if (!inputScript) {
@@ -281,290 +634,13 @@
                     continue;
                 }
                 
-                // Group Enable/Disable/Toggle
-                const groupCmdMatch = trimmedLine.match(/^#\s*([<=>%+-])([\w_]+)\s*$/);
-                if (groupCmdMatch) {
-                    const [, symbol, groupNameVal] = groupCmdMatch; // Renamed to avoid conflict
-                    const groupName = groupNameVal.trim();
-                    if (symbol === '=' || symbol === '+') {
-                        outputLines.push(`#COMMENT TODO: To enable group '${groupName}', ensure its actions/aliases are loaded, e.g., #CLASS {${groupName}} {READ} {${groupName}.tin}`);
-                    } else if (symbol === '<' || symbol === '-') {
-                        outputLines.push(`#CLASS {${groupName}} {KILL}`);
-                    } else if (symbol === '%') {
-                        outputLines.push(`#COMMENT TODO: Manual conversion for toggling group '${groupName}'. TinTin++ does not have a direct group toggle. You might need to use #CLASS {${groupName}} {KILL} or #CLASS {${groupName}} {OPEN} based on state variables.`);
-                    }
-                    continue;
-                }
-
                 if (trimmedLine.startsWith('#')) {
-                    // Updated regex to better handle various command structures, including those with symbols like '='
-                    const commandMatch = trimmedLine.match(/^#\s*([a-zA-Z<=>%+-][\w<=>%+-]*)\s*(.*)/);
-                    if (!commandMatch) {
-                         outputLines.push(trimmedLine); // Use raw line if no command match
-                         continue;
-                    }
-                    
-                    let command = commandMatch[1].toLowerCase();
-                    let args = commandMatch[2].trim();
-                    let parts;
-
-                    // Specific handling for symbol-only commands if they were captured by the broader regex
-                    // This is to ensure they are routed to the groupCmdMatch logic if they somehow slip through or if groupCmdMatch is removed.
-                    // However, with current groupCmdMatch, this might be redundant.
-                    if (command.length === 1 && ['=', '<', '%', '+', '-'].includes(command)) {
-                        const groupNameFromSymbolCmd = args.trim();
-                        if (command === '=' || command === '+') {
-                            outputLines.push(`#COMMENT TODO: To enable group '${groupNameFromSymbolCmd}', ensure its actions/aliases are loaded, e.g., #CLASS {${groupNameFromSymbolCmd}} {READ} {${groupNameFromSymbolCmd}.tin}`);
-                        } else if (command === '<' || command === '-') {
-                            outputLines.push(`#CLASS {${groupNameFromSymbolCmd}} {KILL}`);
-                        } else if (command === '%') {
-                            outputLines.push(`#COMMENT TODO: Manual conversion for toggling group '${groupNameFromSymbolCmd}'. ...`);
-                        }
-                        continue;
-                    }
-
-
-                    // Handle definitions with groups (now part of individual command regexes)
-                    // let groupName = null;
-                    // const labelMatch = args.match(/^([>])([\w_]+)\s+/);
-                    // if (labelMatch) {
-                    // groupName = labelMatch[2];
-                    // args = args.substring(labelMatch[0].length);
-                    // }
-
-                    switch (command) {
-                        // The cases for '=', '<', '%', etc. might be hit if groupCmdMatch is removed or modified.
-                        // The subtask says "Remove the groupCmdMatch block" and then "Inside the main commandMatch block, add new cases"
-                        // This seems contradictory if groupCmdMatch is the one identifying these symbols.
-                        // For now, I've updated groupCmdMatch as requested and will NOT add separate cases for '=', '<', etc. in the main switch,
-                        // as that would be redundant with the updated groupCmdMatch.
-                        // If the intention was to use the main command switch for these, groupCmdMatch should be removed entirely,
-                        // and the main regex `^#\s*(\w+)\s*(.*)` would need to change to `^#\s*([a-zA-Z<=>%+-][\w<=>%+-]*)\s*(.*)`
-                        // which I have done for `commandMatch`.
-
-                        case 'alias':
-                            const aliasMatch = trimmedLine.match(/^#\s*alias\s*(?:>(\w+)(?:@(\w+))?\s+)?([^=]+)=(.+)/i);
-                            if (aliasMatch) {
-                                const [, label, groupName, aliasNameStr, aliasCommandsStr] = aliasMatch;
-                                const aliasName = aliasNameStr.trim();
-                                const aliasCommands = aliasCommandsStr.trim();
-                                if (groupName) {
-                                    outputLines.push(`#CLASS {${groupName}} {OPEN}`);
-                                }
-                                let tintinCmd = `#ALIAS {${aliasName}} {${processPowwowCommands(aliasCommands)}}`;
-                                // Optional: Use label for priority, e.g. by adding another {priority_from_label} to tintinCmd
-                                // if (label) { tintinCmd = `#ALIAS {${aliasName}} {${processPowwowCommands(aliasCommands)}} {${label}}`; }
-                                outputLines.push(tintinCmd);
-                                if (groupName) {
-                                    outputLines.push(`#CLASS {${groupName}} {CLOSE}`);
-                                }
-                                if (aliasCommands.includes('POWWOW_DELAYED_SUBST_')) {
-                                    outputLines.push(`#COMMENT TODO: Powwow delayed substitution (e.g., \\$1) was used here (POWWOW_DELAYED_SUBST_X). TinTin++ does not have a direct equivalent. Consider setting a variable in a prior command within this alias if possible, or restructuring the logic. Example: #VARIABLE {temp_var} {%X}; some_command {@temp_var}`);
-                                }
-                            } else {
-                                outputLines.push(`#comment UNCONVERTED ALIAS: ${line}`);
-                            }
-                            break;
-                        
-                        case 'action':
-                            const actionMatch = trimmedLine.match(/^#\s*action\s*(?:>(\w+)(?:@(\w+))?\s+)?([^=]+)=(.+)?/i);
-                            if (actionMatch) {
-                                const [, label, groupName, actionPatternStr, actionCommandsStr] = actionMatch;
-                                const actionPattern = actionPatternStr.trim();
-                                const actionCommands = actionCommandsStr ? actionCommandsStr.trim() : "";
-
-                                if (groupName) {
-                                    outputLines.push(`#CLASS {${groupName}} {OPEN}`);
-                                }
-
-                                if (actionCommands === "") {
-                                    outputLines.push(`#GAG {${convertSyntax(actionPattern)}}`);
-                                } else {
-                                    outputLines.push(`#ACTION {${convertSyntax(actionPattern)}} {${processPowwowCommands(actionCommands)}}`);
-                                }
-                                // Optional: Use label for priority here as well
-
-                                if (groupName) {
-                                    outputLines.push(`#CLASS {${groupName}} {CLOSE}`);
-                                }
-                                if ((actionCommands && actionCommands.includes('POWWOW_DELAYED_SUBST_')) || actionPattern.includes('POWWOW_DELAYED_SUBST_')) {
-                                    outputLines.push(`#COMMENT TODO: Powwow delayed substitution (e.g., \\$1) was used here (POWWOW_DELAYED_SUBST_X). TinTin++ does not have a direct equivalent. Consider if the logic can be achieved by capturing to a variable first or restructuring. Example: #VARIABLE {temp_var} {%X}; some_command {@temp_var}`);
-                                }
-                            } else {
-                                outputLines.push(`#comment UNCONVERTED ACTION: ${line}`);
-                            }
-                            break;
-
-                        case 'var':
-                            parts = args.split(/=(.+)/);
-                            if (parts.length >= 2) {
-                                let varName = parts[0].trim();
-                                let varValue = parts[1] ? parts[1].trim() : "";
-
-                                if (varName.startsWith('@')) {
-                                    if (varName.match(/^@\d+$/)) { // @N
-                                        varName = `powwow_at[${varName.substring(1)}]`;
-                                    } else { // @varName
-                                        varName = varName.substring(1);
-                                    }
-                                } else if (varName.startsWith('$')) {
-                                     if (varName.match(/^\$\d+$/)) { // $N
-                                        varName = `powwow_dollar[${varName.substring(1)}]`;
-                                     } else { // $varName
-                                        varName = varName.substring(1);
-                                     }
-                                }
-                                // Group name handling for #var is not specified, assuming it's not typical
-                                outputLines.push(`#VARIABLE {${varName}} {${processPowwowCommands(varValue)}}`);
-                            } else {
-                                outputLines.push(`#comment UNCONVERTED VARIABLE: ${line}`);
-                            }
-                            break;
-                             
-                        case 'bind': // Retains old groupName logic, as per original structure unless specified otherwise
-                            parts = args.split(/=(.+)/);
-                            if (parts.length >= 2) {
-                                let groupName = null; // Placeholder if group needs to be parsed differently for #bind
-                                const bindArgs = commandMatch[2].trim(); // args for bind might need specific parsing for group
-                                // Example: const bindGroupMatch = bindArgs.match(/^>(\w+)\s+(.*)/);
-                                // if (bindGroupMatch) { groupName = bindGroupMatch[1]; args = bindGroupMatch[2]; }
-                                // parts = args.split(/=(.+)/); // re-split after extracting group
-
-                                let tintinCmd = `#KEY {${parts[0].trim()}} {${processPowwowCommands(parts[1])}}`;
-                                // if (groupName) tintinCmd += ` {${groupName}}`; // Add group if parsed
-                                outputLines.push(tintinCmd);
-                            } else { outputLines.push(`#comment UNCONVERTED BIND: ${line}`); }
-                            break;
-                            
-                        case 'mark': // Retains old groupName logic
-                             parts = args.split(/=(.+)/);
-                             if (parts.length >= 2) {
-                                let groupName = null; // Placeholder
-                                // Potentially parse group for #mark like #alias or #action if needed
-                                let tintinCmd = `#HIGHLIGHT {${convertSyntax(parts[0])}} {${processPowwowCommands(parts[1])}}`;
-                                // if (groupName) tintinCmd += ` {${groupName}}`;
-                                outputLines.push(tintinCmd);
-                             } else { outputLines.push(`#comment UNCONVERTED MARK: ${line}`); }
-                             break;
-                        case 'print':
-                            outputLines.push(`#SHOWME {${processPowwowCommands(args)}}`);
-                            break;
-                        case 'emulate': // Changed as per new requirement
-                            outputLines.push(`#SHOWME {${processPowwowCommands(args)}}`);
-                            break;
-                        case 'send': // New #send logic
-                            const sendFileMatch = args.match(/^<\s*(\S+)/);
-                            const sendShellMatch = args.match(/^!\s*(.+)/);
-                            if (sendFileMatch) {
-                                outputLines.push(`#TEXTIN {${sendFileMatch[1].trim()}}`);
-                            } else if (sendShellMatch) {
-                                outputLines.push(`#SYSTEM {${sendShellMatch[1].trim()}}`);
-                            } else {
-                                outputLines.push(processPowwowCommands(args));
-                            }
-                            break;
-                        case 'reset':
-                            let type = args.toLowerCase().trim();
-                            if (type === 'alias' || type === 'aliases') outputLines.push(`#KILL ALIASES {*}*`);
-                            else if (type === 'action' || type === 'actions') outputLines.push(`#KILL ACTIONS {*}*`);
-                            else if (type === 'variable' || type === 'var' || type === 'variables') outputLines.push(`#KILL VARIABLES {*}*`);
-                            else if (type === 'mark' || type === 'marks' || type === 'highlight' || type === 'highlights') outputLines.push(`#KILL HIGHLIGHTS {*}*`);
-                            else if (type === 'at' || type === 'in' || type === 'ticker' || type === 'tickers') outputLines.push(`#KILL TICKERS {*}*`);
-                            else if (type === 'bind' || type === 'binds' || type === 'key') outputLines.push(`#KILL MACROS {*}*`);
-                            else if (type === 'all') {
-                                outputLines.push(`#KILL ALIASES {*}*`, `#KILL ACTIONS {*}*`, `#KILL VARIABLES {*}*`, `#KILL HIGHLIGHTS {*}*`, `#KILL TICKERS {*}*`, `#KILL MACROS {*}*`, `#COMMENT --- RESET ALL ---`);
-                            } else { outputLines.push(`#comment UNCONVERTED RESET: ${line}`); }
-                            break;
-                        case 'in':
-                        case 'at':
-                            const tickerMatch = trimmedLine.match(/^#\s*(?:in|at)\s*(?:>(\w+)(?:@(\w+))?\s+)?(\w+)\s*\((.*?)\)\s*(.*)/i);
-                            // const tickerMatch = args.match(/(\w+)\s*\((.*?)\)\s*(.*)/); // Old
-                            if (tickerMatch) {
-                                const [,label, groupName, tickerLabel, delayStr, tickerCmdStr] = tickerMatch;
-                                const delayMs = parseInt(delayStr, 10);
-                                const delaySec = !isNaN(delayMs) ? (delayMs / 1000).toFixed(2) : "1.00"; // Default to 1s if not parsable
-                                const tickerCommands = processPowwowCommands(tickerCmdStr.trim());
-
-                                if (groupName) outputLines.push(`#CLASS {${groupName}} {OPEN}`);
-                                let tintinTicker = `#TICKER {${tickerLabel}} {${tickerCommands}} ${delaySec}`;
-                                outputLines.push(tintinTicker);
-                                if (groupName) outputLines.push(`#CLASS {${groupName}} {CLOSE}`);
-
-                                if (tickerCommands.includes('POWWOW_DELAYED_SUBST_')) {
-                                    outputLines.push(`#COMMENT TODO: Powwow delayed substitution (e.g., \\$1) was used here (POWWOW_DELAYED_SUBST_X). TinTin++ does not have a direct equivalent. For tickers, this is especially tricky. You might need to use a script that sets a global variable, and then the ticker action uses that global variable. Or, avoid delayed substitution in ticker commands if possible.`);
-                                }
-                            } else { outputLines.push(`#comment UNCONVERTED TICKER/AT/IN: ${line}`); }
-                            break;
-                        case 'if':
-                             const ifMatch = trimmedLine.match(/^#if\s*\((.*?)\)\s*(.*?)(?:\s*#else\s*(.*))?$/i);
-                             if (ifMatch) {
-                                 const [, condition, trueBlockStr, falseBlockStr] = ifMatch;
-                                 const trueBlock = trueBlockStr.trim();
-                                 const falseBlock = falseBlockStr ? falseBlockStr.trim() : null;
-
-                                 let tintinIf = `#IF {${convertSyntax(condition.trim())}} {${processPowwowCommands(trueBlock)}}`;
-                                 if (falseBlock) {
-                                     tintinIf += ` {#ELSE} {${processPowwowCommands(falseBlock)}}`;
-                                 }
-                                 outputLines.push(tintinIf, `#COMMENT INFO: Please manually verify the logic of the converted #IF statement.`);
-                             } else { outputLines.push(`#comment UNCONVERTED IF: ${line}`); }
-                             break;
-                        case 'while': // New case
-                            const whileMatch = trimmedLine.match(/^#\s*while\s*\((.*?)\)\s*(.*)/i);
-                            if (whileMatch) {
-                                const [, condition, command_block] = whileMatch;
-                                outputLines.push(`#WHILE {${convertSyntax(condition.trim())}} {${processPowwowCommands(command_block.trim())}}`);
-                            } else { outputLines.push(`#comment UNCONVERTED WHILE: ${line}`);}
-                            break;
-                        case 'for': // New case
-                            const forMatch = trimmedLine.match(/^#\s*for\s*\(([^;]*);([^;]*);([^)]*)\)\s*(.*)/i);
-                            if (forMatch) {
-                                const [, initExpr, checkExpr, loopExpr, command_block] = forMatch;
-                                if (initExpr.trim()) {
-                                   outputLines.push(`// Powwow #for init: ${initExpr.trim()}`);
-                                   outputLines.push(processPowwowCommands(initExpr.trim()) + ";");
-                                }
-                                outputLines.push(`#WHILE {${convertSyntax(checkExpr.trim())}} {`);
-                                outputLines.push(`  ${processPowwowCommands(command_block.trim())};`);
-                                if (loopExpr.trim()) {
-                                    outputLines.push(`  // Powwow #for loop: ${loopExpr.trim()}`);
-                                    outputLines.push(`  ${processPowwowCommands(loopExpr.trim())};`);
-                                }
-                                outputLines.push("}", `#COMMENT TODO: Manually verify this #for loop conversion.`);
-                            } else { outputLines.push(`#comment UNCONVERTED FOR: ${line}`);}
-                            break;
-                        
-                        case 'prompt':
-                            // Basic conversion attempt, similar to an action
-                            parts = args.split(/=(.+)/);
-                            if (parts.length >= 2) {
-                                // Group name handling would need to be generalized or added here if applicable
-                                // For now, omitting groupName specific logic for #PROMPT
-                                let tintinCmd = `#PROMPT {${convertSyntax(parts[0])}} {${processPowwowCommands(parts[1])}}`;
-                                outputLines.push(tintinCmd);
-                            } else {
-                                // Powwow #prompt might not always have an = part, e.g. just #prompt {pattern} for #isprompt
-                                // So, we might just convert the pattern part if no "=" is found.
-                                if (args.trim()) {
-                                   outputLines.push(`#PROMPT {${convertSyntax(args.trim())}} {}`); // Empty command for TT++
-                                } else {
-                                   outputLines.push(`#comment UNCONVERTED PROMPT: ${line}`);
-                                }
-                            }
-                            outputLines.push(`#COMMENT INFO: Powwow '#prompt' (for MUD prompt recognition via #isprompt) is fundamentally different from TinTin++ '#prompt' (for displaying text on a status line).`);
-                            outputLines.push(`#COMMENT INFO: The original Powwow #prompt command (likely containing '#isprompt') needs manual translation to TinTin++ logic.`);
-                            outputLines.push(`#COMMENT INFO: You may need separate TinTin++ #actions to capture prompt data into variables, then use those variables in a TinTin++ #prompt command for status bar display, or use #config {INPUT PREFIX} for simple prompt markers.`);
-                            break;
-
-                        default:
-                            outputLines.push(`#comment UNSUPPORTED: ${line}`);
-                            break;
-                    }
+                    outputLines.push(convertSinglePowwowCommand(trimmedLine));
                 } else {
+                    // Direct MUD input, only apply syntax changes (e.g. variable substitution if any)
                     outputLines.push(convertSyntax(trimmedLine));
                 }
             }
-
             tintinOutput.value = outputLines.join('\n');
         }
 
