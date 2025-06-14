@@ -108,21 +108,21 @@
                     <tbody id="conversion-reference-tbody">
                         <tr class="bg-gray-800 border-b border-gray-700">
                             <th scope="row" class="px-6 py-4 font-medium text-white whitespace-nowrap">Alias</th>
-                            <td class="px-6 py-4 font-mono">#alias name=cmd<br>#alias >lbl@grp name=cmd</td>
-                            <td class="px-6 py-4 font-mono">#ALIAS {name} {cmd}</td>
-                            <td class="px-6 py-4">\$N->POWWOW_DELAYED_SUBST_N, $N->%N. Group via #CLASS {grp} {OPEN/CLOSE}. Label >lbl ignored by default.</td>
+                            <td class="px-6 py-4 font-mono">#alias name={cmds}</td>
+                            <td class="px-6 py-4 font-mono">#ALIAS {name} {{cmds}}</td>
+                            <td class="px-6 py-4">Powwow <code>$N</code> -&gt; TinTin++ <code>%N</code>. Powwow <code>$var</code> -&gt; TinTin++ <code>$var</code>. Group via <code>#CLASS</code>. Powwow commands in <code>{}</code> are processed; ensure TinTin++ commands within the outer <code>{}</code> are semicolon-separated if multiple.</td>
                         </tr>
                         <tr class="bg-gray-800 border-b border-gray-700">
                             <th scope="row" class="px-6 py-4 font-medium text-white whitespace-nowrap">Action</th>
-                            <td class="px-6 py-4 font-mono">#action {pat}=cmd<br>#action >lbl@grp {pat}=cmd</td>
-                            <td class="px-6 py-4 font-mono">#ACTION {pat} {cmd}<br>#GAG {pat} (if no cmd)</td>
-                            <td class="px-6 py-4">\$N,&N->%N. Group via #CLASS {grp} {OPEN/CLOSE}. Label >lbl ignored by default.</td>
+                            <td class="px-6 py-4 font-mono">#action {pattern}={cmds}</td>
+                            <td class="px-6 py-4 font-mono">#ACTION {pattern} {{cmds}}</td>
+                            <td class="px-6 py-4">Powwow <code>$N, &N</code> -&gt; TinTin++ <code>%N</code>. Group via <code>#CLASS</code>. If no <code>cmds</code>, becomes <code>#GAG {pattern}</code>. Ensure TinTin++ commands within outer <code>{}</code> are semicolon-separated.</td>
                         </tr>
                         <tr class="bg-gray-800 border-b border-gray-700">
                             <th scope="row" class="px-6 py-4 font-medium text-white whitespace-nowrap">Variable</th>
-                            <td class="px-6 py-4 font-mono">#var name=value<br>#var @name=value<br>#var @N=value</td>
-                            <td class="px-6 py-4 font-mono">#VARIABLE {name} {value}</td>
-                            <td class="px-6 py-4">Powwow @N -> $powwow_at[N]. @var -> $var. $N (param) -> powwow_dollar[N].</td>
+                            <td class="px-6 py-4 font-mono">#var name=value<br>#var @name=value<br>#var $N=value<br>#var @N=value<br>($varName) in expressions</td>
+                            <td class="px-6 py-4 font-mono">#VARIABLE {name} {value} (or #VAR)<br>$varName in expressions</td>
+                            <td class="px-6 py-4">Powwow <code>$N</code> (param) -&gt; TinTin++ <code>%N</code>. Powwow <code>@N</code> (numeric param) -&gt; TinTin++ <code>$powwow_at_N</code> (or similar). Powwow <code>$varName</code> (string var) -&gt; TinTin++ <code>$varName</code>. Powwow <code>@varName</code> (numeric var) -&gt; TinTin++ <code>$varName</code> (type is implicit). Powwow <code>($foo)</code> in an expression context (e.g. <code>#var x=($foo)</code>) often means the value of variable <code>foo</code>, translating to simply <code>$foo</code> in TinTin++.</td>
                         </tr>
                         <tr class="bg-gray-800 border-b border-gray-700">
                             <th scope="row" class="px-6 py-4 font-medium text-white whitespace-nowrap">Group Enable</th>
@@ -132,7 +132,7 @@
                         </tr>
                         <tr class="bg-gray-800 border-b border-gray-700">
                             <th scope="row" class="px-6 py-4 font-medium text-white whitespace-nowrap">Group Disable</th>
-                            <td class="px-6 py-4 font-mono">#<group / #-group</td>
+                            <td class="px-6 py-4 font-mono">#&lt;group / #-group</td>
                             <td class="px-6 py-4 font-mono">#CLASS {group} {KILL}</td>
                             <td class="px-6 py-4">Disables all definitions in TinTin++ class.</td>
                         </tr>
@@ -143,10 +143,10 @@
                             <td class="px-6 py-4">No direct TinTin++ equivalent.</td>
                         </tr>
                          <tr class="bg-gray-800 border-b border-gray-700">
-                            <th scope="row" class="px-6 py-4 font-medium text-white whitespace-nowrap">#if</th>
-                            <td class="px-6 py-4 font-mono">#if (condition) true_cmds; #else false_cmds</td>
-                            <td class="px-6 py-4 font-mono">#IF {condition} {true_cmds} {#ELSE} {false_cmds}</td>
-                            <td class="px-6 py-4">Braces around commands are processed.</td>
+                            <th scope="row" class="px-6 py-4 font-medium text-white whitespace-nowrap">#if / #else</th>
+                            <td class="px-6 py-4 font-mono">#if (condition) {true_cmds}; #else {false_cmds}</td>
+                            <td class="px-6 py-4 font-mono">#IF {condition} {{true_cmds}} {#ELSE} {{false_cmds}}</td>
+                            <td class="px-6 py-4">Ensure <code>true_cmds</code> and <code>false_cmds</code> are properly converted (semicolon-separated for TinTin++ if multiple commands within their respective blocks). The <code>{#ELSE}</code> part is crucial for TinTin++. Example: Powwow: <code>#alias ex={#if ("$0"=="") {cmdA; cmdB}; #else {cmdC}}</code> -&gt; TinTin++: <code>#ALIAS {ex} {{#IF {"%0"==""} {{cmdA; cmdB}} {#ELSE} {{cmdC}}}}</code></td>
                         </tr>
                         <tr class="bg-gray-800 border-b border-gray-700">
                             <th scope="row" class="px-6 py-4 font-medium text-white whitespace-nowrap">#while</th>
@@ -159,6 +159,18 @@
                             <td class="px-6 py-4 font-mono">#for (init; check; loop) commands</td>
                             <td class="px-6 py-4 font-mono">init_cmds;<br>#WHILE {check} {commands;<br>loop_cmds}</td>
                             <td class="px-6 py-4">Manual verification recommended.</td>
+                        </tr>
+                        <tr class="bg-gray-800 border-b border-gray-700">
+                            <th scope="row" class="px-6 py-4 font-medium text-white whitespace-nowrap">Nested Commands</th>
+                            <td class="px-6 py-4 font-mono">cmd1={sub_cmd1; sub_cmd2}</td>
+                            <td class="px-6 py-4 font-mono">cmd1 {{sub_cmd1};{sub_cmd2}}</td>
+                            <td class="px-6 py-4">Powwow command blocks <code>{}</code> are often translated to TinTin++ braced blocks <code>{{}}</code> for commands, with internal TinTin++ commands semicolon-separated.</td>
+                        </tr>
+                        <tr class="bg-gray-800 border-b border-gray-700">
+                            <th scope="row" class="px-6 py-4 font-medium text-white whitespace-nowrap">Variable assignment in #if/#else</th>
+                            <td class="px-6 py-4 font-mono">#if (cond) {#var x=1}; #else {#var x=2}</td>
+                            <td class="px-6 py-4 font-mono">#IF {cond} {{#VAR {x} {1}}} {#ELSE} {{#VAR {x} {2}}}</td>
+                            <td class="px-6 py-4">Directly translate <code>#var</code> to <code>#VAR</code> or <code>#VARIABLE</code> within the respective true/false blocks.</td>
                         </tr>
                          <tr class="bg-gray-800 border-b border-gray-700">
                             <th scope="row" class="px-6 py-4 font-medium text-white whitespace-nowrap">#emulate</th>
@@ -174,7 +186,7 @@
                         </tr>
                         <tr class="bg-gray-800 border-b border-gray-700">
                             <th scope="row" class="px-6 py-4 font-medium text-white whitespace-nowrap">Send File</th>
-                            <td class="px-6 py-4 font-mono">#send < file.ext</td>
+                            <td class="px-6 py-4 font-mono">#send &lt; file.ext</td>
                             <td class="px-6 py-4 font-mono">#TEXTIN {file.ext}</td>
                             <td class="px-6 py-4">Sends file content to MUD.</td>
                         </tr>
@@ -210,8 +222,37 @@
         const copyTooltip = document.getElementById('copy-tooltip');
 
         // Focus: parameter/variable substitution and escape sequence handling.
-        function convertSyntax(str) {
-            // Phase 1: Replace Powwow escapes with placeholders
+        function convertSyntax(str, isCmdValue = false, isInsideExpression = false) {
+            // Phase 0: Handle Powwow expressions like ("string" + $var) or ($var)
+            if (str.startsWith('(') && str.endsWith(')')) {
+                let inner = str.substring(1, str.length - 1).trim();
+                // Attempt to resolve concatenation: "text" + $var + "more" -> "text$varMore"
+                // This regex is greedy and might need refinement for multiple +
+                let simplifiedInner = inner.replace(/"\s*\+\s*/g, '').replace(/\s*\+\s*"/g, '');
+                simplifiedInner = simplifiedInner.replace(/\$/g, '__TEMP_DOLLAR__'); // temp avoid $ in regex
+
+                // Convert Powwow vars/params within this simplified string
+                simplifiedInner = simplifiedInner.replace(/__TEMP_DOLLAR__(\d+)/g, '%$1');
+                simplifiedInner = simplifiedInner.replace(/__TEMP_DOLLAR__([a-zA-Z_]\w*)/g, '$$$1');
+                simplifiedInner = simplifiedInner.replace(/@([a-zA-Z_]\w*)/g, '$$$1'); // @var -> $var
+                simplifiedInner = simplifiedInner.replace(/@(\d+)/g, '$powwow_at_$1');
+
+
+                if (isCmdValue) { // For #VAR {name} {value}, value should be braced
+                    return `{${simplifiedInner}}`;
+                }
+                // If it's part of a #print or #send, it might need to be quoted if it's not just a variable
+                if (simplifiedInner.includes('"') || simplifiedInner.includes(' ')) {
+                     // If already quoted by manual construction, don't double quote
+                    if (simplifiedInner.startsWith('"') && simplifiedInner.endsWith('"')) {
+                        return simplifiedInner;
+                    }
+                    return `"${simplifiedInner}"`;
+                }
+                return simplifiedInner; // e.g. $var or %0
+            }
+
+            // Phase 1: Replace Powwow escapes with placeholders (only if not inside an expression that was handled above)
             str = str.replace(/\\\\/g, '__POWWOW_ESCAPED_BACKSLASH__');
             str = str.replace(/\\;/g, '__POWWOW_ESCAPED_SEMICOLON__');
             str = str.replace(/\\\{/g, '__POWWOW_ESCAPED_OPEN_BRACE__');
@@ -221,30 +262,36 @@
             // Phase 1.5: Variable and parameter substitutions (ORDER MATTERS)
             // 1. Delayed parameter substitution (e.g., \$1)
             str = str.replace(/(?<!__POWWOW_ESCAPED_BACKSLASH__)\\\$(\d+)/g, 'POWWOW_DELAYED_SUBST_$1');
-            // 2. New: Delayed variable substitution (e.g., \$varname)
+            // 2. Delayed variable substitution (e.g., \$varname)
             str = str.replace(/(?<!__POWWOW_ESCAPED_BACKSLASH__)\\$([a-zA-Z_]\w*)/g, 'POWWOW_DELAYED_VAR_SUBST_$1');
 
-            // 3. New: Specific Powwow functions to placeholders
-            // Using \b for word boundary to avoid matching parts of longer words.
+            // 3. Specific Powwow functions to placeholders
             str = str.replace(/\b(attr|noattr|isprompt)\s*\((.*?)\)/g, 'POWWOW_FUNCTION_NEEDS_MANUAL_CONVERSION');
 
-            // 4. New: Simple Powwow variable dereferences (BEFORE general #() expression)
-            // Using \\$ for literal $ in JS replacement string for TinTin++ $variable
-            str = str.replace(/#\(\$([a-zA-Z_]\w*)\)/g, '@$1');      // #($foo) -> @foo (TinTin++ variable, assuming $foo was like a global)
-            str = str.replace(/@\(\$([a-zA-Z_]\w*)\)/g, '@$1');      // @($foo) -> @foo
-            str = str.replace(/#\(@([a-zA-Z_]\w*)\)/g, '\\$$$1');    // #(@bar) -> $bar (TinTin++ local/param variable)
-            str = str.replace(/@\(@([a-zA-Z_]\w*)\)/g, '\\$$$1');    // @(@bar) -> $bar
+            // 4. Simple Powwow variable dereferences like #($foo) -> $foo, #(@bar) -> $bar (TinTin++ uses $ for both)
+            // These were attempts to mimic Powwow's specific behavior, but TinTin++ uses $foo for most vars.
+            // The ($var) handling above is more targeted for expressions.
+            // str = str.replace(/#\(\$([a-zA-Z_]\w*)\)/g, '$$$1'); // #($foo) -> $foo
+            // str = str.replace(/@\(\$([a-zA-Z_]\w*)\)/g, '$$$1'); // @($foo) -> $foo
+            // str = str.replace(/#\(@([a-zA-Z_]\w*)\)/g, '$$$1'); // #(@bar) -> $bar
+            // str = str.replace(/@\(@([a-zA-Z_]\w*)\)/g, '$$$1'); // @(@bar) -> $bar
 
-            // 5. New: General Powwow expressions #(...) to placeholder
+            // 5. General Powwow expressions #(...) to placeholder if not caught by specific rules
             str = str.replace(/#\((.*?)\)/g, 'POWWOW_EXPRESSION_NEEDS_MANUAL_CONVERSION');
 
-            // 6. Standard parameters & variables (existing)
-            str = str.replace(/([$&])(\d+)/g, '%$2'); // $N or &N -> %N
-            str = str.replace(/@(\d+)/g, '\\$powwow_at[$1]'); // @N -> $powwow_at[N] (assuming @N are special Powwow variables)
-            str = str.replace(/@([a-zA-Z_]\w*)/g, '\\$$$1'); // @varName -> $varName (TinTin++ variable)
-            // $varName -> $varName (TinTin++ variable) - ensure it doesn't mess up $powwow_at[N]
-            // Also ensure it doesn't conflict with POWWOW_DELAYED_VAR_SUBST_ if that contained $
-            str = str.replace(/(?<!POWWOW_DELAYED_VAR_SUBST_)(?<!POWWOW_DELAYED_SUBST_)(?<!__POWWOW_ESCAPED_BACKSLASH__)\$([a-zA-Z_]\w*)/g, '\\$$$1');
+            // 6. Standard parameters & variables
+            str = str.replace(/\$(\d+)/g, '%$1'); // $N -> %N (IMPORTANT: after delayed sub)
+            str = str.replace(/&(\d+)/g, '%$1');  // &N -> %N
+            str = str.replace(/@(\d+)/g, '$powwow_at_$1'); // @N -> $powwow_at_N (special variable for these)
+
+            // Convert @varName to $varName (TinTin++ uses $ for user variables)
+            str = str.replace(/@([a-zA-Z_]\w*)/g, '$$$1');
+
+            // Convert $varname to $varname (ensure it's not already $powwow_at_N or a delayed var placeholder)
+            // This regex needs to be careful not to double-convert or mess up existing $ signs.
+            // It specifically targets $ followed by a letter/underscore and word characters,
+            // avoiding things like $powwow_at_ or POWWOW_DELAYED_VAR_SUBST_
+            str = str.replace(/(?<!POWWOW_DELAYED_VAR_SUBST_)(?<![a-zA-Z0-9_])\$([a-zA-Z_]\w*)/g, '$$$1');
 
 
             // Phase 2: Revert initial escape placeholders
@@ -252,42 +299,62 @@
             str = str.replace(/__POWWOW_ESCAPED_OPEN_BRACE__/g, '{');
             str = str.replace(/__POWWOW_ESCAPED_CLOSE_BRACE__/g, '}');
             str = str.replace(/__POWWOW_ESCAPED_HASH__/g, '#');
-            str = str.replace(/__POWWOW_ESCAPED_BACKSLASH__/g, '\\\\');
+            str = str.replace(/__POWWOW_ESCAPED_BACKSLASH__/g, '\\\\'); // Ensure this is last
             return str;
         }
 
-        // Processes a command string that might contain multiple commands separated by semicolons,
-        // or a single command, or a block of commands in {}.
+
+        // Enhanced processPowwowCommands to better handle nested structures and semicolons
         function processPowwowCommands(powwowCommandString) {
             let commandsStr = powwowCommandString.trim();
             if (commandsStr.startsWith('{') && commandsStr.endsWith('}')) {
                 commandsStr = commandsStr.substring(1, commandsStr.length - 1).trim();
             }
-
             if (commandsStr === '') return '';
 
-            // If no semicolons and not a block, it might be a single command or literal
-            if (!commandsStr.includes(';')) {
-                if (commandsStr.startsWith('#')) {
-                    return convertSinglePowwowCommand(commandsStr);
-                } else {
-                    return convertSyntax(commandsStr); // Literal string or MUD command
+            const commands = [];
+            let currentCommand = '';
+            let braceLevel = 0;
+            let inQuotes = false;
+
+            for (let i = 0; i < commandsStr.length; i++) {
+                const char = commandsStr[i];
+                currentCommand += char;
+
+                if (char === '"' && (i === 0 || commandsStr[i-1] !== '\\')) {
+                    inQuotes = !inQuotes;
+                } else if (char === '{' && !inQuotes) {
+                    braceLevel++;
+                } else if (char === '}' && !inQuotes) {
+                    braceLevel--;
+                } else if (char === ';' && braceLevel === 0 && !inQuotes) {
+                    const trimmedCmd = currentCommand.substring(0, currentCommand.length - 1).trim();
+                    if (trimmedCmd) commands.push(trimmedCmd);
+                    currentCommand = '';
                 }
             }
+            if (currentCommand.trim()) {
+                commands.push(currentCommand.trim());
+            }
 
-            // Multiple commands
-            const individualCommands = commandsStr.split(';');
-            const processedCommands = individualCommands.map(cmd => {
+            const processedCommands = commands.map(cmd => {
                 const trimmedCmd = cmd.trim();
                 if (trimmedCmd.startsWith('#')) {
                     return convertSinglePowwowCommand(trimmedCmd);
                 } else if (trimmedCmd !== '') {
+                    // For literal strings or MUD commands, ensure they are braced if they become part of a larger TinTin++ command body
+                    // e.g. #ALIAS {foo} { {this is a literal command}; {#ANOTHERTINTINCOMMAND}}
+                    // However, simple sends might not need extra braces. This needs context.
+                    // For now, just convert syntax. If it's a direct send, it might be fine.
+                    // If it's part of a block, the calling function (e.g. #if) should add braces.
                     return convertSyntax(trimmedCmd);
                 }
-                return ''; // Handle empty parts from multiple semicolons e.g. cmd1;;cmd2
-            }).filter(cmd => cmd !== ''); // Remove empty results
+                return '';
+            }).filter(cmd => cmd !== '');
+
             return processedCommands.join('; ');
         }
+
 
         // New function to handle a single Powwow command line
         function convertSinglePowwowCommand(fullCommandString) {
