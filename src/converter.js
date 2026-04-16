@@ -117,19 +117,20 @@ export class TinTinConverter {
 
     convertVarName(name) {
         const prefix = this.mode === 'jmc' ? 'j_' : 'p_';
+        const arrayPrefix = this.mode === 'jmc' ? 'jmc' : 'powwow';
 
         if (name.startsWith('@')) {
             const numMatch = name.match(/^@(-?\d+)$/);
             if (numMatch) {
                 const n = numMatch[1];
-                return n.startsWith('-') ? `${prefix}at_m${n.substring(1)}` : `powwow_at[${n}]`;
+                return n.startsWith('-') ? `${prefix}at_m${n.substring(1)}` : `${arrayPrefix}_at[${n}]`;
             }
             return prefix + 'at_' + name.substring(1);
         } else if (name.startsWith('$')) {
             const numMatch = name.match(/^\$(-?\d+)$/);
             if (numMatch) {
                 const n = numMatch[1];
-                return n.startsWith('-') ? `${prefix}dollar_m${n.substring(1)}` : `powwow_dollar[${n}]`;
+                return n.startsWith('-') ? `${prefix}dollar_m${n.substring(1)}` : `${arrayPrefix}_dollar[${n}]`;
             }
             return prefix + name.substring(1);
         }
@@ -165,9 +166,6 @@ export class TinTinConverter {
 
             // Variables: $var -> $j_var
             str = str.replace(/(?<![\\%])\$([a-zA-Z_]\w*)/g, (match, name) => `\$${this.convertVarName(name)}`);
-
-            // Double percent handling in JMC (often used in nested actions)
-            str = str.replace(/%%(\d+)/g, '%%$1');
         }
 
         return str;
@@ -229,6 +227,10 @@ export class TinTinConverter {
         }
 
         return processed.join('; ');
+    }
+
+    cleanJMCArgs(args) {
+        return args.trim().replace(/^{|}$/g, '').trim();
     }
 
     convertSingleCommand(line) {
@@ -348,11 +350,11 @@ export class TinTinConverter {
                 case 'substitute':
                     return this.convertSubstituteJMC(args);
                 case 'unalias':
-                    return `#UNALIAS {${this.convertSyntax(args)}}`;
+                    return `#UNALIAS {${this.convertSyntax(this.cleanJMCArgs(args))}}`;
                 case 'unaction':
-                    return `#UNACT {${this.convertSyntax(args)}}`;
+                    return `#UNACT {${this.convertSyntax(this.cleanJMCArgs(args))}}`;
                 case 'unvar':
-                    return `#UNVAR {${this.convertVarName(args.trim())}}`;
+                    return `#UNVAR {${this.convertVarName(this.cleanJMCArgs(args))}}`;
                 case 'showme':
                     return `#SHOWME {${this.convertSyntax(args)}}`;
                 case 'echo':
@@ -386,13 +388,13 @@ export class TinTinConverter {
                 case 'tickoff':
                     return `#comment JMC TICK COMMAND: ${line}`;
                 case 'drop':
-                    return `#line gag`;
+                    return args ? `#comment UNCONVERTED DROP: #drop ${args}` : `#line gag`;
                 case 'cr':
                     return `#send {\n}`;
                 case 'bell':
                     return `#bell`;
                 case 'ignore':
-                    return `#ignore`;
+                    return args ? `#IGNORE {${this.convertSyntax(this.cleanJMCArgs(args))}}` : `#ignore`;
                 default:
                     return `#${command} {${this.convertSyntax(args)}}`;
             }
@@ -583,6 +585,13 @@ export class TinTinConverter {
             const val = match[2].trim().replace(/^{|}$/g, '');
             return `#VARIABLE {${name}} {${this.processCommands(val)}}`;
         }
+        // Handle #var $1 22 or #var $1=22
+        const parts = args.split(/[\s=](.*)/s);
+        if (parts.length >= 2) {
+            const name = this.convertVarName(parts[0].trim());
+            const val = parts[1].trim();
+            return `#VARIABLE {${name}} {${this.processCommands(val)}}`;
+        }
         return `#VARIABLE {${this.convertVarName(args.trim())}}`;
     }
 
@@ -690,12 +699,11 @@ export class TinTinConverter {
                 const trimmed = buffer.trim();
                 if (trimmed === '') {
                     outputLines.push('');
-                } else if (trimmed.startsWith('//') || (this.mode === 'jmc' && trimmed.startsWith('//'))) {
-                    outputLines.push(`#comment ${trimmed.substring(2).trim()}`);
+                } else if (trimmed.startsWith('//') || (this.mode === 'jmc' && trimmed.startsWith('##'))) {
+                    const commentText = trimmed.substring(2);
+                    outputLines.push(`#comment ${commentText.trim()}`);
                 } else if (trimmed.startsWith('/*')) {
                     outputLines.push(`#comment ${trimmed.replace(/\/\*|\*\//g, '').trim()}`);
-                } else if (trimmed.startsWith('##') && this.mode === 'jmc') {
-                    outputLines.push(`#comment ${trimmed.substring(2).trim()}`);
                 } else if (trimmed.startsWith('#')) {
                     outputLines.push(this.convertSingleCommand(trimmed));
                 } else {

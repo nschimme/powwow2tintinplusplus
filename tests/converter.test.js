@@ -45,16 +45,30 @@ describe('TinTinConverter - JMC Mode', () => {
     expect(output).toContain('#ALIAS {k} {kill %1}');
   });
 
-  it('converts JMC action', () => {
-    const input = '#action {^%0 arrived from the %1} {kill %0} {0}';
+  it('applies JMC variable substitution semantics', () => {
+    const input = '#alias {test} {say $foo %1 \\$1 #{1+2}}';
     const output = converter.convert(input);
-    expect(output).toContain('#ACTION {^%0 arrived from the %1} {kill %0} {0}');
+
+    // $foo -> $j_foo in JMC mode
+    expect(output).toContain('$j_foo');
+    // %1 is left unchanged
+    expect(output).toContain('%1');
+    // Powwow-only escaping (\$1 -> %%1) is NOT applied in JMC mode
+    expect(output).toContain('\\$1');
+    // Powwow-only math evaluation (#{...}) is NOT applied in JMC mode
+    expect(output).toContain('#{1+2}');
   });
 
   it('converts JMC variables', () => {
     const input = '#var {gold} {100}';
     const output = converter.convert(input);
     expect(output).toContain('#VARIABLE {j_gold} {100}');
+  });
+
+  it('converts JMC numbered variables', () => {
+    const input = '#var $7=22';
+    const output = converter.convert(input);
+    expect(output).toContain('#VARIABLE {jmc_dollar[7]} {22}');
   });
 
   it('converts JMC variable substitution', () => {
@@ -79,6 +93,10 @@ describe('TinTinConverter - JMC Mode', () => {
     const input = '#group enable combat';
     const output = converter.convert(input);
     expect(output).toContain('#CLASS {combat} {OPEN}');
+
+    const inputDisable = '#group disable combat';
+    const outputDisable = converter.convert(inputDisable);
+    expect(outputDisable).toContain('#CLASS {combat} {KILL}');
   });
 
   it('converts JMC gag', () => {
@@ -87,9 +105,63 @@ describe('TinTinConverter - JMC Mode', () => {
     expect(output).toContain('#GAG {^%0 arrived}');
   });
 
-  it('converts JMC highlight', () => {
+  it('converts JMC substitute', () => {
+    const input = '#sub {foo} {bar}';
+    const output = converter.convert(input);
+    expect(output).toContain('#SUBSTITUTE {foo} {bar}');
+  });
+
+  it('converts JMC highlights', () => {
     const input = '#highlight {red} {trolls}';
     const output = converter.convert(input);
     expect(output).toContain('#HIGHLIGHT {trolls} {red}');
+  });
+
+  it('converts JMC comments', () => {
+    const input = [
+      '## this is a JMC comment with hash',
+      '// this is a JMC comment with slashes',
+    ].join('\n');
+
+    const output = converter.convert(input);
+
+    expect(output).toContain('#comment this is a JMC comment with hash');
+    expect(output).toContain('#comment this is a JMC comment with slashes');
+  });
+
+  it('converts JMC hotkeys', () => {
+    const input = '#hotkey {F1} {say hotkey pressed}';
+    const output = converter.convert(input);
+    expect(output).toContain('#MACRO {F1} {say hotkey pressed}');
+  });
+
+  it('converts basic JMC commands', () => {
+    const input = [
+      '#drop',
+      '#cr',
+      '#bell',
+      '#ignore',
+    ].join('\n');
+
+    const output = converter.convert(input);
+
+    expect(output).toContain('#line gag');
+    expect(output).toContain('#send {\n}');
+    expect(output).toContain('#bell');
+    expect(output).toContain('#ignore');
+  });
+
+  it('converts #unalias / #unaction / #unvar in JMC mode', () => {
+    const input = [
+      '#unalias {k}',
+      '#unaction {gag_line}',
+      '#unvar {count}',
+    ].join('\n');
+
+    const output = converter.convert(input);
+
+    expect(output).toContain('#UNALIAS {k}');
+    expect(output).toContain('#UNACT {gag_line}');
+    expect(output).toContain('#UNVAR {j_count}');
   });
 });

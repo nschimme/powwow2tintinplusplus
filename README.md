@@ -16,7 +16,7 @@ A robust tool to migrate MUD scripts from legacy clients (Powwow/PowTTY, JMC) to
 
 ### Web Interface
 
-1. Open the [converter](https://nschimme.github.io/powwow2tintinplusplus/) in your browser.
+1. Open the [converter](https://nschimme.github.io/tintin-script-converter/) in your browser.
 2. Select your source client (Powwow, PowTTY, or JMC).
 3. Paste your script into the input area.
 4. Use the **Example** buttons to see how different script patterns are handled.
