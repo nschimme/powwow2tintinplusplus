@@ -1,7 +1,7 @@
 {
-  "name": "powwow2tintinplusplus",
-  "version": "1.1.0",
-  "description": "Powwow to TinTin++ Script Converter",
+  "name": "tintin-script-converter",
+  "version": "1.2.0",
+  "description": "TinTin++ Script Converter (Powwow, JMC)",
   "type": "module",
   "scripts": {
     "dev": "vite",

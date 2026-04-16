@@ -1,21 +1,21 @@
 /**
- * Robust Converter core logic
+ * Robust Converter core logic for migrating to TinTin++
  */
 
-export class PowwowConverter {
+export class TinTinConverter {
     constructor(options = {}) {
         this.separator = options.separator || ';';
-        this.isPowtty = options.isPowtty || false;
+        this.mode = options.mode || 'powwow'; // 'powwow' or 'jmc'
     }
 
     setSeparator(sep) {
         this.separator = sep;
     }
 
-    setPowtty(isPowtty) {
-        this.isPowtty = isPowtty;
-        if (isPowtty && this.separator === ';') {
-            this.separator = '|';
+    setMode(mode) {
+        this.mode = mode;
+        if (this.mode === 'jmc') {
+            this.separator = ';';
         }
     }
 
@@ -76,13 +76,15 @@ export class PowwowConverter {
     }
 
     /**
-     * Converts Powwow syntax to TinTin++ syntax.
+     * Converts Source syntax to TinTin++ syntax.
      */
     convertSyntax(str) {
-        if (str.startsWith('(') && str.endsWith(')')) {
-            let inner = str.substring(1, str.length - 1).trim();
-            let result = this.processInlineFunctions(inner);
-            return this.convertSubstitutions(result);
+        if (this.mode === 'powwow') {
+            if (str.startsWith('(') && str.endsWith(')')) {
+                let inner = str.substring(1, str.length - 1).trim();
+                let result = this.processInlineFunctions(inner);
+                return this.convertSubstitutions(result);
+            }
         }
 
         return this.convertSubstitutions(str);
@@ -114,46 +116,59 @@ export class PowwowConverter {
     }
 
     convertVarName(name) {
+        const prefix = this.mode === 'jmc' ? 'j_' : 'p_';
+
         if (name.startsWith('@')) {
             const numMatch = name.match(/^@(-?\d+)$/);
             if (numMatch) {
                 const n = numMatch[1];
-                return n.startsWith('-') ? `p_at_m${n.substring(1)}` : `powwow_at[${n}]`;
+                return n.startsWith('-') ? `${prefix}at_m${n.substring(1)}` : `powwow_at[${n}]`;
             }
-            return 'p_at_' + name.substring(1);
+            return prefix + 'at_' + name.substring(1);
         } else if (name.startsWith('$')) {
             const numMatch = name.match(/^\$(-?\d+)$/);
             if (numMatch) {
                 const n = numMatch[1];
-                return n.startsWith('-') ? `p_dollar_m${n.substring(1)}` : `powwow_dollar[${n}]`;
+                return n.startsWith('-') ? `${prefix}dollar_m${n.substring(1)}` : `powwow_dollar[${n}]`;
             }
-            return 'p_' + name.substring(1);
+            return prefix + name.substring(1);
         }
-        return 'p_' + name;
+        return prefix + name;
     }
 
     convertSubstitutions(str) {
-        // 1. Delayed parameter substitution: \$1 -> %%1
-        str = str.replace(/\\\$(\d+)/g, '%%$1');
-        str = str.replace(/\\&(\d+)/g, '%%$1');
+        if (this.mode === 'powwow') {
+            // 1. Delayed parameter substitution: \$1 -> %%1
+            str = str.replace(/\\\$(\d+)/g, '%%$1');
+            str = str.replace(/\\&(\d+)/g, '%%$1');
 
-        // 2. Named parameters/variables in ${var} or #{expr}
-        str = str.replace(/\${([a-zA-Z0-9_-]+)}/g, (match, name) => {
-            return `$p_${name}`;
-        });
-        str = str.replace(/#{([^}]+)}/g, (match, expr) => {
-            return `\$math_eval{${this.convertSyntax('(' + expr + ')')}}`;
-        });
+            // 2. Named parameters/variables in ${var} or #{expr}
+            str = str.replace(/\${([a-zA-Z0-9_-]+)}/g, (match, name) => {
+                return `$p_${name}`;
+            });
+            str = str.replace(/#{([^}]+)}/g, (match, expr) => {
+                return `\$math_eval{${this.convertSyntax('(' + expr + ')')}}`;
+            });
 
-        // 3. Variables:
-        str = str.replace(/@([a-zA-Z_]\w*)/g, (match, name) => `\$${this.convertVarName('@' + name)}`);
-        str = str.replace(/@(\d+)/g, (match, num) => `\$${this.convertVarName('@' + num)}`);
+            // 3. Variables:
+            str = str.replace(/@([a-zA-Z_]\w*)/g, (match, name) => `\$${this.convertVarName('@' + name)}`);
+            str = str.replace(/@(\d+)/g, (match, num) => `\$${this.convertVarName('@' + num)}`);
 
-        str = str.replace(/(?<![\\%])\$([a-zA-Z_]\w+)/g, (match, name) => `\$${this.convertVarName('$' + name)}`);
+            str = str.replace(/(?<![\\%])\$([a-zA-Z_]\w+)/g, (match, name) => `\$${this.convertVarName('$' + name)}`);
 
-        // 4. Standard parameters: $N -> %N, &N -> %N
-        str = str.replace(/(?<!\\)\$(\d+)/g, '%$1');
-        str = str.replace(/(?<!\\)&(\d+)/g, '%$1');
+            // 4. Standard parameters: $N -> %N, &N -> %N
+            str = str.replace(/(?<!\\)\$(\d+)/g, '%$1');
+            str = str.replace(/(?<!\\)&(\d+)/g, '%$1');
+        } else if (this.mode === 'jmc') {
+            // JMC uses %0-%9 for parameters and $var for variables
+            // Standard parameters: %N -> %N (no change needed for TT++)
+
+            // Variables: $var -> $j_var
+            str = str.replace(/(?<![\\%])\$([a-zA-Z_]\w*)/g, (match, name) => `\$${this.convertVarName(name)}`);
+
+            // Double percent handling in JMC (often used in nested actions)
+            str = str.replace(/%%(\d+)/g, '%%$1');
+        }
 
         return str;
     }
@@ -182,9 +197,9 @@ export class PowwowConverter {
         return `<${vt100}${fg}9>`;
     }
 
-    processPowwowCommands(powwowCommandString) {
-        if (!powwowCommandString) return '';
-        let commandsStr = powwowCommandString.trim();
+    processCommands(commandString) {
+        if (!commandString) return '';
+        let commandsStr = commandString.trim();
         if (commandsStr.startsWith('{') && commandsStr.endsWith('}')) {
             commandsStr = commandsStr.substring(1, commandsStr.length - 1).trim();
         }
@@ -197,15 +212,17 @@ export class PowwowConverter {
             if (t === '') continue;
 
             if (t.toLowerCase().startsWith('#if')) {
-                // Peek for #else
-                if (i + 1 < tokens.length && tokens[i+1].trim().toLowerCase().startsWith('#else')) {
-                    t += '; ' + tokens[i+1].trim();
-                    i++;
+                // Peek for #else (Powwow specific or JMC if it follows that pattern)
+                if (this.mode === 'powwow') {
+                    if (i + 1 < tokens.length && tokens[i+1].trim().toLowerCase().startsWith('#else')) {
+                        t += '; ' + tokens[i+1].trim();
+                        i++;
+                    }
                 }
             }
 
             if (t.startsWith('#')) {
-                processed.push(this.convertSinglePowwowCommand(t));
+                processed.push(this.convertSingleCommand(t));
             } else {
                 processed.push(this.convertSyntax(t));
             }
@@ -214,35 +231,37 @@ export class PowwowConverter {
         return processed.join('; ');
     }
 
-    convertSinglePowwowCommand(line) {
+    convertSingleCommand(line) {
         line = line.trim();
 
-        // Group toggle or label direct commands: #+label, #-label, #>label, #<label, #=label, #%label
-        const toggleMatch = line.match(/^#\s*([<=>%+-])([\w_-]+)\s*$/);
-        if (toggleMatch) {
-            const [, op, label] = toggleMatch;
-            if (op === '+' || op === '=') return `#CLASS {${label}} {OPEN}`;
-            if (op === '-' || op === '<') return `#CLASS {${label}} {KILL}`;
-            if (op === '%') return `#IF {&class_${label}} {#CLASS {${label}} {KILL}} {#ELSE} {#CLASS {${label}} {OPEN}}`;
-            if (op === '>') return `#CLASS {${label}} {OPEN}`;
-        }
-
-        // Handle # (expression) or #(expression)
-        const exprMatch = line.match(/^#\s*\((.*)\)$/s);
-        if (exprMatch) {
-            const expr = exprMatch[1].trim();
-            const assignMatch = expr.match(/^([@$][a-zA-Z0-9_-]+)\s*=(.*)$/s);
-            if (assignMatch) {
-                const name = this.convertVarName(assignMatch[1]);
-                return `#math {${name}} {${this.convertSyntax('(' + assignMatch[2].trim() + ')')}}`;
+        if (this.mode === 'powwow') {
+            // Group toggle or label direct commands: #+label, #-label, #>label, #<label, #=label, #%label
+            const toggleMatch = line.match(/^#\s*([<=>%+-])([\w_-]+)\s*$/);
+            if (toggleMatch) {
+                const [, op, label] = toggleMatch;
+                if (op === '+' || op === '=') return `#CLASS {${label}} {OPEN}`;
+                if (op === '-' || op === '<') return `#CLASS {${label}} {KILL}`;
+                if (op === '%') return `#IF {&class_${label}} {#CLASS {${label}} {KILL}} {#ELSE} {#CLASS {${label}} {OPEN}}`;
+                if (op === '>') return `#CLASS {${label}} {OPEN}`;
             }
-            return `#math {p_result} {${this.convertSyntax('(' + expr + ')')}}`;
+
+            // Handle # (expression) or #(expression)
+            const exprMatch = line.match(/^#\s*\((.*)\)$/s);
+            if (exprMatch) {
+                const expr = exprMatch[1].trim();
+                const assignMatch = expr.match(/^([@$][a-zA-Z0-9_-]+)\s*=(.*)$/s);
+                if (assignMatch) {
+                    const name = this.convertVarName(assignMatch[1]);
+                    return `#math {${name}} {${this.convertSyntax('(' + assignMatch[2].trim() + ')')}}`;
+                }
+                return `#math {p_result} {${this.convertSyntax('(' + expr + ')')}}`;
+            }
         }
 
         // Repeat #5 north
         const repeatMatch = line.match(/^#(\d+)\s+(.*)/s);
         if (repeatMatch) {
-            return `#${repeatMatch[1]} {${this.processPowwowCommands(repeatMatch[2])}}`;
+            return `#${repeatMatch[1]} {${this.processCommands(repeatMatch[2])}}`;
         }
 
         const cmdMatch = line.match(/^#\s*([a-zA-Z_]+)\s*(.*)/s);
@@ -253,72 +272,149 @@ export class PowwowConverter {
         const command = cmdMatch[1].toLowerCase();
         let args = cmdMatch[2].trim();
 
-        switch (command) {
-            case 'al':
-            case 'alias':
-                return this.convertAlias(args);
-            case 'ac':
-            case 'action':
-                return this.convertAction(args);
-            case 'var':
-                return this.convertVar(args);
-            case 'if':
-                return this.convertIf(args);
-            case 'while':
-                return this.convertWhile(args);
-            case 'for':
-                return this.convertFor(args);
-            case 'print':
-                return `#SHOWME {${this.convertSyntax(args)}}`;
-            case 'send':
-                if (args.startsWith('<')) return `#TEXTIN {${args.substring(1).trim()}}`;
-                if (args.startsWith('!')) return `#SYSTEM {${args.substring(1).trim()}}`;
-                return this.convertSyntax(args);
-            case 'in':
-            case 'at':
-                return this.convertTicker(args);
-            case 'prompt':
-                return this.convertPrompt(args);
-            case 'reset':
-                return this.convertReset(args);
-            case 'do':
-                const doMatch = args.match(/^\((.*)\)\s*(.*)$/s);
-                if (doMatch) {
-                    return `#math {p_do_cnt} {${this.convertSyntax('(' + doMatch[1] + ')')}}; #$p_do_cnt {${this.processPowwowCommands(doMatch[2])}}`;
-                }
-                return `#comment UNCONVERTED DO: #do ${args}`;
-            case 'nice':
-                return `#comment NICE (Priority) ignored: #nice ${args}`;
-            case 'identify':
-                return `#comment IDENTIFY ignored: #identify ${args}`;
-            case 'request':
-                return `#comment REQUEST ignored: #request ${args}`;
-            case 'option':
-                return `#comment OPTION ignored: #option ${args}`;
-            case 'sep':
-                this.setSeparator(args);
-                return `#comment SEPARATOR set to ${args}`;
-            case 'quit':
-                return `#end`;
-            default:
-                return `#comment UNSUPPORTED: ${line}`;
+        if (this.mode === 'powwow') {
+            switch (command) {
+                case 'al':
+                case 'alias':
+                    return this.convertAliasPowwow(args);
+                case 'ac':
+                case 'action':
+                    return this.convertActionPowwow(args);
+                case 'var':
+                    return this.convertVarPowwow(args);
+                case 'if':
+                    return this.convertIfPowwow(args);
+                case 'while':
+                    return this.convertWhilePowwow(args);
+                case 'for':
+                    return this.convertForPowwow(args);
+                case 'print':
+                    return `#SHOWME {${this.convertSyntax(args)}}`;
+                case 'send':
+                    if (args.startsWith('<')) return `#TEXTIN {${args.substring(1).trim()}}`;
+                    if (args.startsWith('!')) return `#SYSTEM {${args.substring(1).trim()}}`;
+                    return this.convertSyntax(args);
+                case 'in':
+                case 'at':
+                    return this.convertTickerPowwow(args);
+                case 'prompt':
+                    return this.convertPromptPowwow(args);
+                case 'reset':
+                    return this.convertReset(args);
+                case 'do':
+                    const doMatch = args.match(/^\((.*)\)\s*(.*)$/s);
+                    if (doMatch) {
+                        return `#math {p_do_cnt} {${this.convertSyntax('(' + doMatch[1] + ')')}}; #$p_do_cnt {${this.processCommands(doMatch[2])}}`;
+                    }
+                    return `#comment UNCONVERTED DO: #do ${args}`;
+                case 'nice':
+                    return `#comment NICE (Priority) ignored: #nice ${args}`;
+                case 'identify':
+                    return `#comment IDENTIFY ignored: #identify ${args}`;
+                case 'request':
+                    return `#comment REQUEST ignored: #request ${args}`;
+                case 'option':
+                    return `#comment OPTION ignored: #option ${args}`;
+                case 'sep':
+                    this.setSeparator(args);
+                    return `#comment SEPARATOR set to ${args}`;
+                case 'quit':
+                    return `#end`;
+                default:
+                    return `#comment UNSUPPORTED: ${line}`;
+            }
+        } else if (this.mode === 'jmc') {
+            switch (command) {
+                case 'al':
+                case 'alias':
+                    return this.convertAliasJMC(args);
+                case 'ac':
+                case 'action':
+                    return this.convertActionJMC(args);
+                case 'var':
+                case 'variable':
+                    return this.convertVarJMC(args);
+                case 'if':
+                    return this.convertIfJMC(args);
+                case 'math':
+                    return this.convertMathJMC(args);
+                case 'group':
+                    return this.convertGroupJMC(args);
+                case 'highlight':
+                    return this.convertHighlightJMC(args);
+                case 'gag':
+                    return this.convertGagJMC(args);
+                case 'sub':
+                case 'substitute':
+                    return this.convertSubstituteJMC(args);
+                case 'unalias':
+                    return `#UNALIAS {${this.convertSyntax(args)}}`;
+                case 'unaction':
+                    return `#UNACT {${this.convertSyntax(args)}}`;
+                case 'unvar':
+                    return `#UNVAR {${this.convertVarName(args.trim())}}`;
+                case 'showme':
+                    return `#SHOWME {${this.convertSyntax(args)}}`;
+                case 'echo':
+                    if (args.toLowerCase() === 'on') return `#CONFIG {VERBOSE} {ON}`;
+                    if (args.toLowerCase() === 'off') return `#CONFIG {VERBOSE} {OFF}`;
+                    return `#SHOWME {${this.convertSyntax(args)}}`;
+                case 'quit':
+                    return `#end`;
+                case 'zap':
+                    return `#zap`;
+                case 'killall':
+                    return `#KILL ALL`;
+                case 'read':
+                    return `#READ {${args}}`;
+                case 'write':
+                    return `#WRITE {${args}}`;
+                case 'log':
+                    return `#LOG {${args}}`;
+                case 'textin':
+                    return `#TEXTIN {${args}}`;
+                case 'systemexec':
+                    return `#SYSTEM {${args}}`;
+                case 'hotkey':
+                    return this.convertHotkeyJMC(args);
+                case 'unhotkey':
+                    return `#UNMACRO {${args}}`;
+                case 'tick':
+                case 'ticksize':
+                case 'tickset':
+                case 'tickon':
+                case 'tickoff':
+                    return `#comment JMC TICK COMMAND: ${line}`;
+                case 'drop':
+                    return `#line gag`;
+                case 'cr':
+                    return `#send {\n}`;
+                case 'bell':
+                    return `#bell`;
+                case 'ignore':
+                    return `#ignore`;
+                default:
+                    return `#${command} {${this.convertSyntax(args)}}`;
+            }
         }
     }
 
-    convertAlias(args) {
+    // --- Powwow Conversion Methods ---
+
+    convertAliasPowwow(args) {
         const match = args.match(/^(?:([<=>%][+-]?)?([\w_-]+)(?:@([\w_-]+))?\s+)?([^=]+)=(.+)/is);
         if (!match) {
             if (args.trim() === '') return `#ALIAS`;
             const simpleMatch = args.match(/^([^=]+)=(.+)/is);
             if (simpleMatch) {
-                return `#ALIAS {${this.convertSubstitutions(simpleMatch[1].trim())}} {${this.processPowwowCommands(simpleMatch[2])}}`;
+                return `#ALIAS {${this.convertSubstitutions(simpleMatch[1].trim())}} {${this.processCommands(simpleMatch[2])}}`;
             }
             return `#comment UNCONVERTED ALIAS ARGS: ${args}`;
         }
 
         const [, op, label, group, name, cmds] = match;
         const convertedName = this.convertSubstitutions(name.trim());
-        const convertedCmds = this.processPowwowCommands(cmds);
+        const convertedCmds = this.processCommands(cmds);
 
         const targetClass = group || label;
         let out = targetClass ? `#CLASS {${targetClass}} {OPEN}\n` : '';
@@ -327,7 +423,7 @@ export class PowwowConverter {
         return out;
     }
 
-    convertAction(args) {
+    convertActionPowwow(args) {
         if (args.match(/^[+-][\w_-]+$/)) {
             const label = args.substring(1);
             const op = args[0];
@@ -339,7 +435,7 @@ export class PowwowConverter {
              const simpleMatch = args.match(/^([^=]+)=(.+)?/is);
              if (simpleMatch) {
                  const ttPattern = this.convertSyntax(simpleMatch[1].trim());
-                 const ttCmds = simpleMatch[2] ? this.processPowwowCommands(simpleMatch[2]) : '';
+                 const ttCmds = simpleMatch[2] ? this.processCommands(simpleMatch[2]) : '';
                  return ttCmds === '' ? `#GAG {${ttPattern}}` : `#ACTION {${ttPattern}} {${ttCmds}}`;
              }
              return `#comment UNCONVERTED ACTION ARGS: ${args}`;
@@ -347,7 +443,7 @@ export class PowwowConverter {
 
         const [, op, label, group, pattern, cmds] = match;
         const ttPattern = this.convertSyntax(pattern.trim());
-        const ttCmds = cmds ? this.processPowwowCommands(cmds) : '';
+        const ttCmds = cmds ? this.processCommands(cmds) : '';
 
         const targetClass = group || label;
         let out = targetClass ? `#CLASS {${targetClass}} {OPEN}\n` : '';
@@ -360,7 +456,7 @@ export class PowwowConverter {
         return out;
     }
 
-    convertVar(args) {
+    convertVarPowwow(args) {
         const parts = args.split(/=(.+)/s);
         if (parts.length < 2) {
             return `#SHOWME {${this.convertVarName(args.trim())} is ${this.convertSyntax(args.trim())}}`;
@@ -369,43 +465,43 @@ export class PowwowConverter {
         let name = this.convertVarName(parts[0].trim());
         const val = parts[1].trim();
 
-        return `#VARIABLE {${name}} {${this.processPowwowCommands(val)}}`;
+        return `#VARIABLE {${name}} {${this.processCommands(val)}}`;
     }
 
-    convertIf(args) {
+    convertIfPowwow(args) {
         const match = args.match(/^\((.*)\)\s*(.*?)(?:\s*;\s*#else\s*(.*))?$/is);
         if (!match) return `#comment UNCONVERTED IF: #if ${args}`;
 
         const [, cond, trueBlock, falseBlock] = match;
-        let out = `#IF {${this.convertSyntax('(' + cond + ')')}} {${this.processPowwowCommands(trueBlock)}}`;
+        let out = `#IF {${this.convertSyntax('(' + cond + ')')}} {${this.processCommands(trueBlock)}}`;
         if (falseBlock) {
-            out += ` {#ELSE} {${this.processPowwowCommands(falseBlock)}}`;
+            out += ` {#ELSE} {${this.processCommands(falseBlock)}}`;
         }
         return out;
     }
 
-    convertWhile(args) {
+    convertWhilePowwow(args) {
         const match = args.match(/^\((.*)\)\s*(.*)$/is);
         if (!match) return `#comment UNCONVERTED WHILE: #while ${args}`;
         const [, cond, block] = match;
-        return `#WHILE {${this.convertSyntax('(' + cond + ')')}} {${this.processPowwowCommands(block)}}`;
+        return `#WHILE {${this.convertSyntax('(' + cond + ')')}} {${this.processCommands(block)}}`;
     }
 
-    convertFor(args) {
+    convertForPowwow(args) {
         const match = args.match(/^\(([^;]*);([^;]*);([^)]*)\)\s*(.*)$/is);
         if (!match) return `#comment UNCONVERTED FOR: #for ${args}`;
         const [, init, check, loop, block] = match;
 
         let out = '';
         if (init.trim()) {
-            const processedInit = this.convertSinglePowwowCommand(`#(${init.trim()})`);
+            const processedInit = this.convertSingleCommand(`#(${init.trim()})`);
             out += `${processedInit}; `;
         }
-        out += `#WHILE {${this.convertSyntax('(' + check + ')')}} {${this.processPowwowCommands(block)}; ${this.convertSinglePowwowCommand(`#(${loop.trim()})`)}}`;
+        out += `#WHILE {${this.convertSyntax('(' + check + ')')}} {${this.processCommands(block)}; ${this.convertSingleCommand(`#(${loop.trim()})`)}}`;
         return out;
     }
 
-    convertTicker(args) {
+    convertTickerPowwow(args) {
         const match = args.match(/^(?:([<=>%][+-]?)?([\w_-]+)(?:@([\w_-]+))?\s+)?([\w_-]+)\s*\((.*?)\)\s*(.*)/is);
         if (!match) return `#comment UNCONVERTED TICKER ARGS: ${args}`;
 
@@ -414,18 +510,18 @@ export class PowwowConverter {
 
         const targetClass = group || label;
         let out = targetClass ? `#CLASS {${targetClass}} {OPEN}\n` : '';
-        out += `#TICKER {${tickerName}} {${this.processPowwowCommands(cmds)}} {${delayVal}}`;
+        out += `#TICKER {${tickerName}} {${this.processCommands(cmds)}} {${delayVal}}`;
         if (targetClass) out += `\n#CLASS {${targetClass}} {CLOSE}`;
         return out;
     }
 
-    convertPrompt(args) {
+    convertPromptPowwow(args) {
         const match = args.match(/^(?:([<=>%][+-]?)?([\w_-]+)(?:@([\w_-]+))?\s+)?([^=]+)=(.+)?/is);
         if (!match) {
              const simpleMatch = args.match(/^([^=]+)=(.+)?/is);
              if (simpleMatch) {
                  const ttPattern = this.convertSyntax(simpleMatch[1].trim());
-                 const ttCmds = simpleMatch[2] ? this.processPowwowCommands(simpleMatch[2]) : '';
+                 const ttCmds = simpleMatch[2] ? this.processCommands(simpleMatch[2]) : '';
                  return `#ACTION {${ttPattern}} {${ttCmds}; #line gag} {1}`;
              }
              return `#comment UNCONVERTED PROMPT ARGS: ${args}`;
@@ -433,7 +529,7 @@ export class PowwowConverter {
         const [, op, label, group, pattern, cmds] = match;
 
         const ttPattern = this.convertSyntax(pattern.trim());
-        const ttCmds = cmds ? this.processPowwowCommands(cmds) : '';
+        const ttCmds = cmds ? this.processCommands(cmds) : '';
 
         return `#ACTION {${ttPattern}} {${ttCmds}; #line gag} {1}`;
     }
@@ -452,6 +548,124 @@ export class PowwowConverter {
         return `#comment UNCONVERTED RESET: #reset ${args}`;
     }
 
+    // --- JMC Conversion Methods ---
+
+    convertAliasJMC(args) {
+        // #alias {name} {commands}
+        const match = args.match(/^{([^}]+)}\s*{(.*)}$/s) || args.match(/^(\S+)\s+(.*)$/s);
+        if (match) {
+            const name = match[1].trim().replace(/^{|}$/g, '');
+            const cmds = match[2].trim().replace(/^{|}$/g, '');
+            return `#ALIAS {${this.convertSyntax(name)}} {${this.processCommands(cmds)}}`;
+        }
+        return `#ALIAS {${this.convertSyntax(args)}}`;
+    }
+
+    convertActionJMC(args) {
+        // #action {pattern} {commands} {priority}
+        const parts = this.tokenize(args, ' ');
+        if (parts.length >= 2) {
+            const pattern = parts[0].trim().replace(/^{|}$/g, '');
+            const cmds = parts[1].trim().replace(/^{|}$/g, '');
+            const priority = parts[2] ? parts[2].trim().replace(/^{|}$/g, '') : '';
+            let out = `#ACTION {${this.convertSyntax(pattern)}} {${this.processCommands(cmds)}}`;
+            if (priority) out += ` {${priority}}`;
+            return out;
+        }
+        return `#ACTION {${this.convertSyntax(args)}}`;
+    }
+
+    convertVarJMC(args) {
+        // #var {name} {value}
+        const match = args.match(/^{([^}]+)}\s*{(.*)}$/s) || args.match(/^(\S+)\s+(.*)$/s);
+        if (match) {
+            const name = this.convertVarName(match[1].trim().replace(/^{|}$/g, ''));
+            const val = match[2].trim().replace(/^{|}$/g, '');
+            return `#VARIABLE {${name}} {${this.processCommands(val)}}`;
+        }
+        return `#VARIABLE {${this.convertVarName(args.trim())}}`;
+    }
+
+    convertIfJMC(args) {
+        // #if {cond} {then} {else}
+        const parts = this.tokenize(args, ' ');
+        if (parts.length >= 2) {
+            const cond = parts[0].trim().replace(/^{|}$/g, '');
+            const trueBlock = parts[1].trim().replace(/^{|}$/g, '');
+            const falseBlock = parts[2] ? parts[2].trim().replace(/^{|}$/g, '') : '';
+            let out = `#IF {${this.convertSyntax(cond)}} {${this.processCommands(trueBlock)}}`;
+            if (falseBlock) {
+                out += ` {#ELSE} {${this.processCommands(falseBlock)}}`;
+            }
+            return out;
+        }
+        return `#comment UNCONVERTED JMC IF: #if ${args}`;
+    }
+
+    convertMathJMC(args) {
+        // #math {var} {expr}
+        const match = args.match(/^{([^}]+)}\s*{(.*)}$/s) || args.match(/^(\S+)\s+(.*)$/s);
+        if (match) {
+            const name = this.convertVarName(match[1].trim().replace(/^{|}$/g, ''));
+            const expr = match[2].trim().replace(/^{|}$/g, '');
+            return `#math {${name}} {${this.convertSyntax(expr)}}`;
+        }
+        return `#comment UNCONVERTED JMC MATH: #math ${args}`;
+    }
+
+    convertGroupJMC(args) {
+        // #group {enable|disable} {name}
+        const match = args.match(/^(enable|disable)\s+(\S+)/i);
+        if (match) {
+            const op = match[1].toLowerCase();
+            const label = match[2];
+            if (op === 'enable') return `#CLASS {${label}} {OPEN}`;
+            if (op === 'disable') return `#CLASS {${label}} {KILL}`;
+        }
+        return `#comment JMC GROUP COMMAND: #group ${args}`;
+    }
+
+    convertHighlightJMC(args) {
+        // #highlight {color} {pattern}
+        const match = args.match(/^{([^}]+)}\s*{(.*)}$/s) || args.match(/^(\S+)\s+(.*)$/s);
+        if (match) {
+            const color = match[1].trim().replace(/^{|}$/g, '');
+            const pattern = match[2].trim().replace(/^{|}$/g, '');
+            return `#HIGHLIGHT {${this.convertSyntax(pattern)}} {${color}}`;
+        }
+        return `#comment UNCONVERTED JMC HIGHLIGHT: #highlight ${args}`;
+    }
+
+    convertGagJMC(args) {
+        // #gag {pattern}
+        const match = args.match(/^{([^}]+)}/s) || [null, args.trim()];
+        const pattern = match[1].trim();
+        return `#GAG {${this.convertSyntax(pattern)}}`;
+    }
+
+    convertSubstituteJMC(args) {
+        // #sub {pattern} {replacement}
+        const match = args.match(/^{([^}]+)}\s*{(.*)}$/s) || args.match(/^(\S+)\s+(.*)$/s);
+        if (match) {
+            const pattern = match[1].trim().replace(/^{|}$/g, '');
+            const replacement = match[2].trim().replace(/^{|}$/g, '');
+            return `#SUBSTITUTE {${this.convertSyntax(pattern)}} {${this.convertSyntax(replacement)}}`;
+        }
+        return `#comment UNCONVERTED JMC SUB: #sub ${args}`;
+    }
+
+    convertHotkeyJMC(args) {
+        // #hotkey {key} {commands} {group}
+        const match = args.match(/^{([^}]+)}\s*{(.*)}(?:\s*{(.*)})?/s);
+        if (match) {
+            const key = match[1].trim();
+            const cmds = match[2].trim();
+            // TinTin++ uses #MACRO for hotkeys. Key names might need mapping, but keeping as is for now.
+            return `#MACRO {${key}} {${this.processCommands(cmds)}}`;
+        }
+        return `#comment UNCONVERTED JMC HOTKEY: #hotkey ${args}`;
+    }
+
     convert(inputScript) {
         if (!inputScript) return '';
         const lines = inputScript.split(/\r?\n/);
@@ -462,7 +676,7 @@ export class PowwowConverter {
         for (let i = 0; i < lines.length; i++) {
             let line = lines[i];
 
-            if (line.trim().endsWith('\\')) {
+            if (line.trim().endsWith('\\') && this.mode === 'powwow') {
                 buffer += (buffer ? '\n' : '') + line.trim().slice(0, -1);
                 continue;
             }
@@ -476,12 +690,14 @@ export class PowwowConverter {
                 const trimmed = buffer.trim();
                 if (trimmed === '') {
                     outputLines.push('');
-                } else if (trimmed.startsWith('//')) {
+                } else if (trimmed.startsWith('//') || (this.mode === 'jmc' && trimmed.startsWith('//'))) {
                     outputLines.push(`#comment ${trimmed.substring(2).trim()}`);
                 } else if (trimmed.startsWith('/*')) {
                     outputLines.push(`#comment ${trimmed.replace(/\/\*|\*\//g, '').trim()}`);
+                } else if (trimmed.startsWith('##') && this.mode === 'jmc') {
+                    outputLines.push(`#comment ${trimmed.substring(2).trim()}`);
                 } else if (trimmed.startsWith('#')) {
-                    outputLines.push(this.convertSinglePowwowCommand(trimmed));
+                    outputLines.push(this.convertSingleCommand(trimmed));
                 } else {
                     outputLines.push(this.convertSyntax(trimmed));
                 }
@@ -491,7 +707,7 @@ export class PowwowConverter {
         }
 
         if (buffer.trim()) {
-             outputLines.push(this.convertSinglePowwowCommand(buffer.trim()));
+             outputLines.push(this.convertSingleCommand(buffer.trim()));
         }
 
         return outputLines.join('\n');
