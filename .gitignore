@@ -1,0 +1,8 @@
+node_modules/
+dist/
+coverage/
+.vitest.result.json
+*.log
+test_output.txt
+/verification/
+.vite/

@@ -1,0 +1,37 @@
+#("- Teleport system ---------------------------------------------------------------------------------------------------")
+#("- S\xecn's teleport system for powwow. Some variable stuff borrowed from Jahara's autogroup system)
+#("- Usage: Locate:    loc <mob/player> <label>")
+#("-        Teleport:  tel <label>")
+#("-        Portal:    port <label>")
+#("-        List:      plist / plistv")
+#("-")
+#("- Use at own risk ;-)")
+#("---------------------------------------------------------------------------------------------------------------------")
+
+#alias tel={#(@-10=0);#($-11=\$1);kremsub1;#if (\@-10!=0) cast n 'teleport' ${key_$0}; #else #print ("%% " +attr "yellow" + "Location not found. Locate first"+noattr)}
+#alias port={#(@-10=0);#($-11=\$1);kremsub1;#if (\@-10!=0) cast n 'portal' u ${key_$0}; #else #print ("%% " +attr "yellow" + "Location not found. Locate first"+noattr)}
+
+#alias loc={#action >lkey ^$1 \&2 - \&3 Key: '\$4'={#var $latestkey=\$4;#print (attr "yellow"+"$1 / $2"+attr "yellow" +" \$2 - \$3 Key: "+attr "bold red"+$key_$2+noattr);kadd0 $2};cll $1}
+
+#alias kremsub1={#for (\@1=1; \@1<=(:?$-10); \@1++) #if (\$-10:\@1==\$-11) #(@-10=\@1)}
+#alias kremsub2={#($-12="");#for (\@1=1; \@1<=(:?$-10); \@1++) #if (\$-10:\@1!=\$-11) #($-12=\$-12+" "+(\$-10:\@1))}
+#alias kadd0={#(@-10=0);#($-11=\$1);kremsub1;#if (\@-10!=0) {#print ("%% " + attr "yellow"+"Location " +attr "bold red"+\$-11+ noattr+attr "yellow"+" exist. Replacing it" +noattr);krem $1;kadd $1}; #else kadd $1}
+#alias kadd={#($-10=\$-10+" "+\$1);#print ("%% " + attr "yellow" + "New portlocation: " +attr "bold red" + "$1" +noattr);#var $key_$1=${latestkey}}
+#alias kclean={#($-10="");#print ("%% " +attr "yellow" + "Portlist cleaned. No destiations now." +noattr)}
+
+#alias krem={#(@-10=0);#($-11=\$1);kremsub1;#if (\@-10!=0) {#print ("%% " + attr "yellow"+"Ok. Location " +attr "bold red"+\$-11+ noattr+attr yellow"+" removed." +noattr);kremsub2;#($-10=\$-12);#var \$key_$1=}; #else #print ("%% " +attr "yellow" + "Location not found."+noattr)}
+
+#alias plistv={#print ("%%" + attr "yellow" + " Port locations" + noattr);#for (\@1=1; \@1<=(:?$-10); \@1++) #print ("%% " + \$-10:\@1 + ".")}
+#alias plist={#print ("%%" + attr "yellow" + " Port loc: " +attr "green"+(\$-10)+noattr)}
+
+#("- Known port locations ---------------------------------------------------------------------------------------------")
+#action >+locgaunt ^a gaunt man &1 - &2 &3 Key: '$4'={#var $latestkey=$4;#var $key_gaunt=$4;#print (attr "yellow"+"a gau
+nt man / gaunt"+attr "yellow" + " $1 - $2 $3 Key: "+attr "bold red"+$key_gaunt+noattr);kadd0 gaunt}}
+
+#action >+locKhuz ^Khuzur the Olog-hai &1 - &2 &3 Key: '$4'={#var $latestkey=$4;#var $key_khuzur=$4;#print (attr "yellow
+"+"Khuzur the Olog-hai / khuzur"+attr "yellow" + " $1 - $2 $3 Key: "+attr "bold red"+$key_khuzur+noattr);kadd0 khuzur}}
+
+#alias print_portkeys={#print ("%% "+attr "yellow"+"Port locations ....: "+attr "bold red"+(\$-10)+noattr);#print ("%% "
++attr "yellow"+"...................: "+attr "green"+"loc <name> <label> and ctp/cpo <label> to go" +noattr)}
+
+#("---------------------------------------------------------------------------------------------------------------------")

@@ -1,0 +1,14 @@
+#("=====> PRAY SAVE")
+#ac >+setpray \033[36m$1 prays &2\033[0m={#var $m=($last_line);#print (attr "cyan"+"$1 prays $2"+noattr);#write ($m;"prays")}
+
+#al pl={#if ("$0"=="") {trenner;#! tail prays;trenner}; #else {trenner;#var $nla=$0;#var $nlb=(%($nla));#if (($nla)==($nlb)) #exe ("#! tail --lines=$0 prays"); #else #exe ("#! tail --lines=10000 prays | grep --ignore-case "+$nla+" | tail --lines=20");trenner}}
+
+#al trenner=#print (attr "green"+"-------------------------------------------------------------------------------"+noattr);
+
+
+
+pl             : shows the 10 last prays
+pl 30          : shows the 30 last prays
+pl kit         : shows all prays containing the word kit
+
+(certainly narrate or tell loggers or repliers work just the same)

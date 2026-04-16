@@ -1,0 +1,23 @@
+Simple Report triggering by S\xecn
+
+Pretty simple.. Just type rpt and you report your current info without the need to type score before.
+
+For those with mana, for example "300/390 hits, 56/57 mana, and 122/138 moves."
+----------------
+#alias rpt={#ac +report;score}
+#ac >-report $1 hits, $2 mana, and $3 moves.={#print;emo reports: $1 hit, $2 mana, and $3 moves.;#ac -report}
+----------------
+
+For those without mana, for example "400/400 hits and 100/149 moves."
+----------------
+#alias rpt={#ac +report;score}
+#ac >-report $1 hits and $3 moves.={#print;emo reports: $1 hits and $3 moves.;#ac -report}
+----------------
+
+You can combine those two above with conditions based on what class/race you are, but I leave that
+for you to discover. Best is to know your scripts and triggers, or if you get a bad one from someone
+else it can become 'fun'... :)
+
+(If you find any error do let me know)
+
+// S\xecn
