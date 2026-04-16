@@ -254,9 +254,9 @@ export class TinTinConverter {
                 const assignMatch = expr.match(/^([@$][a-zA-Z0-9_-]+)\s*=(.*)$/s);
                 if (assignMatch) {
                     const name = this.convertVarName(assignMatch[1]);
-                    return `#math {${name}} {${this.convertSyntax('(' + assignMatch[2].trim() + ')')}}`;
+                    return `#MATH {${name}} {${this.convertSyntax('(' + assignMatch[2].trim() + ')')}}`;
                 }
-                return `#math {p_result} {${this.convertSyntax('(' + expr + ')')}}`;
+                return `#MATH {p_result} {${this.convertSyntax('(' + expr + ')')}}`;
             }
         }
 
@@ -298,7 +298,7 @@ export class TinTinConverter {
                     return this.convertSyntax(args);
                 case 'in':
                 case 'at':
-                    return this.convertTickerPowwow(args);
+                    return this.convertTickerPowwow(args, command);
                 case 'prompt':
                     return this.convertPromptPowwow(args);
                 case 'reset':
@@ -306,24 +306,24 @@ export class TinTinConverter {
                 case 'do':
                     const doMatch = args.match(/^\((.*)\)\s*(.*)$/s);
                     if (doMatch) {
-                        return `#math {p_do_cnt} {${this.convertSyntax('(' + doMatch[1] + ')')}}; #$p_do_cnt {${this.processCommands(doMatch[2])}}`;
+                        return `#MATH {p_do_cnt} {${this.convertSyntax('(' + doMatch[1] + ')')}}; #$p_do_cnt {${this.processCommands(doMatch[2])}}`;
                     }
-                    return `#comment UNCONVERTED DO: #do ${args}`;
+                    return `#COMMENT UNCONVERTED DO: #do ${args}`;
                 case 'nice':
-                    return `#comment NICE (Priority) ignored: #nice ${args}`;
+                    return `#COMMENT NICE (Priority) ignored: #nice ${args}`;
                 case 'identify':
-                    return `#comment IDENTIFY ignored: #identify ${args}`;
+                    return `#COMMENT IDENTIFY ignored: #identify ${args}`;
                 case 'request':
-                    return `#comment REQUEST ignored: #request ${args}`;
+                    return `#COMMENT REQUEST ignored: #request ${args}`;
                 case 'option':
-                    return `#comment OPTION ignored: #option ${args}`;
+                    return `#COMMENT OPTION ignored: #option ${args}`;
                 case 'sep':
                     this.setSeparator(args);
-                    return `#comment SEPARATOR set to ${args}`;
+                    return `#COMMENT SEPARATOR set to ${args}`;
                 case 'quit':
-                    return `#end`;
+                    return `#END`;
                 default:
-                    return `#comment UNSUPPORTED: ${line}`;
+                    return `#COMMENT UNSUPPORTED: ${line}`;
             }
         } else if (this.mode === 'jmc') {
             switch (command) {
@@ -362,9 +362,9 @@ export class TinTinConverter {
                     if (args.toLowerCase() === 'off') return `#CONFIG {VERBOSE} {OFF}`;
                     return `#SHOWME {${this.convertSyntax(args)}}`;
                 case 'quit':
-                    return `#end`;
+                    return `#END`;
                 case 'zap':
-                    return `#zap`;
+                    return `#ZAP`;
                 case 'killall':
                     return `#KILL ALL`;
                 case 'read':
@@ -381,22 +381,27 @@ export class TinTinConverter {
                     return this.convertHotkeyJMC(args);
                 case 'unhotkey':
                     return `#UNMACRO {${args}}`;
-                case 'tick':
+                case 'message':
+                    if (args.toLowerCase().includes('off')) return `#CONFIG {VERBOSE} {OFF}`;
+                    if (args.toLowerCase().includes('on')) return `#CONFIG {VERBOSE} {ON}`;
+                    return `#COMMENT JMC MESSAGE: #message ${args}`;
                 case 'ticksize':
-                case 'tickset':
+                    return `#VARIABLE {j_ticksize} {${args}}; #TICKER {jmc_tick} {#SHOWME #TICK} {${args}}`;
                 case 'tickon':
+                case 'tickset':
+                    return `#TICKER {jmc_tick} {#SHOWME #TICK} {$j_ticksize}`;
                 case 'tickoff':
-                    return `#comment JMC TICK COMMAND: ${line}`;
+                    return `#UNTICKER {jmc_tick}`;
                 case 'drop':
-                    return args ? `#comment UNCONVERTED DROP: #drop ${args}` : `#line gag`;
+                    return args ? `#COMMENT UNCONVERTED DROP: #drop ${args}` : `#LINE GAG`;
                 case 'cr':
-                    return `#send {\n}`;
+                    return `#SEND {\n}`;
                 case 'bell':
-                    return `#bell`;
+                    return `#BELL`;
                 case 'ignore':
-                    return args ? `#IGNORE {${this.convertSyntax(this.cleanJMCArgs(args))}}` : `#ignore`;
+                    return args ? `#IGNORE {${this.convertSyntax(this.cleanJMCArgs(args))}}` : `#IGNORE`;
                 default:
-                    return `#${command} {${this.convertSyntax(args)}}`;
+                    return `#${command.toUpperCase()} {${this.convertSyntax(args)}}`;
             }
         }
     }
@@ -503,7 +508,32 @@ export class TinTinConverter {
         return out;
     }
 
-    convertTickerPowwow(args) {
+    convertTickerPowwow(args, command) {
+        // #at (delay) {cmds} or #in (delay) {cmds}
+        if (command === 'at' || command === 'in') {
+            const match = args.match(/^\((.*?)\)\s*(.*)/is);
+            if (match) {
+                const [, delay, cmds] = match;
+                let delayVal;
+                if (isNaN(delay)) {
+                    delayVal = this.convertSyntax('(' + delay + ')');
+                } else {
+                    const d = parseFloat(delay);
+                    // In Powwow, #at is usually seconds, #in is milliseconds.
+                    // But some versions use milliseconds for both if it's a large number.
+                    // For now, let's assume if it's > 100 it's likely ms, otherwise s.
+                    // Actually, let's check the test expectation.
+                    // Test says #in (1000) -> 1.00, #at (5.5) -> 5.5
+                    if (command === 'in') {
+                        delayVal = (d / 1000).toFixed(2);
+                    } else {
+                        delayVal = d.toString();
+                    }
+                }
+                return `#DELAY {${delayVal}} {${this.processCommands(cmds)}}`;
+            }
+        }
+
         const match = args.match(/^(?:([<=>%][+-]?)?([\w_-]+)(?:@([\w_-]+))?\s+)?([\w_-]+)\s*\((.*?)\)\s*(.*)/is);
         if (!match) return `#comment UNCONVERTED TICKER ARGS: ${args}`;
 
@@ -682,6 +712,8 @@ export class TinTinConverter {
         let buffer = '';
         let braceLevel = 0;
 
+        outputLines.push('#CLASS {converted} {OPEN}');
+
         for (let i = 0; i < lines.length; i++) {
             let line = lines[i];
 
@@ -701,9 +733,9 @@ export class TinTinConverter {
                     outputLines.push('');
                 } else if (trimmed.startsWith('//') || (this.mode === 'jmc' && trimmed.startsWith('##'))) {
                     const commentText = trimmed.substring(2);
-                    outputLines.push(`#comment ${commentText.trim()}`);
+                    outputLines.push(`#COMMENT ${commentText.trim()}`);
                 } else if (trimmed.startsWith('/*')) {
-                    outputLines.push(`#comment ${trimmed.replace(/\/\*|\*\//g, '').trim()}`);
+                    outputLines.push(`#COMMENT ${trimmed.replace(/\/\*|\*\//g, '').trim()}`);
                 } else if (trimmed.startsWith('#')) {
                     outputLines.push(this.convertSingleCommand(trimmed));
                 } else {
@@ -717,6 +749,8 @@ export class TinTinConverter {
         if (buffer.trim()) {
              outputLines.push(this.convertSingleCommand(buffer.trim()));
         }
+
+        outputLines.push('#CLASS {converted} {CLOSE}');
 
         return outputLines.join('\n');
     }

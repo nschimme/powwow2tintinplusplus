@@ -34,6 +34,11 @@ describe('TinTinConverter - Powwow Mode', () => {
     const output = converter.convert(input);
     expect(output).toContain('#VARIABLE {powwow_at[7]} {22}');
   });
+
+  it('converts #in and #at to #DELAY', () => {
+    expect(converter.convert('#in (1000) {say hello}')).toContain('#DELAY {1.00} {say hello}');
+    expect(converter.convert('#at (5.5) {say hello}')).toContain('#DELAY {5.5} {say hello}');
+  });
 });
 
 describe('TinTinConverter - JMC Mode', () => {
@@ -80,7 +85,7 @@ describe('TinTinConverter - JMC Mode', () => {
   it('converts JMC if statement', () => {
     const input = '#if {$hp < 50} {flee} {say I am fine}';
     const output = converter.convert(input);
-    expect(output).toBe('#IF {$j_hp < 50} {flee} {#ELSE} {say I am fine}');
+    expect(output).toContain('#IF {$j_hp < 50} {flee} {#ELSE} {say I am fine}');
   });
 
   it('converts JMC math', () => {
@@ -125,8 +130,8 @@ describe('TinTinConverter - JMC Mode', () => {
 
     const output = converter.convert(input);
 
-    expect(output).toContain('#comment this is a JMC comment with hash');
-    expect(output).toContain('#comment this is a JMC comment with slashes');
+    expect(output).toContain('#COMMENT this is a JMC comment with hash');
+    expect(output).toContain('#COMMENT this is a JMC comment with slashes');
   });
 
   it('converts JMC hotkeys', () => {
@@ -145,10 +150,18 @@ describe('TinTinConverter - JMC Mode', () => {
 
     const output = converter.convert(input);
 
-    expect(output).toContain('#line gag');
-    expect(output).toContain('#send {\n}');
-    expect(output).toContain('#bell');
-    expect(output).toContain('#ignore');
+    expect(output).toContain('#LINE GAG');
+    expect(output).toContain('#SEND {\n}');
+    expect(output).toContain('#BELL');
+    expect(output).toContain('#IGNORE');
+  });
+
+  it('converts JMC tick commands', () => {
+    expect(converter.convert('#ticksize 60')).toContain('#VARIABLE {j_ticksize} {60}');
+    expect(converter.convert('#ticksize 60')).toContain('#TICKER {jmc_tick} {#SHOWME #TICK} {60}');
+    expect(converter.convert('#tickon')).toContain('#TICKER {jmc_tick} {#SHOWME #TICK} {$j_ticksize}');
+    expect(converter.convert('#tickoff')).toContain('#UNTICKER {jmc_tick}');
+    expect(converter.convert('#tickset')).toContain('#TICKER {jmc_tick} {#SHOWME #TICK} {$j_ticksize}');
   });
 
   it('converts #unalias / #unaction / #unvar in JMC mode', () => {
