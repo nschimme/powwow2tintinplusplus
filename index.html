@@ -112,11 +112,28 @@
         </main>
 
         <section class="mt-12 bg-gray-800 shadow-2xl rounded-xl p-6">
-            <h2 class="text-2xl font-semibold text-center mb-6 text-white">Project Status</h2>
-            <div class="max-w-3xl mx-auto">
-                <p class="text-gray-400 text-center mb-4">
-                    The converter supports multiple legacy clients. It now uses a robust tokenizer for complex nested structures, multi-line aliases, and real-world script patterns.
-                </p>
+            <h2 class="text-2xl font-semibold text-center mb-6 text-white">Project Information</h2>
+            <div class="max-w-4xl mx-auto">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 text-center">
+                    <div class="bg-gray-900 p-4 rounded-lg border border-gray-700">
+                        <h3 class="text-cyan-400 font-bold mb-3 uppercase tracking-wider text-xs">Legacy Documentation</h3>
+                        <div class="flex flex-col space-y-2 text-sm">
+                            <a href="powwow.html" class="text-gray-300 hover:text-orange-400 transition">Powwow Help</a>
+                            <a href="jmc_help.html" class="text-gray-300 hover:text-orange-400 transition">JMC Help</a>
+                        </div>
+                    </div>
+                    <div class="bg-gray-900 p-4 rounded-lg border border-gray-700">
+                        <h3 class="text-cyan-400 font-bold mb-3 uppercase tracking-wider text-xs">TinTin++ Resources</h3>
+                        <div class="flex flex-col space-y-2 text-sm">
+                            <a href="tintinplusplus_help.html" class="text-gray-300 hover:text-cyan-400 transition">TT++ Help</a>
+                            <a href="tintinplusplus_tutorial.html" class="text-gray-300 hover:text-cyan-400 transition">TT++ Tutorial</a>
+                        </div>
+                    </div>
+                    <div class="bg-gray-900 p-4 rounded-lg border border-gray-700 text-sm text-gray-300 flex items-center justify-center">
+                        <p>A robust tool to migrate scripts from legacy clients to modern syntax.</p>
+                    </div>
+                </div>
+
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                     <div class="bg-gray-900 p-4 rounded-lg">
                         <h3 class="text-cyan-400 font-bold mb-2">Supported Features</h3>
@@ -136,7 +153,7 @@
                             <li>Automated test suite (Vitest)</li>
                             <li>Benchmark validated (ElvenRunes)</li>
                             <li>Tailwind CSS UI</li>
-                            <li>GitHub Actions deployment</li>
+                            <li>GitHub Actions CI/CD</li>
                         </ul>
                     </div>
                 </div>

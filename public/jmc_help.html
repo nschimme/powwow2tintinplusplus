@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JMC Help and Commands</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            color: #374151;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 960px;
+            margin: 2rem auto;
+            background-color: #ffffff;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+        }
+        h1, h2, h3, h4 {
+            color: #1f2937;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+        h1 { font-size: 2.25rem; }
+        h2 { font-size: 1.875rem; border-bottom: 2px solid #e5e7eb; padding-bottom: 0.5rem; margin-top: 2rem; }
+        h3 { font-size: 1.5rem; margin-top: 1.5rem; }
+        h4 { font-size: 1.25rem; margin-top: 1.25rem; }
+        pre {
+            background-color: #e5e7eb;
+            color: #374151;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+        code {
+            font-family: 'Menlo', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', monospace;
+        }
+        a {
+            color: #2563eb;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        ul {
+            list-style-type: disc;
+            margin-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .section-indent {
+            margin-left: 2rem;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body class="p-4 sm:p-6 lg:p-8">
+    <div class="container">
+        <h1 class="text-center mb-6">JMC Help and Commands</h1>
+        <p class="text-center text-gray-500 mb-8">English Documentation (Adapted from MUME Wiki & Nerevar JMC)</p>
+
+        <h2 id="introduction">Introduction</h2>
+        <div class="section-indent">
+            <p>JMC (Jaba Mud Client) is a powerful MUD client with support for triggers, aliases, variables, and complex scripting. This document provides a summary of its core commands.</p>
+        </div>
+
+        <h2 id="command-list">Commands</h2>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-2 mb-8">
+            <a href="#action">#action</a>
+            <a href="#alias">#alias</a>
+            <a href="#antisubstitute">#antisubstitute</a>
+            <a href="#autoreconnect">#autoreconnect</a>
+            <a href="#bell">#bell</a>
+            <a href="#char">#char</a>
+            <a href="#connect">#connect</a>
+            <a href="#cr">#cr</a>
+            <a href="#echo">#echo</a>
+            <a href="#gag">#gag</a>
+            <a href="#group">#group</a>
+            <a href="#highlight">#highlight</a>
+            <a href="#hotkey">#hotkey</a>
+            <a href="#if">#if</a>
+            <a href="#ignore">#ignore</a>
+            <a href="#info">#info</a>
+            <a href="#killall">#killall</a>
+            <a href="#log">#log</a>
+            <a href="#loop">#loop</a>
+            <a href="#math">#math</a>
+            <a href="#multiaction">#multiaction</a>
+            <a href="#path">#path</a>
+            <a href="#read">#read</a>
+            <a href="#showme">#showme</a>
+            <a href="#variable">#variable</a>
+            <a href="#zap">#zap</a>
+        </div>
+
+        <h3 id="action">#action</h3>
+        <div class="section-indent">
+            <pre>Syntax: #action {input string} {actions} {priority}</pre>
+            <p>This command allows you to program an action (or several) that must be performed when entering any text from the MUD. Triggers can capture words into variables %0-%9.</p>
+            <p>Example: <code>#action {You are hungry.} {eat bread} {2}</code></p>
+        </div>
+
+        <h3 id="alias">#alias</h3>
+        <div class="section-indent">
+            <pre>Syntax: #alias {NAME} {COMMANDS}</pre>
+            <p>Aliases allow you to shorten long commands. Variables %1-%9 represent words in the input line, and %0 represents the whole line.</p>
+            <p>Example: <code>#alias {k} {kill %1}</code></p>
+        </div>
+
+        <h3 id="antisubstitute">#antisubstitute</h3>
+        <div class="section-indent">
+            <pre>Syntax: #antisubstitute {string portion}</pre>
+            <p>Prevents #substitute and #gag from affecting lines containing the specified text.</p>
+        </div>
+
+        <h3 id="autoreconnect">#autoreconnect</h3>
+        <div class="section-indent">
+            <pre>Syntax: #autoreconnect [on|off]</pre>
+            <p>Enables or disables automatic reconnection to the server.</p>
+        </div>
+
+        <h3 id="bell">#bell</h3>
+        <div class="section-indent">
+            <pre>Syntax: #bell</pre>
+            <p>Produces the default system sound or PC speaker beep.</p>
+        </div>
+
+        <h3 id="char">#char</h3>
+        <div class="section-indent">
+            <pre>Syntax: #char {SYMBOL}</pre>
+            <p>Changes the command character (default is #).</p>
+        </div>
+
+        <h3 id="connect">#connect</h3>
+        <div class="section-indent">
+            <pre>Syntax: #connect &lt;address&gt; &lt;port&gt;</pre>
+            <p>Establishes a connection to a MUD server.</p>
+        </div>
+
+        <h3 id="cr">#cr</h3>
+        <div class="section-indent">
+            <pre>Syntax: #cr</pre>
+            <p>Sends a carriage return (ENTER) to the server.</p>
+        </div>
+
+        <h3 id="echo">#echo</h3>
+        <div class="section-indent">
+            <pre>Syntax: #echo</pre>
+            <p>Toggles the display of commands executed by triggers.</p>
+        </div>
+
+        <h3 id="gag">#gag</h3>
+        <div class="section-indent">
+            <pre>Syntax: #gag {string portion}</pre>
+            <p>Prevents lines containing the specified text from being displayed.</p>
+        </div>
+
+        <h3 id="group">#group</h3>
+        <div class="section-indent">
+            <pre>Syntax: #group {list|delete|disable|enable|info|global|local} [group_name]</pre>
+            <p>Manages groups of triggers or aliases.</p>
+        </div>
+
+        <h3 id="highlight">#highlight</h3>
+        <div class="section-indent">
+            <pre>Syntax: #highlight {color} {string}</pre>
+            <p>Highlights lines originating from the MUD containing the specified text with the chosen color.</p>
+            <p>Example: <code>#highlight {light red, italic} {seriously wounded you}</code></p>
+        </div>
+
+        <h3 id="hotkey">#hotkey</h3>
+        <div class="section-indent">
+            <pre>Syntax: #hotkey {key name} {commands} {group}</pre>
+            <p>Defines a keyboard shortcut.</p>
+            <p>Example: <code>#hotkey f1 flee</code></p>
+        </div>
+
+        <h3 id="if">#if</h3>
+        <div class="section-indent">
+            <pre>Syntax: #if {CONDITION} {COMMANDS}</pre>
+            <p>Evaluates a condition and executes commands if the result is non-zero (true).</p>
+        </div>
+
+        <h3 id="ignore">#ignore</h3>
+        <div class="section-indent">
+            <pre>Syntax: #ignore</pre>
+            <p>Toggles the activation of all triggers.</p>
+        </div>
+
+        <h3 id="info">#info</h3>
+        <div class="section-indent">
+            <pre>Syntax: #info</pre>
+            <p>Displays counts of defined triggers, aliases, and variables.</p>
+        </div>
+
+        <h3 id="killall">#killall</h3>
+        <div class="section-indent">
+            <pre>Syntax: #killall</pre>
+            <p>Removes all defined aliases, triggers, variables, and highlights.</p>
+        </div>
+
+        <h3 id="log">#log</h3>
+        <div class="section-indent">
+            <pre>Syntax: #log {filename} {append|overwrite}</pre>
+            <p>Starts logging session output to a file.</p>
+        </div>
+
+        <h3 id="loop">#loop</h3>
+        <div class="section-indent">
+            <pre>Syntax: #loop {from,to[:delay]} {commands}</pre>
+            <p>Repeats commands in a loop, storing the counter in %0.</p>
+            <p>Example: <code>#10 {sing}</code> (Short form for 10 repetitions)</p>
+        </div>
+
+        <h3 id="math">#math</h3>
+        <div class="section-indent">
+            <pre>Syntax: #math {variable} {expression}</pre>
+            <p>Calculates a mathematical expression and stores it in a variable.</p>
+        </div>
+
+        <h3 id="multiaction">#multiaction</h3>
+        <div class="section-indent">
+            <pre>Syntax: #multiaction</pre>
+            <p>Toggles whether multiple triggers can fire on the same line.</p>
+        </div>
+
+        <h3 id="path">#path</h3>
+        <div class="section-indent">
+            <pre>Syntax: #path</pre>
+            <p>Displays the current contents of the movement buffer.</p>
+        </div>
+
+        <h3 id="read">#read</h3>
+        <div class="section-indent">
+            <pre>Syntax: #read {filename}</pre>
+            <p>Loads and executes commands from a file.</p>
+        </div>
+
+        <h3 id="showme">#showme</h3>
+        <div class="section-indent">
+            <pre>Syntax: #showme {text}</pre>
+            <p>Displays text on the local screen without sending it to the server.</p>
+        </div>
+
+        <h3 id="variable">#variable</h3>
+        <div class="section-indent">
+            <pre>Syntax: #variable {name} {value}</pre>
+            <p>Creates a variable and assigns it a value. Use $name to reference it.</p>
+            <p>Example: <code>#variable food bread</code></p>
+        </div>
+
+        <h3 id="zap">#zap</h3>
+        <div class="section-indent">
+            <pre>Syntax: #zap</pre>
+            <p>Closes the current connection.</p>
+        </div>
+
+    </div>
+</body>
+</html>
