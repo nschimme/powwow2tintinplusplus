@@ -3,17 +3,40 @@
 <head>
 <meta http-equiv='content-type' content='text/html; charset=utf-8'>
 <meta name='viewport' content='width=device-width, initial-scale=1.0'>
-<style type='text/css'>
-body {font-family:Consolas;font-size:12pt}
-a {text-decoration:none}
-a:link {color:#06b}
-a:visited {color:#6b0}
-a:hover {text-decoration:underline}
-a:active {color:#b06}
-</style>
-<body bgcolor='#000000'>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style type='text/css'>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #111827;
+            color: #e5e7eb;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 1024px;
+            margin: 2rem auto;
+            background-color: #1f2937;
+            border-radius: 0.75rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            padding: 2rem;
+        }
+        pre {
+            font-family: 'Menlo', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', monospace;
+            white-space: pre-wrap;
+            overflow-wrap: break-word;
+            background-color: #111827;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            border: 1px solid #374151;
+        }
+        a { color: #22d3ee; text-decoration: none; }
+        a:hover { color: #fb923c; text-decoration: underline; }
+    </style>
 </head>
-<pre>
+<body class="p-4 sm:p-6 lg:p-8 bg-gray-900">
+    <div class="container">
+        <h1 class="text-center text-3xl font-bold mb-6 text-cyan-400">TinTin++ Tutorial</h1>
+        <pre>
 <span style='background-color:#000'><span style='color:#FFF'>
 </span><span style='color:#FF5'>        ╭──────────────────────────────────────────────────────────────────────╮
         │                                 <a href='index.html'>Home</a>                                 │
