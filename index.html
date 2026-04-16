@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Powwow to TinTin++ Script Converter</title>
+    <title>TinTin++ Script Converter</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body {
@@ -49,8 +49,8 @@
 
     <div class="container mx-auto p-4 md:p-8">
         <header class="text-center mb-8">
-            <h1 class="text-4xl md:text-5xl font-bold text-cyan-400">Powwow to TinTin++ Converter</h1>
-            <p class="text-gray-400 mt-2 text-lg">A tool to help migrate your MUD scripts.</p>
+            <h1 class="text-4xl md:text-5xl font-bold text-cyan-400">TinTin++ Script Converter</h1>
+            <p class="text-gray-400 mt-2 text-lg">Migrate your legacy MUD scripts to TinTin++.</p>
         </header>
 
         <main class="bg-gray-800 shadow-2xl rounded-xl p-6">
@@ -59,17 +59,26 @@
                     <!-- Example buttons will be injected here -->
                 </div>
 
-                <label class="flex items-center space-x-2 cursor-pointer">
-                    <input type="checkbox" id="pipe-separator" class="form-checkbox h-5 w-5 text-cyan-500 rounded border-gray-700 bg-gray-900 focus:ring-cyan-500">
-                    <span class="text-white">Use Pipe (|) as separator</span>
-                </label>
+                <div class="flex items-center space-x-4">
+                    <label class="flex items-center space-x-2 cursor-pointer">
+                        <span class="text-white font-medium">Source Client:</span>
+                        <select id="mode-select" class="bg-gray-900 border border-gray-700 text-white text-sm rounded-lg focus:ring-cyan-500 focus:border-cyan-500 block w-full p-2.5">
+                            <option value="powwow">Powwow / PowTTY</option>
+                            <option value="jmc">JMC</option>
+                        </select>
+                    </label>
+                    <label id="pipe-separator-label" class="flex items-center space-x-2 cursor-pointer">
+                        <input type="checkbox" id="pipe-separator" class="form-checkbox h-5 w-5 text-cyan-500 rounded border-gray-700 bg-gray-900 focus:ring-cyan-500">
+                        <span class="text-white">Use Pipe (|)</span>
+                    </label>
+                </div>
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <!-- Powwow Input -->
+                <!-- Source Input -->
                 <div>
                     <h2 class="text-2xl font-semibold mb-3 text-white">
-                        <span class="text-orange-400">#</span> Powwow Script
+                        <span class="text-orange-400">#</span> <span id="source-title">Source</span> Script
                     </h2>
                     <textarea id="powwow-input"
                         class="w-full h-[500px] p-4 bg-gray-900 border-2 border-gray-700 rounded-lg text-gray-300 font-mono text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition duration-300"
@@ -106,18 +115,18 @@
             <h2 class="text-2xl font-semibold text-center mb-6 text-white">Project Status</h2>
             <div class="max-w-3xl mx-auto">
                 <p class="text-gray-400 text-center mb-4">
-                    The converter has been upgraded with a robust tokenizer. It now supports complex nested structures, multi-line aliases, and real-world script patterns from MUME.
+                    The converter supports multiple legacy clients. It now uses a robust tokenizer for complex nested structures, multi-line aliases, and real-world script patterns.
                 </p>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                     <div class="bg-gray-900 p-4 rounded-lg">
                         <h3 class="text-cyan-400 font-bold mb-2">Supported Features</h3>
                         <ul class="list-disc list-inside text-gray-300 space-y-1">
+                            <li>Powwow / PowTTY conversion</li>
+                            <li>JMC script conversion</li>
                             <li>Recursive command parsing</li>
                             <li>Nested braces & parentheses</li>
-                            <li>Numbered & named variables</li>
-                            <li>Delayed substitutions (\$, \&)</li>
-                            <li>Inline attribute mapping (attr)</li>
-                            <li>Multiple command separators</li>
+                            <li>Legacy variable mapping</li>
+                            <li>Inline attribute mapping</li>
                         </ul>
                     </div>
                     <div class="bg-gray-900 p-4 rounded-lg">
