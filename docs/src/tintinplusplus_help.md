@@ -10,7 +10,7 @@
 
 
 </span><span style='color:#FF5'>        ╭──────────────────────────────────────────────────────────────────────╮
-│                                 <a href='/index.html'>Home</a>                                 │
+│                                 <a href='./index.html'>Home</a>                                 │
 ╰──────────────────────────────────────────────────────────────────────╯
 
 <a href='#ACTION'>ACTION          </a>  <a href='#EDITING'>EDITING         </a>  <a href='#LOG'>LOG             </a>  <a href='#SCREEN'>SCREEN          </a>
