@@ -24,12 +24,22 @@ describe('TinTinConverter - Powwow Mode', () => {
     expect(output).not.toContain('#LINE GAG');
   });
 
-  it('respects #option +autoprint', () => {
-    const input = '#option +autoprint\n#action ^You parry.=say Nice parry!';
-    const output = converter.convert(input);
-    expect(output).toContain('#COMMENT OPTION autoprint set to ON');
-    expect(output).toContain('#ACTION {^You parry.} {say Nice parry!}');
-    expect(output).not.toContain('#LINE GAG');
+  it('respects #option +/-autoprint', () => {
+    const inputEnable = '#option +autoprint\n#action ^You parry.=say Nice parry!';
+    const outputEnable = converter.convert(inputEnable);
+
+    // Enabling autoprint: keep the action, do not gag, and use #NOP instead of legacy #COMMENT
+    expect(outputEnable).toContain('#NOP OPTION autoprint set to ON');
+    expect(outputEnable).toContain('#ACTION {^You parry.} {say Nice parry!}');
+    expect(outputEnable).not.toContain('#LINE GAG');
+    expect(outputEnable).not.toContain('#COMMENT OPTION autoprint set to ON');
+
+    const inputDisable = '#option -autoprint\n#action ^You parry.=say Nice parry!';
+    const outputDisable = converter.convert(inputDisable);
+
+    // Disabling autoprint: gagging should be restored and legacy #COMMENT should not appear
+    expect(outputDisable).toContain('#LINE GAG');
+    expect(outputDisable).not.toContain('#COMMENT OPTION autoprint set to ON');
   });
 
   it('handles custom separator', () => {
@@ -64,8 +74,7 @@ describe('TinTinConverter - Powwow Mode', () => {
 
     expect(output).toContain('#CLASS {autoloot} {OPEN}');
     expect(output).toContain('#ALIAS {loot+}');
-    expect(output).toContain('#MATH {powwow_at_loot_timer} {timer}');
-    expect(output).not.toContain('$p_p_at');
+    expect(output).toContain('#MATH {powwow_at_loot_timer} {@powwow_timer{}}');
   });
 
   it('handles Powwow alias with minus suffix and label', () => {
@@ -84,7 +93,17 @@ describe('TinTinConverter - Powwow Mode', () => {
   });
 
   it('converts Powwow #setvar, #mark, #hilite', () => {
-    expect(converter.convert('#setvar timer=100')).toContain('#VARIABLE {p_timer} {100}');
+    // special Powwow keywords mapped to powwow_at_*
+    expect(converter.convert('#setvar timer=100')).toContain('#VARIABLE {powwow_at_timer} {100}');
+    expect(converter.convert('#setvar map=foo')).toContain('#VARIABLE {powwow_at_map} {foo}');
+    expect(converter.convert('#setvar prompt=Your prompt> ')).toContain('#VARIABLE {powwow_at_prompt} {Your prompt>}');
+    expect(converter.convert('#setvar lines=50')).toContain('#VARIABLE {powwow_at_lines} {50}');
+    expect(converter.convert('#setvar mem=high')).toContain('#VARIABLE {powwow_at_mem} {high}');
+
+    // string vs numeric expression: #VARIABLE for strings, #MATH for numeric expressions
+    expect(converter.convert('#setvar myvar="string value"')).toContain('#VARIABLE {p_myvar} {"string value"}');
+    expect(converter.convert('#setvar myvar=(1+2)')).toContain('#MATH {p_myvar} {1+2}');
+
     expect(converter.convert('#mark {Dragon}=bold red')).toContain('#HIGHLIGHT {{Dragon}} {bold red}');
     expect(converter.convert('#hilite inverse')).toContain('#HIGHLIGHT {.*} {inverse}');
     expect(converter.convert('#beep')).toContain('#BELL');
@@ -92,6 +111,15 @@ describe('TinTinConverter - Powwow Mode', () => {
     expect(converter.convert('#save my.tin')).toContain('#WRITE {my.tin}');
     expect(converter.convert('#load my.tin')).toContain('#READ {my.tin}');
     expect(converter.convert('#! ls')).toContain('#SYSTEM {ls}');
+  });
+
+  it('converts Powwow #bind with sequence and label', () => {
+    // Basic bind
+    expect(converter.convert('#bind f1=score')).toContain('#MACRO {f1} {score}');
+    // Bind with sequence
+    const output = converter.convert('#bind f1 ^[OP=score');
+    expect(output).toContain('#NOP ORIGINAL BIND LABEL: f1');
+    expect(output).toContain('#MACRO {^[OP} {score}');
   });
 });
 
@@ -180,12 +208,25 @@ describe('TinTinConverter - JMC Mode', () => {
     const input = [
       '## this is a JMC comment with hash',
       '// this is a JMC comment with slashes',
+      '/* this is a block comment */',
+      '/* multi-line',
+      '   block comment */',
+      '#alias {test} {',
+      '  /* nested comment */',
+      '  say hello',
+      '}',
+      '#action {pattern} {cmd} /* trailing comment */'
     ].join('\n');
 
     const output = converter.convert(input);
 
-    expect(output).toContain('#COMMENT this is a JMC comment with hash');
-    expect(output).toContain('#COMMENT this is a JMC comment with slashes');
+    expect(output).toContain('#NOP this is a JMC comment with hash');
+    expect(output).toContain('#NOP this is a JMC comment with slashes');
+    expect(output).toContain('#NOP this is a block comment');
+    expect(output).toContain('#NOP multi-line');
+    expect(output).toContain('#NOP block comment');
+    expect(output).toContain('#NOP nested comment');
+    expect(output).toContain('#NOP trailing comment');
   });
 
   it('converts JMC hotkeys', () => {
