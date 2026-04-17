@@ -5,9 +5,7 @@ const tintinOutput = document.getElementById('tintin-output');
 const convertBtn = document.getElementById('convert-btn');
 const clearBtn = document.getElementById('clear-btn');
 const copyTooltip = document.getElementById('copy-tooltip');
-const pipeSeparatorCheckbox = document.getElementById('pipe-separator');
 const modeSelect = document.getElementById('mode-select');
-const pipeSeparatorLabel = document.getElementById('pipe-separator-label');
 const sourceTitle = document.getElementById('source-title');
 const exampleButtonsContainer = document.getElementById('example-buttons');
 
@@ -72,9 +70,6 @@ function updateUIForMode() {
         else if (mode === 'powtty') sourceTitle.textContent = 'PowTTY';
         else sourceTitle.textContent = 'Powwow';
     }
-    if (pipeSeparatorLabel) {
-        pipeSeparatorLabel.style.display = 'none'; // Manual toggle hidden in favor of dropdown modes
-    }
 }
 
 let debounceTimer;
@@ -138,10 +133,6 @@ if (clearBtn) {
 
 if (powwowInput) {
     powwowInput.addEventListener('input', debouncedConvert);
-}
-
-if (pipeSeparatorCheckbox) {
-    pipeSeparatorCheckbox.addEventListener('change', convertScript);
 }
 
 if (modeSelect) {
