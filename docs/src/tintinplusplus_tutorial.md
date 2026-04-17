@@ -1,11 +1,16 @@
 # TinTin++ Tutorial
 
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+<span style="color:#FFF; background-color:#000;">
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+# TinTin++ Tutorial
 
-<h1 class="text-center text-3xl font-bold mb-6 text-cyan-400">TinTin++ Tutorial</h1>
-<pre>
-<span style='background-color:#000'><span style='color:#FFF'>
+
+
+
+
 </span><span style='color:#FF5'>        ╭──────────────────────────────────────────────────────────────────────╮
-│                                 <a href='index.html'>Home</a>                                 │
+│                                 <a href='/index.html'>Home</a>                                 │
 ╰──────────────────────────────────────────────────────────────────────╯
 
 <a href='#INDEX'>INDEX           </a>  <a href='#GREETING'>GREETING        </a>  <a href='#MSDP'>MSDP            </a>  <a href='#STATEMENTS'>STATEMENTS      </a>
@@ -15,13 +20,11 @@
 <a href='#COORDINATES'>COORDINATES     </a>  <a href='#MATHEMATICS'>MATHEMATICS     </a>  <a href='#SCREEN_READER'>SCREEN READER   </a>  <a href='#TRIGGERS'>TRIGGERS        </a>
 <a href='#EDITING'>EDITING         </a>  <a href='#METRIC_SYSTEM'>METRIC SYSTEM   </a>  <a href='#SESSIONNAME'>SESSIONNAME     </a>
 <a href='#ESCAPE_CODES'>ESCAPE CODES    </a>  <a href='#MOUSE'>MOUSE           </a>  <a href='#SPEEDWALK'>SPEEDWALK       </a>
+</div>
 
+## INDEX { #INDEX }
 
-
-<a name='INDEX'></a>
-
-INDEX
-
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
 </span><span style='color:#08F'>                   ████████┐██████┐███┐   ██┐████████┐██████┐███┐   ██┐
 └──██┌──┘└─██┌─┘████┐  ██│└──██┌──┘└─██┌─┘████┐  ██│
 ██│     ██│  ██┌██┐ ██│   ██│     ██│  ██┌██┐ ██│
@@ -55,10 +58,11 @@ to ya Peter. You started the ball rolling.
 which should be linked below.
 
 </span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#INTRODUCTION'>introduction</a>
-<a name='INTRODUCTION'></a>
+</div>
 
-</span><span style='color:#FF5'>         INTRODUCTION
+## </span><span style='color:#FF5'>         INTRODUCTION { #INTRODUCTION }
 
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
 </span><span style='color:#AAA'>         On this page you'll find an introduction to using TinTin++. Additional
 information can be found in the individual help sections.
 
@@ -325,11 +329,11 @@ describe various features, often in greater detail.
 </span><span style='color:#5F5'>That's all for the introduction, enjoy
 
 </span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#CHARACTERS'>characters</a>, <a href='#COLORS'>colors</a>, <a href='#COORDINATES'>coordinates</a>, <a href='#EDITING'>editing</a>, <a href='#ESCAPE_CODES'>escape_codes</a>, <a href='#GREETING'>greeting</a>, <a href='#KEYPAD'>keypad</a>, <a href='#LISTS'>lists</a>, <a href='#MAPPING'>mapping</a>, <a href='#MATHEMATICS'>mathematics</a>, <a href='#SCREEN_READER'>screen_reader</a>, <a href='#SESSIONNAME'>sessionname</a>, <a href='#SPEEDWALK'>speedwalk</a>, <a href='#STATEMENTS'>statements</a>, <a href='#SUSPEND'>suspend</a> and <a href='#TIME'>time</a>.
-<a name='CHARACTERS'></a>
+</div>
 
-</span><span style='color:#FF5'>         CHARACTERS
+## </span><span style='color:#FF5'>         CHARACTERS { #CHARACTERS }
 
-
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
 </span><span style='color:#AAA'>         The following special characters are defined:
 
 </span><span style='color:#FFF'>#        </span><span style='color:#AAA'>The hashtag is the default character for starting a command and is
@@ -361,10 +365,11 @@ connected to a server. This character can be configured with
 is enabled.
 
 </span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#COLORS'>colors</a>, <a href='#ESCAPE_CODES'>escape_codes</a>, <a href='help.html#FUNCTION'>function</a>, <a href='#MATHEMATICS'>mathematics</a>, <a href='#PCRE'>pcre</a> and <a href='help.html#VARIABLE'>variable</a>.
-<a name='COLORS'></a>
+</div>
 
-</span><span style='color:#FF5'>         COLORS
+## </span><span style='color:#FF5'>         COLORS { #COLORS }
 
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
 </span><span style='color:#FFF'>Syntax</span><span style='color:#AAA'>:  &;xyz&;  with x, y, z being parameters
 
 Parameter 'x': VT100 code
@@ -413,11 +418,11 @@ If the color code exceeds your configured color mode it will be
 downgraded to the closest match.
 
 </span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#CHARACTERS'>characters</a>, <a href='#COORDINATES'>coordinates</a>, <a href='#ESCAPE_CODES'>escape_codes</a>, <a href='#MATHEMATICS'>mathematics</a> and <a href='#PCRE'>pcre</a>.
-<a name='COORDINATES'></a>
+</div>
 
-</span><span style='color:#FF5'>         COORDINATES
+## </span><span style='color:#FF5'>         COORDINATES { #COORDINATES }
 
-
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
 </span><span style='color:#AAA'>         When the 0,0 coordinate is in the upper left corner TinTin++ uses
 a y,x / row,col notation, starting at 1,1. Subsequently -1,-1
 will indicate the bottom right corner. This type of argument is
@@ -456,11 +461,11 @@ index is defined as -1. This type of argument is used by #buffer
 and #variable.
 
 </span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#CHARACTERS'>characters</a>, <a href='#COLORS'>colors</a>, <a href='#ESCAPE_CODES'>escape_codes</a>, <a href='#MATHEMATICS'>mathematics</a> and <a href='#PCRE'>pcre</a>.
-<a name='EDITING'></a>
+</div>
 
-</span><span style='color:#FF5'>         EDITING
+## </span><span style='color:#FF5'>         EDITING { #EDITING }
 
-
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
 </span><span style='color:#0AA'>┌─────────────────────────┐┌────────────────────────────────────────────┐
 │</span><span style='color:#FFF'>alt b                    </span><span style='color:#0AA'>││</span><span style='color:#FFF'>cursor backward word                        </span><span style='color:#0AA'>│
 ├─────────────────────────┤├────────────────────────────────────────────┤
@@ -572,10 +577,11 @@ and #variable.
 └─────────────────────────┘└────────────────────────────────────────────┘
 
 </span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='help.html#CURSOR'>cursor</a>, <a href='help.html#EDIT'>edit</a> and <a href='help.html#MACRO'>macro</a>.
-<a name='ESCAPE_CODES'></a>
+</div>
 
-</span><span style='color:#FF5'>         ESCAPE CODES
+## </span><span style='color:#FF5'>         ESCAPE CODES { #ESCAPE_CODES }
 
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
 </span><span style='color:#AAA'>         You may use the escape character &amp;bsol; for various special characters.
 
 &amp;bsol;a    beep the terminal.
@@ -597,10 +603,11 @@ Ending a line with &amp;bsol; will stop tintin from appending a line feed.
 To escape arguments in an alias or action use %%0 %%1 %%2 etc.
 
 </span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#CHARACTERS'>characters</a>, <a href='#COLORS'>colors</a>, <a href='#COORDINATES'>coordinates</a>, <a href='#MATHEMATICS'>mathematics</a> and <a href='#PCRE'>pcre</a>.
-<a name='GREETING'></a>
+</div>
 
-</span><span style='color:#FF5'>         GREETING
+## </span><span style='color:#FF5'>         GREETING { #GREETING }
 
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
 </span><span style='color:#0AA'>      ####################################################################
 #</span><span style='color:#AAA'>                                                                  </span><span style='color:#0AA'>#
 #</span><span style='color:#AAA'>                    T I N T I N + +   2.02.51                     </span><span style='color:#0AA'>#
@@ -608,11 +615,11 @@ To escape arguments in an alias or action use %%0 %%1 %%2 etc.
 #</span><span style='color:#AAA'>      Code by Peter Unold, Bill Reis, and Igor van den Hoven      </span><span style='color:#0AA'>#
 #</span><span style='color:#AAA'>                                                                  </span><span style='color:#0AA'>#
 ####################################################################
+</div>
 
-<a name='KEYPAD'></a>
+## </span><span style='color:#FF5'>         KEYPAD { #KEYPAD }
 
-</span><span style='color:#FF5'>         KEYPAD
-
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
 </span><span style='color:#AAA'>         When TinTin++ starts up it sends &amp;bsol;e= to the terminal to enable the
 terminal's application keypad mode, which can be disabled using #show {&amp;bsol;e&;}
 
@@ -653,10 +660,11 @@ Mac OS X Terminal requires enabling 'strict vt100 keypad behavior' in
 Terminal -&; Window Settings -&; Emulation.
 
 </span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#COLORS'>colors</a>, <a href='#COORDINATES'>coordinates</a>, <a href='#ESCAPE_CODES'>escape_codes</a>, <a href='#MATHEMATICS'>mathematics</a> and <a href='#PCRE'>pcre</a>.
-<a name='LISTS'></a>
+</div>
 
-</span><span style='color:#FF5'>         LISTS
+## </span><span style='color:#FF5'>         LISTS { #LISTS }
 
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
 </span><span style='color:#AAA'>         There are several different types of lists in tintin which behave in a
 fairly universal manner. To properly explain lists it's easiest to
 explain the most basic variable type first before discussing more
@@ -979,11 +987,11 @@ Looping through a hash table is relatively easy as well.
 }
 
 </span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='help.html#BREAK'>break</a>, <a href='help.html#CONTINUE'>continue</a>, <a href='help.html#FOREACH'>foreach</a>, <a href='help.html#LOOP'>loop</a>, <a href='help.html#PARSE'>parse</a>, <a href='#REPEAT'>repeat</a>, <a href='help.html#RETURN'>return</a> and <a href='help.html#WHILE'>while</a>.
-<a name='MAPPING'></a>
+</div>
 
-</span><span style='color:#FF5'>         MAPPING
+## </span><span style='color:#FF5'>         MAPPING { #MAPPING }
 
-
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
 </span><span style='color:#AAA'>         TinTin++ has a powerful automapper that uses a room system similar to
 Diku MUDs which means that odd map layouts and weird exit
 configurations aren't a problem. The mapper provides tools to improve
@@ -1107,10 +1115,11 @@ It's also possible to align rooms using void rooms. This is easily
 done using #map insert north void.
 
 </span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='help.html#MAP'>map</a>, <a href='help.html#PATH'>path</a> and <a href='help.html#PATHDIR'>pathdir</a>.
-<a name='MATHEMATICS'></a>
+</div>
 
-</span><span style='color:#FF5'>         MATHEMATICS
+## </span><span style='color:#FF5'>         MATHEMATICS { #MATHEMATICS }
 
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
 </span><span style='color:#AAA'>         </span><span style='color:#FFF'>Number operations
 
 </span><span style='color:#AAA'>         Operators       Priority     Function
@@ -1163,10 +1172,11 @@ and the argument on the right being the regex. For example
 {bla} == {%*a} would evaluate as 1.
 
 </span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='help.html#MATH'>math</a> and <a href='help.html#REGEXP'>regexp</a>.
-<a name='METRIC_SYSTEM'></a>
+</div>
 
-</span><span style='color:#FF5'>         METRIC SYSTEM
+## </span><span style='color:#FF5'>         METRIC SYSTEM { #METRIC_SYSTEM }
 
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
 </span><span style='color:#AAA'>         The #math command supports using 1K, 1M, 1m, and 1u to make large and
 small number handling a little easier. These are case sensitive. Only
 four symbols are supported to keep false positives to a minimum.
@@ -1182,11 +1192,11 @@ four symbols are supported to keep false positives to a minimum.
 ╰─────────┴────────┴─────────────────────────────────╯
 
 </span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='help.html#ECHO'>echo</a>, <a href='help.html#FORMAT'>format</a> and <a href='help.html#MATH'>math</a>.
-<a name='MOUSE'></a>
+</div>
 
-</span><span style='color:#FF5'>         MOUSE
+## </span><span style='color:#FF5'>         MOUSE { #MOUSE }
 
-
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
 </span><span style='color:#AAA'>         To enable xterm mouse tracking use #CONFIG MOUSE ON.
 
 To see mouse events as they happen use #CONFIG MOUSE INFO. This
@@ -1207,11 +1217,11 @@ key during selection.
 
 
 </span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='help.html#BUTTON'>button</a>, <a href='help.html#DRAW'>draw</a>, <a href='help.html#EVENT'>event</a> and <a href='#MSLP'>mslp</a>.
-<a name='MSDP'></a>
+</div>
 
-</span><span style='color:#FF5'>         MSDP
+## </span><span style='color:#FF5'>         MSDP { #MSDP }
 
-
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
 </span><span style='color:#AAA'>         MSDP (Mud Server Data Protocol) is part of the #port functionality.
 See #help event for additional documentation as all MSDP events are
 available as regular events.
@@ -1222,11 +1232,11 @@ as described in the specification.
 </span><span style='color:#5FF'>https://tintin.mudhalla.net/protocols/msdp
 
 </span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='help.html#EVENT'>event</a> and <a href='help.html#PORT'>port</a>.
-<a name='MSLP'></a>
+</div>
 
-</span><span style='color:#FF5'>         MSLP
+## </span><span style='color:#FF5'>         MSLP { #MSLP }
 
-
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
 </span><span style='color:#AAA'>         MSLP (Mud Server Link Protocol) requires enabling #config mouse on,
 and creating the appropriate LINK events.
 
@@ -1280,11 +1290,11 @@ This would make you start a reply when clicking on a tell.
 </span><span style='color:#FFF'>Website</span><span style='color:#AAA'>: https://tintin.mudhalla.net/protocols/mslp
 
 </span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='help.html#EVENT'>event</a> and <a href='help.html#PORT'>port</a>.
-<a name='PCRE'></a>
+</div>
 
-</span><span style='color:#FF5'>         PCRE
+## </span><span style='color:#FF5'>         PCRE { #PCRE }
 
-
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
 </span><span style='color:#AAA'>         A regular expression, regex or regexp is a sequence of characters that
 defines a search pattern. Since the 1980s, different syntaxes for
 writing regular expressions exist, the two most widely used ones being
@@ -1491,10 +1501,11 @@ somewhat obscure, so you'll have to read a PCRE manual for additional
 information.
 
 </span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='help.html#MAP'>map</a> and <a href='help.html#PATH'>path</a>.
-<a name='REPEAT'></a>
+</div>
 
-</span><span style='color:#FF5'>         REPEAT
+## </span><span style='color:#FF5'>         REPEAT { #REPEAT }
 
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
 </span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #</span><span style='color:#FFF'>[</span><span style='color:#AAA'>number</span><span style='color:#FFF'>] {</span><span style='color:#AAA'>commands</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>..</span><span style='color:#FFF'>}
 
 </span><span style='color:#AAA'>        Sometimes you want to repeat the same command multiple times. This is
@@ -1504,10 +1515,11 @@ the easiest way to accomplish that.
 </span><span style='color:#FFF'>Example</span><span style='color:#AAA'>: #2 {buy bread} {buy apple}
 
 </span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#MATHEMATICS'>mathematics</a> and <a href='#STATEMENTS'>statements</a>.
-<a name='SCREEN_READER'></a>
+</div>
 
-</span><span style='color:#FF5'>         SCREEN READER
+## </span><span style='color:#FF5'>         SCREEN READER { #SCREEN_READER }
 
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
 </span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #config </span><span style='color:#FFF'>{</span><span style='color:#AAA'>SCREEN READER</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>ON|OFF</span><span style='color:#FFF'>}
 
 </span><span style='color:#AAA'>         Screen reader mode is enabled by using #config screen on. One purpose
@@ -1521,10 +1533,11 @@ With the screen reader mode enabled TinTin++ will try to remove or
 alter visual elements where possible.
 
 </span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='help.html#CONFIG'>config</a>
-<a name='SESSIONNAME'></a>
+</div>
 
-</span><span style='color:#FF5'>         SESSIONNAME
+## </span><span style='color:#FF5'>         SESSIONNAME { #SESSIONNAME }
 
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
 </span><span style='color:#FFF'>Syntax</span><span style='color:#AAA'>:  #[sessionname] </span><span style='color:#FFF'>{</span><span style='color:#AAA'>commands</span><span style='color:#FFF'>}
 
 </span><span style='color:#AAA'>         You can create multiple sessions with the #session command. By default
@@ -1557,10 +1570,11 @@ can do so in a similar way as you would use a #function call. Using
 as defined by session two.
 
 </span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#SUSPEND'>suspend</a>
-<a name='SPEEDWALK'></a>
+</div>
 
-</span><span style='color:#FF5'>         SPEEDWALK
+## </span><span style='color:#FF5'>         SPEEDWALK { #SPEEDWALK }
 
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
 </span><span style='color:#5F5'>         SPEEDWALK V1
 
 </span><span style='color:#AAA'>         Speedwalking allows you to enter multiple directions without using
@@ -1592,11 +1606,11 @@ format is used that can also contain timing data.
 </span><span style='color:#FFF'>Example</span><span style='color:#AAA'>: #map move 3ne1d
 
 </span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#KEYPAD'>keypad</a>, <a href='#MAPPING'>mapping</a> and <a href='#REPEAT'>repeat</a>.
-<a name='STATEMENTS'></a>
+</div>
 
-</span><span style='color:#FF5'>         STATEMENTS
+## </span><span style='color:#FF5'>         STATEMENTS { #STATEMENTS }
 
-
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
 </span><span style='color:#AAA'>         TinTin++ knows the following statements.
 
 #break
@@ -1614,10 +1628,11 @@ format is used that can also contain timing data.
 #while {expression} {commands}
 
 </span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#MATHEMATICS'>mathematics</a>, <a href='#PCRE'>pcre</a> and <a href='#REPEAT'>repeat</a>.
-<a name='SUBSTITUTIONS'></a>
+</div>
 
-</span><span style='color:#FF5'>         SUBSTITUTIONS
+## </span><span style='color:#FF5'>         SUBSTITUTIONS { #SUBSTITUTIONS }
 
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
 </span><span style='color:#AAA'>          TinTin++ will perform various types of substitions as detailed below.
 
 </span><span style='color:#5F5'>          Variables
@@ -1686,10 +1701,11 @@ displayed on the screen, or being processed as part of a regex.
 Escapes try to mimic escapes in PCRE when possible.
 
 </span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#CHARACTERS'>characters</a>, <a href='#COLORS'>colors</a>, <a href='#ESCAPE_CODES'>escape_codes</a> and <a href='#PCRE'>pcre</a>.
-<a name='SUSPEND'></a>
+</div>
 
-</span><span style='color:#FF5'>         SUSPEND
+## </span><span style='color:#FF5'>         SUSPEND { #SUSPEND }
 
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
 </span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #cursor suspend
 
 Temporarily suspends tintin and returns you to your shell.  To
@@ -1699,10 +1715,11 @@ While suspended your tintin sessions will freeze. To keep a
 suspended session running use the #daemon command.
 
 </span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#SESSIONNAME'>sessionname</a>
-<a name='TIME'></a>
+</div>
 
-</span><span style='color:#FF5'>         TIME
+## </span><span style='color:#FF5'>         TIME { #TIME }
 
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
 </span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #format </span><span style='color:#FFF'>{</span><span style='color:#AAA'>variable</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>%t</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>argument</span><span style='color:#FFF'>}
 
 </span><span style='color:#AAA'>         The %t format specifier of the #format command allows printing dates
@@ -1740,10 +1757,11 @@ Below are some common specifiers, see man strftime for the full list.
 %Z  Abbreviated name of the time zone. (CET, GMT, etc)
 
 </span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='help.html#ECHO'>echo</a>, <a href='help.html#EVENT'>event</a> and <a href='help.html#FORMAT'>format</a>.
-<a name='TRIGGERS'></a>
+</div>
 
-</span><span style='color:#FF5'>         TRIGGERS
+## </span><span style='color:#FF5'>         TRIGGERS { #TRIGGERS }
 
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
 </span><span style='color:#AAA'>         All available triggers in TinTin++ are displayed when you use the #info
 command without an argument. All of them are written to file when you
 use the #write command, except commands, histories, and paths.
@@ -1841,3 +1859,6 @@ must be set to on to enable mouse tracking.
 </span><span style='color:#AAA'>         Events can be used for a wide variety of pre-defined triggers.
 
 </span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#PCRE'>pcre</a>, <a href='#SUBSTITUTIONS'>substitutions</a> and <a href='#ESCAPE_CODES'>escape_codes</a>.
+</div>
+</span>
+</div>

@@ -14,6 +14,39 @@ const md = new MarkdownIt({
   typographer: true
 });
 
+// Custom plugin to support header IDs and auto-slugging
+const originalHeadingOpen = md.renderer.rules.heading_open || function(tokens, idx, options, env, self) {
+  return self.renderToken(tokens, idx, options);
+};
+
+md.renderer.rules.heading_open = function(tokens, idx, options, env, self) {
+  const inlineToken = tokens[idx + 1];
+  if (inlineToken && inlineToken.type === 'inline') {
+    // Check for explicit ID: ## Title { #id }
+    const match = inlineToken.content.match(/\{\s*#([\w-]+)\s*\}/);
+    if (match) {
+      const id = match[1];
+      tokens[idx].attrPush(['id', id]);
+      inlineToken.content = inlineToken.content.replace(match[0], '').trim();
+      if (inlineToken.children) {
+        inlineToken.children.forEach(child => {
+           if (child.type === 'text') child.content = child.content.replace(match[0], '').trim();
+        });
+      }
+    } else {
+      // Auto-slugify: ## My Title -> id="my-title"
+      const id = inlineToken.content
+        .toLowerCase()
+        .replace(/#+/g, '') // remove # from JMC commands
+        .trim()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)/g, '');
+      if (id) tokens[idx].attrPush(['id', id]);
+    }
+  }
+  return originalHeadingOpen(tokens, idx, options, env, self);
+};
+
 function getPartial(name) {
   return fs.readFileSync(resolve(__dirname, `docs/partials/${name}.html`), 'utf-8');
 }

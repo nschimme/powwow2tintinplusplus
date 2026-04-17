@@ -67,13 +67,14 @@
 
     <div class="container mx-auto max-w-4xl p-6 md:p-12 my-8 bg-gray-800 rounded-xl shadow-2xl">
         <article class="prose prose-invert max-w-none">
-            <h1>TinTin++ Help</h1>
-<h1 class="text-center text-3xl font-bold mb-6 text-cyan-400">TinTin++ Help and Commands</h1>
-<pre>
-<span style='background-color:#000'><span style='color:#FFF'>
-</span><span style='color:#FF5'>        ╭──────────────────────────────────────────────────────────────────────╮
-│                                 <a href='index.html'>Home</a>                                 │
-╰──────────────────────────────────────────────────────────────────────╯
+            <h1 id="tintin-help">TinTin++ Help</h1>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+<span style="color:#FFF; background-color:#000;">
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+# TinTin++ Help
+<p></span><span style='color:#FF5'>        ╭──────────────────────────────────────────────────────────────────────╮
+│                                 <a href='/index.html'>Home</a>                                 │
+╰──────────────────────────────────────────────────────────────────────╯</p>
 <p><a href='#ACTION'>ACTION          </a>  <a href='#EDITING'>EDITING         </a>  <a href='#LOG'>LOG             </a>  <a href='#SCREEN'>SCREEN          </a>
 <a href='#ALIAS'>ALIAS           </a>  <a href='#ELSE'>ELSE            </a>  <a href='#LOOP'>LOOP            </a>  <a href='#SCREEN_READER'>SCREEN READER   </a>
 <a href='#ALL'>ALL             </a>  <a href='#ELSEIF'>ELSEIF          </a>  <a href='#MACRO'>MACRO           </a>  <a href='#SCRIPT'>SCRIPT          </a>
@@ -100,9 +101,10 @@
 <a href='#DRAW'>DRAW            </a>  <a href='#LIST'>LIST            </a>  <a href='#RETURN'>RETURN          </a>  <a href='#WHILE'>WHILE           </a>
 <a href='#ECHO'>ECHO            </a>  <a href='#LISTS'>LISTS           </a>  <a href='#RUN'>RUN             </a>  <a href='#WRITE'>WRITE           </a>
 <a href='#EDIT'>EDIT            </a>  <a href='#LOCAL'>LOCAL           </a>  <a href='#SCAN'>SCAN            </a>  <a href='#ZAP'>ZAP             </a></p>
-<p><a name='ACTION'></a></p>
-<p>ACTION</p>
-<p></span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #action </span><span style='color:#FFF'>{</span><span style='color:#AAA'>message</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>commands</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>priority</span><span style='color:#FFF'>}</p>
+</div>
+<h2 id="ACTION">ACTION</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #action </span><span style='color:#FFF'>{</span><span style='color:#AAA'>message</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>commands</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>priority</span><span style='color:#FFF'>}
 <p></span><span style='color:#AAA'>         The #action command can be used to respond with one or several
 commands to a specific message sent by the server. The %1-%99
 variables are substituted from the message and can be used in the
@@ -121,10 +123,11 @@ can be a floating point number and should be between 1 and 9.</p>
 #unaction {&amp;bsol;%</em>}. Alternatively you could wrap the action inside a
 class, and kill that class when you no longer need the action.</p>
 <p></span><span style='color:#FFF'>Comment</span><span style='color:#AAA'>: You can remove an action with the #unaction command.</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#PCRE'>pcre</a>, <a href='#GAG'>gag</a>, <a href='#HIGHLIGHT'>highlight</a>, <a href='#PROMPT'>prompt</a> and <a href='#SUBSTITUTE'>substitute</a>.
-<a name='ALIAS'></a></p>
-<p></span><span style='color:#FF5'>         ALIAS</p>
-<p></span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #alias </span><span style='color:#FFF'>{</span><span style='color:#AAA'>name</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>commands</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>priority</span><span style='color:#FFF'>}</p>
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#PCRE'>pcre</a>, <a href='#GAG'>gag</a>, <a href='#HIGHLIGHT'>highlight</a>, <a href='#PROMPT'>prompt</a> and <a href='#SUBSTITUTE'>substitute</a>.</p>
+</div>
+<h2 id="ALIAS"></span><span style='color:#FF5'>ALIAS</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #alias </span><span style='color:#FFF'>{</span><span style='color:#AAA'>name</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>commands</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>priority</span><span style='color:#FFF'>}
 <p></span><span style='color:#AAA'>         The #alias command can be used to shorten up long or oftenly used
 commands. The %1-99 variables are substituted from the arguments when
 using an alias and represent the 1st till 99th word which can be used
@@ -149,18 +152,20 @@ can be a floating point number.</p>
 that class when you no longer need the alias.</p>
 <p>For more information on pattern matching see the section on PCRE.</p>
 <p></span><span style='color:#FFF'>Comment</span><span style='color:#AAA'>: You can remove an alias with the #unalias command.</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#CURSOR'>cursor</a>, <a href='#HISTORY'>history</a>, <a href='#KEYPAD'>keypad</a>, <a href='#MACRO'>macro</a>, <a href='#SPEEDWALK'>speedwalk</a> and <a href='#TAB'>tab</a>.
-<a name='ALL'></a></p>
-<p></span><span style='color:#FF5'>         ALL</p>
-<p></span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #all </span><span style='color:#FFF'>{</span><span style='color:#AAA'>string</span><span style='color:#FFF'>}</p>
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#CURSOR'>cursor</a>, <a href='#HISTORY'>history</a>, <a href='#KEYPAD'>keypad</a>, <a href='#MACRO'>macro</a>, <a href='#SPEEDWALK'>speedwalk</a> and <a href='#TAB'>tab</a>.</p>
+</div>
+<h2 id="ALL"></span><span style='color:#FF5'>ALL</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #all </span><span style='color:#FFF'>{</span><span style='color:#AAA'>string</span><span style='color:#FFF'>}
 <p></span><span style='color:#AAA'>         If you have multiple sessions in one terminal you can use #all to
 execute the command with all sessions, excluding the startup session.</p>
 <p></span><span style='color:#FFF'>Example</span><span style='color:#AAA'>: #all quit</p>
 <p>Sends ‘quit’ to all sessions.</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#PORT'>port</a>, <a href='#RUN'>run</a>, <a href='#SESSION'>session</a>, <a href='#SESSIONNAME'>sessionname</a>, <a href='#SNOOP'>snoop</a>, <a href='#SSL'>ssl</a> and <a href='#ZAP'>zap</a>.
-<a name='BELL'></a></p>
-<p></span><span style='color:#FF5'>         BELL</p>
-<p></span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #bell </span><span style='color:#FFF'>{</span><span style='color:#AAA'>flash</span><span style='color:#FFF'>|</span><span style='color:#AAA'>focus</span><span style='color:#FFF'>|</span><span style='color:#AAA'>margin</span><span style='color:#FFF'>|</span><span style='color:#AAA'>ring</span><span style='color:#FFF'>|</span><span style='color:#AAA'>volume</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>argument</span><span style='color:#FFF'>}</p>
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#PORT'>port</a>, <a href='#RUN'>run</a>, <a href='#SESSION'>session</a>, <a href='#SESSIONNAME'>sessionname</a>, <a href='#SNOOP'>snoop</a>, <a href='#SSL'>ssl</a> and <a href='#ZAP'>zap</a>.</p>
+</div>
+<h2 id="BELL"></span><span style='color:#FF5'>BELL</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #bell </span><span style='color:#FFF'>{</span><span style='color:#AAA'>flash</span><span style='color:#FFF'>|</span><span style='color:#AAA'>focus</span><span style='color:#FFF'>|</span><span style='color:#AAA'>margin</span><span style='color:#FFF'>|</span><span style='color:#AAA'>ring</span><span style='color:#FFF'>|</span><span style='color:#AAA'>volume</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>argument</span><span style='color:#FFF'>}
 <p></span><span style='color:#AAA'>         The #bell command without an argument will ring the terminal bell.</p>
 <p></span><span style='color:#FFF'>Example</span><span style='color:#AAA'>: #action {Bubba tells you} {#bell}</p>
 <p>If you aren’t watching the screen this could be useful if you don’t
@@ -179,19 +184,21 @@ ringing of the alarm bell.</p>
 <p>It’s possible to adjust the alarm bell volume on some terminals.</p>
 <p></span><span style='color:#FFF'>Example</span><span style='color:#AAA'>: #loop {1} {8} {cnt} {#line substitute variables
 #delay {&amp;dollar;cnt} {#show Volume &amp;dollar;cnt: #bell volume &amp;dollar;cnt;#bell}</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#SCREEN'>screen</a>
-<a name='BREAK'></a></p>
-<p></span><span style='color:#FF5'>         BREAK</p>
-<p></span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #break</p>
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#SCREEN'>screen</a></p>
+</div>
+<h2 id="BREAK"></span><span style='color:#FF5'>BREAK</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #break
 <p>The break command can be used inside the #else, #elseif, #if, #foreach,
 #loop, #parse, #switch, and #while statements. When #break is found,
 tintin will stop executing the statement it is currently in and move on
 to the next.</p>
 <p></span><span style='color:#FFF'>Example</span><span style='color:#AAA'>: #while {1} {#math cnt &amp;dollar;cnt + 1;#if {&amp;dollar;cnt == 20} {#break}}</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#STATEMENTS'>statements</a>
-<a name='BUFFER'></a></p>
-<p></span><span style='color:#FF5'>         BUFFER</p>
-<p></span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #buffer </span><span style='color:#FFF'>{</span><span style='color:#AAA'>option</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>argument</span><span style='color:#FFF'>}</p>
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#STATEMENTS'>statements</a></p>
+</div>
+<h2 id="BUFFER"></span><span style='color:#FF5'>BUFFER</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #buffer </span><span style='color:#FFF'>{</span><span style='color:#AAA'>option</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>argument</span><span style='color:#FFF'>}
 <p></span><span style='color:#AAA'>         The buffer command has various options to manipulate your scrollback
 buffer.</p>
 <p>The size of the scrollback buffer can be configured using #config
@@ -252,10 +259,11 @@ can use #buffer {up} {1} to move the scrollback buffer up 1 line.</p>
 <p></span><span style='color:#FFF'>#buffer {write} {&amp;;filename&amp;;}</p>
 <p></span><span style='color:#AAA'>         Writes the scrollback buffer to the given file.</p>
 <p></span><span style='color:#FFF'>Example</span><span style='color:#AAA'>: #macro {&amp;bsol;e[F} {#buffer end}</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#ECHO'>echo</a>, <a href='#GREP'>grep</a>, <a href='#MACRO'>macro</a>, <a href='#SHOWME'>showme</a> and <a href='#SCREEN'>screen</a>.
-<a name='BUTTON'></a></p>
-<p></span><span style='color:#FF5'>         BUTTON</p>
-<p></span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #button </span><span style='color:#FFF'>{</span><span style='color:#AAA'>square</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>commands</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>priority</span><span style='color:#FFF'>}</p>
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#ECHO'>echo</a>, <a href='#GREP'>grep</a>, <a href='#MACRO'>macro</a>, <a href='#SHOWME'>showme</a> and <a href='#SCREEN'>screen</a>.</p>
+</div>
+<h2 id="BUTTON"></span><span style='color:#FF5'>BUTTON</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #button </span><span style='color:#FFF'>{</span><span style='color:#AAA'>square</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>commands</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>priority</span><span style='color:#FFF'>}
 <p></span><span style='color:#AAA'>         The #button command can be used to respond with one or several
 commands to a mouse click received within the specified square.
 The click coordinates are stored in %0-%3 and can be used in the
@@ -280,10 +288,11 @@ to 5, with a lower number indicating a higher priority. The priority
 can be a floating point number.</p>
 <p></span><span style='color:#FFF'>Comment</span><span style='color:#AAA'>: To see button clicks trigger use #info button on.</p>
 <p></span><span style='color:#FFF'>Comment</span><span style='color:#AAA'>: You can remove a button with the #unbutton command.</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#DELAY'>delay</a>, <a href='#EVENT'>event</a> and <a href='#TICKER'>ticker</a>.
-<a name='CASE'></a></p>
-<p></span><span style='color:#FF5'>         CASE</p>
-<p></span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #case </span><span style='color:#FFF'>{</span><span style='color:#AAA'>conditional</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>arguments</span><span style='color:#FFF'>}</p>
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#DELAY'>delay</a>, <a href='#EVENT'>event</a> and <a href='#TICKER'>ticker</a>.</p>
+</div>
+<h2 id="CASE"></span><span style='color:#FF5'>CASE</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #case </span><span style='color:#FFF'>{</span><span style='color:#AAA'>conditional</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>arguments</span><span style='color:#FFF'>}
 <p></span><span style='color:#AAA'>         The case command must be used within the #switch command. When the
 conditional argument of the case command matches the conditional
 argument of the switch command the body of the case is executed.</p>
@@ -304,15 +313,17 @@ surrounded in quotes.</p>
 }</p>
 <p>This function returns the reverse direction. @reverse_direction{north}
 would return south.</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#DEFAULT'>default</a>, <a href='#STATEMENTS'>statements</a> and <a href='#SWITCH'>switch</a>.
-<a name='CAT'></a></p>
-<p></span><span style='color:#FF5'>         CAT</p>
-<p></span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #cat </span><span style='color:#FFF'>{</span><span style='color:#AAA'>variable</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>argument</span><span style='color:#FFF'>}</p>
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#DEFAULT'>default</a>, <a href='#STATEMENTS'>statements</a> and <a href='#SWITCH'>switch</a>.</p>
+</div>
+<h2 id="CAT"></span><span style='color:#FF5'>CAT</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #cat </span><span style='color:#FFF'>{</span><span style='color:#AAA'>variable</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>argument</span><span style='color:#FFF'>}
 <p></span><span style='color:#AAA'>         The cat command will concatenate the argument to the given variable.</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#FORMAT'>format</a>, <a href='#FUNCTION'>function</a>, <a href='#LOCAL'>local</a>, <a href='#MATH'>math</a>, <a href='#REPLACE'>replace</a>, <a href='#SCRIPT'>script</a> and <a href='#VARIABLE'>variable</a>.
-<a name='CHARACTERS'></a></p>
-<p></span><span style='color:#FF5'>         CHARACTERS</p>
-<p></span><span style='color:#AAA'>         The following special characters are defined:</p>
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#FORMAT'>format</a>, <a href='#FUNCTION'>function</a>, <a href='#LOCAL'>local</a>, <a href='#MATH'>math</a>, <a href='#REPLACE'>replace</a>, <a href='#SCRIPT'>script</a> and <a href='#VARIABLE'>variable</a>.</p>
+</div>
+<h2 id="CHARACTERS"></span><span style='color:#FF5'>CHARACTERS</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#AAA'>         The following special characters are defined:
 <p></span><span style='color:#FFF'>#        </span><span style='color:#AAA'>The hashtag is the default character for starting a command and is
 subsequently known as the command character or tintin character.
 When loading a command file the command character is set to the
@@ -335,10 +346,11 @@ The character can be redefined using #config.</p>
 connected to a server. This character can be configured with
 #config, and is itself sent verbatim when the verbatim config mode
 is enabled.</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#COLORS'>colors</a>, <a href='#ESCAPE_CODES'>escape_codes</a>, <a href='#FUNCTION'>function</a>, <a href='#MATHEMATICS'>mathematics</a>, <a href='#PCRE'>pcre</a> and <a href='#VARIABLE'>variable</a>.
-<a name='CHAT'></a></p>
-<p></span><span style='color:#FF5'>         CHAT</p>
-<p></span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #chat </span><span style='color:#FFF'>{</span><span style='color:#AAA'>option</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>argument</span><span style='color:#FFF'>}</p>
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#COLORS'>colors</a>, <a href='#ESCAPE_CODES'>escape_codes</a>, <a href='#FUNCTION'>function</a>, <a href='#MATHEMATICS'>mathematics</a>, <a href='#PCRE'>pcre</a> and <a href='#VARIABLE'>variable</a>.</p>
+</div>
+<h2 id="CHAT"></span><span style='color:#FF5'>CHAT</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #chat </span><span style='color:#FFF'>{</span><span style='color:#AAA'>option</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>argument</span><span style='color:#FFF'>}
 <p></span><span style='color:#AAA'>         The #chat command is used to create peer to peer connections to other
 clients, typically for the purpose of chatting and sending files.
 This is a decentralized chat system, meaning you have to exchange ip
@@ -400,10 +412,11 @@ shows flags set for the connection, (P)rivate, (I)gnore, (S)erve,
 Forward(A)ll to user, (F)orward to user, and (f)orward from user.
 The next columns show ip, port, and client name.
 </span><span style='color:#FFF'>#chat {zap}        {buddy}            Close a connection</p>
-<p>Related</span><span style='color:#AAA'>: <a href='#PORT'>port</a>
-<a name='CLASS'></a></p>
-<p></span><span style='color:#FF5'>         CLASS</p>
-<p></span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #class </span><span style='color:#FFF'>{</span><span style='color:#AAA'>name</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>option</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>arg</span><span style='color:#FFF'>}</p>
+<p>Related</span><span style='color:#AAA'>: <a href='#PORT'>port</a></p>
+</div>
+<h2 id="CLASS"></span><span style='color:#FF5'>CLASS</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #class </span><span style='color:#FFF'>{</span><span style='color:#AAA'>name</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>option</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>arg</span><span style='color:#FFF'>}
 <p></span><span style='color:#AAA'>         The class command is primarily used to assign groups of triggers and
 variables a label so they can be easily removed.</p>
 <p></span><span style='color:#FFF'>#class {&amp;;name&amp;;} {assign} {&amp;;argument&amp;;}
@@ -436,10 +449,11 @@ added afterwards are assigned to this class.
 <p></span><span style='color:#FFF'>Example</span><span style='color:#AAA'>: #class rich kill;#class rich read poor.tin
 Deletes all triggers of ‘rich’ class if any. Read ‘poor.tin’ file,
 all triggers loaded will be assigned to the ‘rich’ class.</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#CONFIG'>config</a>, <a href='#DEBUG'>debug</a>, <a href='#IGNORE'>ignore</a>, <a href='#INFO'>info</a>, <a href='#KILL'>kill</a>, <a href='#LINE'>line</a> and <a href='#MESSAGE'>message</a>.
-<a name='COLORS'></a></p>
-<p></span><span style='color:#FF5'>         COLORS</p>
-<p></span><span style='color:#FFF'>Syntax</span><span style='color:#AAA'>:  &amp;;xyz&amp;;  with x, y, z being parameters</p>
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#CONFIG'>config</a>, <a href='#DEBUG'>debug</a>, <a href='#IGNORE'>ignore</a>, <a href='#INFO'>info</a>, <a href='#KILL'>kill</a>, <a href='#LINE'>line</a> and <a href='#MESSAGE'>message</a>.</p>
+</div>
+<h2 id="COLORS"></span><span style='color:#FF5'>COLORS</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#FFF'>Syntax</span><span style='color:#AAA'>:  &;xyz&;  with x, y, z being parameters
 <p>Parameter ‘x’: VT100 code</p>
 <p>0 - Reset all colors and codes to default
 1 - Bold
@@ -473,16 +487,18 @@ use &amp;;G00&amp;; to &amp;;G23&amp;;.</p>
 colors and &amp;;B000000&amp;; to &amp;;BFFFFFF&amp;; for background colors.</p>
 <p>If the color code exceeds your configured color mode it will be
 downgraded to the closest match.</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#CHARACTERS'>characters</a>, <a href='#COORDINATES'>coordinates</a>, <a href='#ESCAPE_CODES'>escape_codes</a>, <a href='#MATHEMATICS'>mathematics</a> and <a href='#PCRE'>pcre</a>.
-<a name='COMMANDS'></a></p>
-<p></span><span style='color:#FF5'>         COMMANDS</p>
-<p></span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #commands </span><span style='color:#FFF'>{</span><span style='color:#AAA'>abbreviation</span><span style='color:#FFF'>}</p>
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#CHARACTERS'>characters</a>, <a href='#COORDINATES'>coordinates</a>, <a href='#ESCAPE_CODES'>escape_codes</a>, <a href='#MATHEMATICS'>mathematics</a> and <a href='#PCRE'>pcre</a>.</p>
+</div>
+<h2 id="COMMANDS"></span><span style='color:#FF5'>COMMANDS</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #commands </span><span style='color:#FFF'>{</span><span style='color:#AAA'>abbreviation</span><span style='color:#FFF'>}
 <p></span><span style='color:#AAA'>         Shows all commands, or all commands starting with the given
 abbreviation.</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#HELP'>help</a>, <a href='#INFO'>info</a> and <a href='#STATEMENTS'>statements</a>.
-<a name='CONFIG'></a></p>
-<p></span><span style='color:#FF5'>         CONFIG</p>
-<p></span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #config </span><span style='color:#FFF'>{</span><span style='color:#AAA'>option</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>argument</span><span style='color:#FFF'>}</p>
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#HELP'>help</a>, <a href='#INFO'>info</a> and <a href='#STATEMENTS'>statements</a>.</p>
+</div>
+<h2 id="CONFIG"></span><span style='color:#FF5'>CONFIG</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #config </span><span style='color:#FFF'>{</span><span style='color:#AAA'>option</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>argument</span><span style='color:#FFF'>}
 <p></span><span style='color:#AAA'>         This allows you to configure various settings, the settings can be
 written to file with the #write command.</p>
 <p>If you configure the global session (the one you see as you start up
@@ -504,22 +520,24 @@ well as a brief explanation of each config option.</p>
 #CONFIG {RANDOM SEED}   {NUMBER} Seed value used for random numbers.
 #CONFIG {TAB WIDTH}     {NUMBER} Number of spaces used for a tab
 #CONFIG {TINTIN CHAR}   {SYMBOL} Character used for TinTin++ commands.</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#CLASS'>class</a> and <a href='#LINE'>line</a>.
-<a name='CONTINUE'></a></p>
-<p></span><span style='color:#FF5'>         CONTINUE</p>
-<p></span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #continue</p>
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#CLASS'>class</a> and <a href='#LINE'>line</a>.</p>
+</div>
+<h2 id="CONTINUE"></span><span style='color:#FF5'>CONTINUE</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #continue
 <p>The continue command can be used inside the #FOREACH, #LOOP, #PARSE,
 #WHILE and #SWITCH commands. When #CONTINUE is found, tintin will go
 to the end of the command and proceed as normal, which may be to
 reiterate the command.</p>
 <p></span><span style='color:#FFF'>Example</span><span style='color:#AAA'>: #loop 1 10 cnt {#if {&amp;dollar;cnt % 2 == 0} {#continue} {say &amp;dollar;cnt}}</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#BREAK'>break</a>, <a href='#FOREACH'>foreach</a>, <a href='#LIST'>list</a>, <a href='#LOOP'>loop</a>, <a href='#PARSE'>parse</a>, <a href='#REPEAT'>repeat</a>, <a href='#RETURN'>return</a> and <a href='#WHILE'>while</a>.
-<a name='COORDINATES'></a></p>
-<p></span><span style='color:#FF5'>         COORDINATES</p>
-<p></span><span style='color:#AAA'>         When the 0,0 coordinate is in the upper left corner TinTin++ uses
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#BREAK'>break</a>, <a href='#FOREACH'>foreach</a>, <a href='#LIST'>list</a>, <a href='#LOOP'>loop</a>, <a href='#PARSE'>parse</a>, <a href='#REPEAT'>repeat</a>, <a href='#RETURN'>return</a> and <a href='#WHILE'>while</a>.</p>
+</div>
+<h2 id="COORDINATES"></span><span style='color:#FF5'>COORDINATES</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#AAA'>         When the 0,0 coordinate is in the upper left corner TinTin++ uses
 a y,x / row,col notation, starting at 1,1. Subsequently -1,-1
 will indicate the bottom right corner. This type of argument is
-used by the #showme command.</p>
+used by the #showme command.
 <p>When the 0,0 coordinate is in the bottom left corner tintin uses
 a standard x,y notation. This type of argument is used by the
 #map jump command.</p>
@@ -544,18 +562,20 @@ range, the lower bound (second value) the end. The first index of
 a range is defined as 1. When a negative value is provides the last
 index is defined as -1. This type of argument is used by #buffer
 and #variable.</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#CHARACTERS'>characters</a>, <a href='#COLORS'>colors</a>, <a href='#ESCAPE_CODES'>escape_codes</a>, <a href='#MATHEMATICS'>mathematics</a> and <a href='#PCRE'>pcre</a>.
-<a name='CR'></a></p>
-<p></span><span style='color:#FF5'>         CR</p>
-<p></span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #cr</p>
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#CHARACTERS'>characters</a>, <a href='#COLORS'>colors</a>, <a href='#ESCAPE_CODES'>escape_codes</a>, <a href='#MATHEMATICS'>mathematics</a> and <a href='#PCRE'>pcre</a>.</p>
+</div>
+<h2 id="CR"></span><span style='color:#FF5'>CR</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #cr
 <p>Sends a carriage return to the session.  Useful for aliases that need
 extra carriage returns.</p>
 <p>This command is obsolete as you can accomplish the same using #send
 without an argument or #send {}.</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#FORALL'>forall</a>
-<a name='CURSOR'></a></p>
-<p></span><span style='color:#FF5'>         CURSOR</p>
-<p></span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #cursor </span><span style='color:#FFF'>{</span><span style='color:#AAA'>option</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>argument</span><span style='color:#FFF'>}</p>
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#FORALL'>forall</a></p>
+</div>
+<h2 id="CURSOR"></span><span style='color:#FF5'>CURSOR</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #cursor </span><span style='color:#FFF'>{</span><span style='color:#AAA'>option</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>argument</span><span style='color:#FFF'>}
 <p></span><span style='color:#AAA'>         Typing #cursor without an option will show all available cursor
 options, their default binding, and an explanation of their function.</p>
 <p>The cursor command’s primarly goal is adding customizable input editing
@@ -578,10 +598,11 @@ SCROLLBACK  performs tab completion on the scrollback buffer</p>
 <p>BACKWARD    specifies tab completion to go backward
 FORWARD     specifies tab completion to go forward</p>
 <p>Multiple options can/must be specified at once.</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#ALIAS'>alias</a>, <a href='#HISTORY'>history</a>, <a href='#KEYPAD'>keypad</a>, <a href='#MACRO'>macro</a>, <a href='#SPEEDWALK'>speedwalk</a> and <a href='#TAB'>tab</a>.
-<a name='DAEMON'></a></p>
-<p></span><span style='color:#FF5'>         DAEMON</p>
-<p></span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #daemon </span><span style='color:#FFF'>{</span><span style='color:#AAA'>attach</span><span style='color:#FFF'>|</span><span style='color:#AAA'>detach</span><span style='color:#FFF'>|</span><span style='color:#AAA'>kill</span><span style='color:#FFF'>|</span><span style='color:#AAA'>list</span><span style='color:#FFF'>} [</span><span style='color:#AAA'>name</span><span style='color:#FFF'>]</p>
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#ALIAS'>alias</a>, <a href='#HISTORY'>history</a>, <a href='#KEYPAD'>keypad</a>, <a href='#MACRO'>macro</a>, <a href='#SPEEDWALK'>speedwalk</a> and <a href='#TAB'>tab</a>.</p>
+</div>
+<h2 id="DAEMON"></span><span style='color:#FF5'>DAEMON</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #daemon </span><span style='color:#FFF'>{</span><span style='color:#AAA'>attach</span><span style='color:#FFF'>|</span><span style='color:#AAA'>detach</span><span style='color:#FFF'>|</span><span style='color:#AAA'>kill</span><span style='color:#FFF'>|</span><span style='color:#AAA'>list</span><span style='color:#FFF'>} [</span><span style='color:#AAA'>name</span><span style='color:#FFF'>]
 <p></span><span style='color:#AAA'>         #daemon provides functionality similar to that of the screen and tmux
 utilities.</p>
 <p></span><span style='color:#FFF'>#daemon attach [name]
@@ -597,10 +618,11 @@ several daemonized tt++ instances running so you can keep them apart.</p>
 </span><span style='color:#AAA'>           List all daemons or daemons with matching name.</p>
 <p>You can launch tintin and attach the first daemonized instance using
 tt++ -R. To attach a named instance use tt++ -R&amp;;name&amp;;.</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#SCRIPT'>script</a>, <a href='#SYSTEM'>system</a> and <a href='#RUN'>run</a>.
-<a name='DEBUG'></a></p>
-<p></span><span style='color:#FF5'>         DEBUG</p>
-<p></span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #debug </span><span style='color:#FFF'>{</span><span style='color:#AAA'>listname</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>on</span><span style='color:#FFF'>|</span><span style='color:#AAA'>off</span><span style='color:#FFF'>|</span><span style='color:#AAA'>log</span><span style='color:#FFF'>}</p>
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#SCRIPT'>script</a>, <a href='#SYSTEM'>system</a> and <a href='#RUN'>run</a>.</p>
+</div>
+<h2 id="DEBUG"></span><span style='color:#FF5'>DEBUG</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #debug </span><span style='color:#FFF'>{</span><span style='color:#AAA'>listname</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>on</span><span style='color:#FFF'>|</span><span style='color:#AAA'>off</span><span style='color:#FFF'>|</span><span style='color:#AAA'>log</span><span style='color:#FFF'>}
 <p></span><span style='color:#AAA'>         Toggles a list on or off. With no argument it shows your current
 settings, as well as the list names that you can debug.</p>
 <p>If you for example set ACTIONS to ON you will get debug information
@@ -608,18 +630,20 @@ whenever an action is triggered.</p>
 <p>#debug {listname} {log} will silently write debugging information to
 the log file, you must be logging in order for this to work.</p>
 <p>Not every list has debug support yet.</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#CLASS'>class</a>, <a href='#IGNORE'>ignore</a>, <a href='#INFO'>info</a>, <a href='#KILL'>kill</a> and <a href='#MESSAGE'>message</a>.
-<a name='DEFAULT'></a></p>
-<p></span><span style='color:#FF5'>         DEFAULT</p>
-<p></span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #default </span><span style='color:#FFF'>{</span><span style='color:#AAA'>commands</span><span style='color:#FFF'>}</p>
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#CLASS'>class</a>, <a href='#IGNORE'>ignore</a>, <a href='#INFO'>info</a>, <a href='#KILL'>kill</a> and <a href='#MESSAGE'>message</a>.</p>
+</div>
+<h2 id="DEFAULT"></span><span style='color:#FF5'>DEFAULT</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #default </span><span style='color:#FFF'>{</span><span style='color:#AAA'>commands</span><span style='color:#FFF'>}
 <p></span><span style='color:#AAA'>         The default command can only be used within the switch command. When
 the conditional argument of non of the case commands matches the switch
 command’s conditional statement the default command is executed.</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#CASE'>case</a>, <a href='#DEFAULT'>default</a>, <a href='#ELSE'>else</a>, <a href='#ELSEIF'>elseif</a>, <a href='#IF'>if</a>, <a href='#SWITCH'>switch</a> and <a href='#REGEXP'>regexp</a>.
-<a name='DELAY'></a></p>
-<p></span><span style='color:#FF5'>         DELAY</p>
-<p></span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #delay </span><span style='color:#FFF'>{</span><span style='color:#AAA'>seconds</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>command</span><span style='color:#FFF'>}
-Command</span><span style='color:#AAA'>: #delay </span><span style='color:#FFF'>{</span><span style='color:#AAA'>name</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>command</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>seconds</span><span style='color:#FFF'>}</p>
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#CASE'>case</a>, <a href='#DEFAULT'>default</a>, <a href='#ELSE'>else</a>, <a href='#ELSEIF'>elseif</a>, <a href='#IF'>if</a>, <a href='#SWITCH'>switch</a> and <a href='#REGEXP'>regexp</a>.</p>
+</div>
+<h2 id="DELAY"></span><span style='color:#FF5'>DELAY</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #delay </span><span style='color:#FFF'>{</span><span style='color:#AAA'>seconds</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>command</span><span style='color:#FFF'>}
+Command</span><span style='color:#AAA'>: #delay </span><span style='color:#FFF'>{</span><span style='color:#AAA'>name</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>command</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>seconds</span><span style='color:#FFF'>}
 <p></span><span style='color:#AAA'>         Delay allows you to have tintin wait the given amount of seconds
 before executing the given command.</p>
 <p>Nanosecond floating point precision is allowed. Delays will fire in
@@ -631,10 +655,11 @@ This will print ‘first’, and ‘last’ around one second later.</p>
 a name as the first argument, be aware this changes the syntax. If
 the name is a number keep in mind that delays with the same numeric
 name will not be overwritten</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#EVENT'>event</a> and <a href='#TICKER'>ticker</a>.
-<a name='DRAW'></a></p>
-<p></span><span style='color:#FF5'>         DRAW</p>
-<p></span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #draw </span><span style='color:#FFF'>[</span><span style='color:#AAA'>line color</span><span style='color:#FFF'>] [</span><span style='color:#AAA'>options</span><span style='color:#FFF'>] &amp;;</span><span style='color:#AAA'>type</span><span style='color:#FFF'>&amp;; &amp;;</span><span style='color:#AAA'>square</span><span style='color:#FFF'>&amp;; {</span><span style='color:#AAA'>text</span><span style='color:#FFF'>}</p>
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#EVENT'>event</a> and <a href='#TICKER'>ticker</a>.</p>
+</div>
+<h2 id="DRAW"></span><span style='color:#FF5'>DRAW</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #draw </span><span style='color:#FFF'>[</span><span style='color:#AAA'>line color</span><span style='color:#FFF'>] [</span><span style='color:#AAA'>options</span><span style='color:#FFF'>] &;</span><span style='color:#AAA'>type</span><span style='color:#FFF'>&; &;</span><span style='color:#AAA'>square</span><span style='color:#FFF'>&; {</span><span style='color:#AAA'>text</span><span style='color:#FFF'>}
 <p></span><span style='color:#AAA'>         The draw commands allows you to draw various types of lines and shapes
 on the screen. The types with a brief description are provided when you
 type #draw without an argument.</p>
@@ -712,10 +737,11 @@ square with enough space has been defined. Text is automatically
 word wrapped and text formatting can be customized with the
 BALIGN, TALIGN, LALIGN, RALIGN, and UALIGN options.</p>
 <p></span><span style='color:#FFF'>Example</span><span style='color:#AAA'>: #draw Blue box 1 1 3 20 {Hello world!}</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#BUFFER'>buffer</a>, <a href='#ECHO'>echo</a>, <a href='#GREP'>grep</a> and <a href='#SHOWME'>showme</a>.
-<a name='ECHO'></a></p>
-<p></span><span style='color:#FF5'>         ECHO</p>
-<p></span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #echo </span><span style='color:#FFF'>{</span><span style='color:#AAA'>format</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>argument1</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>argument2</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>etc</span><span style='color:#FFF'>}</p>
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#BUFFER'>buffer</a>, <a href='#ECHO'>echo</a>, <a href='#GREP'>grep</a> and <a href='#SHOWME'>showme</a>.</p>
+</div>
+<h2 id="ECHO"></span><span style='color:#FF5'>ECHO</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #echo </span><span style='color:#FFF'>{</span><span style='color:#AAA'>format</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>argument1</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>argument2</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>etc</span><span style='color:#FFF'>}
 <p></span><span style='color:#AAA'>         Echo command displays text on the screen with formatting options. See
 the help file for the format command for more information.</p>
 <p>The echo command does not trigger actions.</p>
@@ -724,10 +750,11 @@ two braced arguments, in which case the 2nd argument is the row number.</p>
 <p></span><span style='color:#FFF'>Example</span><span style='color:#AAA'>: #echo {The current date is %t.} {%Y-%m-%d %H:%M:%S}
 #echo {[%38s][%-38s]} {Hello World} {Hello World}
 #echo {{this is %s on the top row} {1}} {printed}</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#BUFFER'>buffer</a>, <a href='#FORMAT'>format</a>, <a href='#GREP'>grep</a> and <a href='#SHOWME'>showme</a>.
-<a name='EDIT'></a></p>
-<p></span><span style='color:#FF5'>         EDIT</p>
-<p></span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #edit </span><span style='color:#FFF'>{</span><span style='color:#AAA'>option</span><span style='color:#FFF'>} [</span><span style='color:#AAA'>argument</span><span style='color:#FFF'>]</p>
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#BUFFER'>buffer</a>, <a href='#FORMAT'>format</a>, <a href='#GREP'>grep</a> and <a href='#SHOWME'>showme</a>.</p>
+</div>
+<h2 id="EDIT"></span><span style='color:#FF5'>EDIT</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #edit </span><span style='color:#FFF'>{</span><span style='color:#AAA'>option</span><span style='color:#FFF'>} [</span><span style='color:#AAA'>argument</span><span style='color:#FFF'>]
 <p></span><span style='color:#AAA'>         The edit command can be used to turn the default line editor into a
 text editor.</p>
 <p></span><span style='color:#FFF'>#edit create [filename] [arguments]
@@ -746,10 +773,11 @@ events are triggered.</p>
 <p></span><span style='color:#FFF'>#edit write [filename]
 </span><span style='color:#AAA'>           Write the editor content to file.</p>
 <p></span><span style='color:#FFF'>Example</span><span style='color:#AAA'>: #edit create {bla.txt} {line 1} {line 2}</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#CURSOR'>cursor</a> and <a href='#MACRO'>macro</a>.
-<a name='EDITING'></a></p>
-<p></span><span style='color:#FF5'>         EDITING</p>
-<p></span><span style='color:#0AA'>┌─────────────────────────┐┌────────────────────────────────────────────┐
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#CURSOR'>cursor</a> and <a href='#MACRO'>macro</a>.</p>
+</div>
+<h2 id="EDITING"></span><span style='color:#FF5'>EDITING</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#0AA'>┌─────────────────────────┐┌────────────────────────────────────────────┐
 │</span><span style='color:#FFF'>alt b                    </span><span style='color:#0AA'>││</span><span style='color:#FFF'>cursor backward word                        </span><span style='color:#0AA'>│
 ├─────────────────────────┤├────────────────────────────────────────────┤
 │</span><span style='color:#FFF'>alt f                    </span><span style='color:#0AA'>││</span><span style='color:#FFF'>cursor forward word                         </span><span style='color:#0AA'>│
@@ -857,34 +885,38 @@ events are triggered.</p>
 │</span><span style='color:#FFF'>tab                      </span><span style='color:#0AA'>││</span><span style='color:#FFF'>complete word forward                       </span><span style='color:#0AA'>│
 ├─────────────────────────┤├────────────────────────────────────────────┤
 │</span><span style='color:#FFF'>shift-tab                </span><span style='color:#0AA'>││</span><span style='color:#FFF'>complete word backward                      </span><span style='color:#0AA'>│
-└─────────────────────────┘└────────────────────────────────────────────┘</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#CURSOR'>cursor</a>, <a href='#EDIT'>edit</a> and <a href='#MACRO'>macro</a>.
-<a name='ELSE'></a></p>
-<p></span><span style='color:#FF5'>         ELSE</p>
-<p></span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #else </span><span style='color:#FFF'>{</span><span style='color:#AAA'>commands</span><span style='color:#FFF'>}</p>
+└─────────────────────────┘└────────────────────────────────────────────┘
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#CURSOR'>cursor</a>, <a href='#EDIT'>edit</a> and <a href='#MACRO'>macro</a>.</p>
+</div>
+<h2 id="ELSE"></span><span style='color:#FF5'>ELSE</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #else </span><span style='color:#FFF'>{</span><span style='color:#AAA'>commands</span><span style='color:#FFF'>}
 <p></span><span style='color:#AAA'>         The else statement should follow an #IF or #ELSEIF statement and is
 only called if the proceeding #IF or #ELSEIF is false.</p>
 <p></span><span style='color:#FFF'>Example</span><span style='color:#AAA'>: #if {1d2 == 1} {smile};#else {grin}</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#CASE'>case</a>, <a href='#DEFAULT'>default</a>, <a href='#ELSEIF'>elseif</a>, <a href='#IF'>if</a>, <a href='#SWITCH'>switch</a> and <a href='#REGEXP'>regexp</a>.
-<a name='ELSEIF'></a></p>
-<p></span><span style='color:#FF5'>         ELSEIF</p>
-<p></span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #elseif </span><span style='color:#FFF'>{</span><span style='color:#AAA'>conditional</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>commands</span><span style='color:#FFF'>}</p>
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#CASE'>case</a>, <a href='#DEFAULT'>default</a>, <a href='#ELSEIF'>elseif</a>, <a href='#IF'>if</a>, <a href='#SWITCH'>switch</a> and <a href='#REGEXP'>regexp</a>.</p>
+</div>
+<h2 id="ELSEIF"></span><span style='color:#FF5'>ELSEIF</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #elseif </span><span style='color:#FFF'>{</span><span style='color:#AAA'>conditional</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>commands</span><span style='color:#FFF'>}
 <p></span><span style='color:#AAA'>         The elseif statement should follow an #IF or #ELSEIF statement and is
 only called when the statement is true and the proceeding #IF and
 #ELSEIF statements are false.</p>
 <p></span><span style='color:#FFF'>Example</span><span style='color:#AAA'>: #if {1d3 == 1} {smirk};#elseif {1d2 == 1} {snicker}</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#CASE'>case</a>, <a href='#DEFAULT'>default</a>, <a href='#ELSE'>else</a>, <a href='#IF'>if</a>, <a href='#SWITCH'>switch</a> and <a href='#REGEXP'>regexp</a>.
-<a name='END'></a></p>
-<p></span><span style='color:#FF5'>         END</p>
-<p></span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #end {&amp;;message&amp;;}</p>
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#CASE'>case</a>, <a href='#DEFAULT'>default</a>, <a href='#ELSE'>else</a>, <a href='#IF'>if</a>, <a href='#SWITCH'>switch</a> and <a href='#REGEXP'>regexp</a>.</p>
+</div>
+<h2 id="END"></span><span style='color:#FF5'>END</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #end {&;message&;}
 <p>Terminates tintin and return to unix.  On most systems, ctrl-c has
 the same result.</p>
 <p>The message is optional and is printed before tintin exits. When
 using #end {&amp;bsol;} tintin will terminate silently.</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#ZAP'>zap</a>
-<a name='ESCAPE_CODES'></a></p>
-<p></span><span style='color:#FF5'>         ESCAPE CODES</p>
-<p></span><span style='color:#AAA'>         You may use the escape character &amp;bsol; for various special characters.</p>
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#ZAP'>zap</a></p>
+</div>
+<h2 id="ESCAPE_CODES"></span><span style='color:#FF5'>ESCAPE CODES</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#AAA'>         You may use the escape character &amp;bsol; for various special characters.
 <p>&amp;bsol;a    beep the terminal.
 &amp;bsol;c    send a control character, &amp;bsol;ca for ctrl-a.
 &amp;bsol;e    start an escape sequence.
@@ -901,10 +933,11 @@ using #end {&amp;bsol;} tintin will terminate silently.</p>
 &amp;bsol;v    send a vertical tab</p>
 <p>Ending a line with &amp;bsol; will stop tintin from appending a line feed.
 To escape arguments in an alias or action use %%0 %%1 %%2 etc.</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#CHARACTERS'>characters</a>, <a href='#COLORS'>colors</a>, <a href='#COORDINATES'>coordinates</a>, <a href='#MATHEMATICS'>mathematics</a> and <a href='#PCRE'>pcre</a>.
-<a name='EVENT'></a></p>
-<p></span><span style='color:#FF5'>         EVENT</p>
-<p></span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #event </span><span style='color:#FFF'>{</span><span style='color:#AAA'>event type</span><span style='color:#FFF'>}</span><span style='color:#AAA'> </span><span style='color:#FFF'>{</span><span style='color:#AAA'>commands</span><span style='color:#FFF'>}</p>
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#CHARACTERS'>characters</a>, <a href='#COLORS'>colors</a>, <a href='#COORDINATES'>coordinates</a>, <a href='#MATHEMATICS'>mathematics</a> and <a href='#PCRE'>pcre</a>.</p>
+</div>
+<h2 id="EVENT"></span><span style='color:#FF5'>EVENT</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #event </span><span style='color:#FFF'>{</span><span style='color:#AAA'>event type</span><span style='color:#FFF'>}</span><span style='color:#AAA'> </span><span style='color:#FFF'>{</span><span style='color:#AAA'>commands</span><span style='color:#FFF'>}
 <p></span><span style='color:#AAA'>         Events allow you to create triggers for predetermined client events.</p>
 <p>Use #event without an argument to see a list of possible events with
 a brief description. Use #event %* to see the current list of defined
@@ -1057,19 +1090,21 @@ event occurs inside the VT100 map region.</p>
 rather spammy it’s possible to gag event info messages.</p>
 <p></span><span style='color:#FFF'>Example</span><span style='color:#AAA'>: #event {SESSION CONNECTED} {#read mychar.tin}</p>
 <p></span><span style='color:#FFF'>Comment</span><span style='color:#AAA'>: You can remove an event with the #unevent command.</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#BUTTON'>button</a>, <a href='#DELAY'>delay</a> and <a href='#TICKER'>ticker</a>.
-<a name='FOREACH'></a></p>
-<p></span><span style='color:#FF5'>         FOREACH</p>
-<p></span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #foreach </span><span style='color:#FFF'>{</span><span style='color:#AAA'>list</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>variable</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>commands</span><span style='color:#FFF'>}</p>
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#BUTTON'>button</a>, <a href='#DELAY'>delay</a> and <a href='#TICKER'>ticker</a>.</p>
+</div>
+<h2 id="FOREACH"></span><span style='color:#FF5'>FOREACH</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #foreach </span><span style='color:#FFF'>{</span><span style='color:#AAA'>list</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>variable</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>commands</span><span style='color:#FFF'>}
 <p></span><span style='color:#AAA'>         For each item in the provided list the foreach statement will update
 the given variable and execute the command part of the statement. List
 elements must be separated by braces or semicolons.</p>
 <p></span><span style='color:#FFF'>Example</span><span style='color:#AAA'>: #foreach {bob;tim;kim} {name} {tell &amp;dollar;name Hello}
 </span><span style='color:#FFF'>Example</span><span style='color:#AAA'>: #foreach {{bob}{tim}{kim}} {name} {tell &amp;dollar;name Hello}</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#BREAK'>break</a>, <a href='#CONTINUE'>continue</a>, <a href='#LIST'>list</a>, <a href='#LOOP'>loop</a>, <a href='#PARSE'>parse</a>, <a href='#REPEAT'>repeat</a>, <a href='#RETURN'>return</a> and <a href='#WHILE'>while</a>.
-<a name='FORMAT'></a></p>
-<p></span><span style='color:#FF5'>         FORMAT</p>
-<p></span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #format </span><span style='color:#FFF'>{</span><span style='color:#AAA'>variable</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>format</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>argument1</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>argument2</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>etc</span><span style='color:#FFF'>}</p>
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#BREAK'>break</a>, <a href='#CONTINUE'>continue</a>, <a href='#LIST'>list</a>, <a href='#LOOP'>loop</a>, <a href='#PARSE'>parse</a>, <a href='#REPEAT'>repeat</a>, <a href='#RETURN'>return</a> and <a href='#WHILE'>while</a>.</p>
+</div>
+<h2 id="FORMAT"></span><span style='color:#FF5'>FORMAT</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #format </span><span style='color:#FFF'>{</span><span style='color:#AAA'>variable</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>format</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>argument1</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>argument2</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>etc</span><span style='color:#FFF'>}
 <p></span><span style='color:#AAA'>         Allows you to store a string into a variable in the exact same way
 C’s sprintf works with a few enhancements and limitations like a
 maximum of 30 arguments.</p>
@@ -1107,10 +1142,11 @@ optional {{string}{width}} syntax
 #format {test} {%X}      {dec}  convert dec to hexadecimal in {test}</p>
 <p>#format {test} {%%}             a literal % character</p>
 <p></span><span style='color:#FFF'>Comment</span><span style='color:#AAA'>: See #help TIME for help on the %t argument.</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#CAT'>cat</a>, <a href='#ECHO'>echo</a>, <a href='#FUNCTION'>function</a>, <a href='#LOCAL'>local</a>, <a href='#MATH'>math</a>, <a href='#REPLACE'>replace</a>, <a href='#SCRIPT'>script</a>, <a href='#TIME'>time</a> and <a href='#VARIABLE'>variable</a>.
-<a name='FUNCTION'></a></p>
-<p></span><span style='color:#FF5'>         FUNCTION</p>
-<p></span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #function </span><span style='color:#FFF'>{</span><span style='color:#AAA'>name</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>operation</span><span style='color:#FFF'>}</p>
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#CAT'>cat</a>, <a href='#ECHO'>echo</a>, <a href='#FUNCTION'>function</a>, <a href='#LOCAL'>local</a>, <a href='#MATH'>math</a>, <a href='#REPLACE'>replace</a>, <a href='#SCRIPT'>script</a>, <a href='#TIME'>time</a> and <a href='#VARIABLE'>variable</a>.</p>
+</div>
+<h2 id="FUNCTION"></span><span style='color:#FF5'>FUNCTION</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #function </span><span style='color:#FFF'>{</span><span style='color:#AAA'>name</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>operation</span><span style='color:#FFF'>}
 <p></span><span style='color:#AAA'>         Functions allow you to execute a script within a line of text, and
 replace the function call with the line of text generated by the
 function.</p>
@@ -1128,27 +1164,30 @@ in %1 to %99, with %0 holding all arguments.</p>
 <p></span><span style='color:#FFF'>Example</span><span style='color:#AAA'>: #function gettime {#format result %t %H:%M}
 #show The current time is @gettime{}</p>
 <p></span><span style='color:#FFF'>Comment</span><span style='color:#AAA'>: You can remove a function with the #unfunction command.</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#FORMAT'>format</a>, <a href='#LOCAL'>local</a>, <a href='#MATH'>math</a>, <a href='#REPLACE'>replace</a>, <a href='#SCRIPT'>script</a> and <a href='#VARIABLE'>variable</a>.
-<a name='GAG'></a></p>
-<p></span><span style='color:#FF5'>         GAG</p>
-<p></span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #gag </span><span style='color:#FFF'>{</span><span style='color:#AAA'>string</span><span style='color:#FFF'>}</p>
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#FORMAT'>format</a>, <a href='#LOCAL'>local</a>, <a href='#MATH'>math</a>, <a href='#REPLACE'>replace</a>, <a href='#SCRIPT'>script</a> and <a href='#VARIABLE'>variable</a>.</p>
+</div>
+<h2 id="GAG"></span><span style='color:#FF5'>GAG</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #gag </span><span style='color:#FFF'>{</span><span style='color:#AAA'>string</span><span style='color:#FFF'>}
 <p></span><span style='color:#AAA'>         Removes any line that contains the string.</p>
 <p></span><span style='color:#FFF'>Comment</span><span style='color:#AAA'>: See ‘#help action’, for more information about triggers.</p>
 <p>There are a system messages that can be gagged using gag events.</p>
 <p></span><span style='color:#FFF'>Comment</span><span style='color:#AAA'>: You can remove a gag with the #ungag command.</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#ACTION'>action</a>, <a href='#HIGHLIGHT'>highlight</a>, <a href='#PROMPT'>prompt</a> and <a href='#SUBSTITUTE'>substitute</a>.
-<a name='GREETING'></a></p>
-<p></span><span style='color:#FF5'>         GREETING</p>
-<p></span><span style='color:#0AA'>      ####################################################################
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#ACTION'>action</a>, <a href='#HIGHLIGHT'>highlight</a>, <a href='#PROMPT'>prompt</a> and <a href='#SUBSTITUTE'>substitute</a>.</p>
+</div>
+<h2 id="GREETING"></span><span style='color:#FF5'>GREETING</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#0AA'>      ####################################################################
 #</span><span style='color:#AAA'>                                                                  </span><span style='color:#0AA'>#
 #</span><span style='color:#AAA'>                    T I N T I N + +   2.02.51                     </span><span style='color:#0AA'>#
 #</span><span style='color:#AAA'>                                                                  </span><span style='color:#0AA'>#
 #</span><span style='color:#AAA'>      Code by Peter Unold, Bill Reis, and Igor van den Hoven      </span><span style='color:#0AA'>#
 #</span><span style='color:#AAA'>                                                                  </span><span style='color:#0AA'>#
-####################################################################</p>
-<p><a name='GREP'></a></p>
-<p></span><span style='color:#FF5'>         GREP</p>
-<p></span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #grep </span><span style='color:#FFF'>[</span><span style='color:#AAA'>page</span><span style='color:#FFF'>] {</span><span style='color:#AAA'>search string</span><span style='color:#FFF'>}</p>
+####################################################################
+</div>
+<h2 id="GREP"></span><span style='color:#FF5'>GREP</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #grep </span><span style='color:#FFF'>[</span><span style='color:#AAA'>page</span><span style='color:#FFF'>] {</span><span style='color:#AAA'>search string</span><span style='color:#FFF'>}
 <p></span><span style='color:#AAA'>         This command allows you to search for matching lines in your scroll
 back buffer. The amount of matches shown equals your screen size. If
 you want to search back further use the optional page number. You can
@@ -1158,16 +1197,18 @@ is case sensitive, which can be disabled by using %i.</p>
 beginning, this can be reversed by using a negative page number.</p>
 <p></span><span style='color:#FFF'>Example</span><span style='color:#AAA'>: #grep Bubba tells you
 This will show all occasions where bubba tells you something.</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#BUFFER'>buffer</a>, <a href='#ECHO'>echo</a> and <a href='#SHOWME'>showme</a>.
-<a name='HELP'></a></p>
-<p></span><span style='color:#FF5'>         HELP</p>
-<p></span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #help </span><span style='color:#FFF'>{</span><span style='color:#AAA'>subject</span><span style='color:#FFF'>}</p>
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#BUFFER'>buffer</a>, <a href='#ECHO'>echo</a> and <a href='#SHOWME'>showme</a>.</p>
+</div>
+<h2 id="HELP"></span><span style='color:#FF5'>HELP</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #help </span><span style='color:#FFF'>{</span><span style='color:#AAA'>subject</span><span style='color:#FFF'>}
 <p></span><span style='color:#AAA'>         Without an argument #help will list all available help subjects.</p>
 <p>Using #help %* will display all help entries.</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#COMMANDS'>commands</a>, <a href='#DEBUG'>debug</a>, <a href='#IGNORE'>ignore</a>, <a href='#INFO'>info</a>, <a href='#MESSAGE'>message</a> and <a href='#STATEMENTS'>statements</a>.
-<a name='HIGHLIGHT'></a></p>
-<p></span><span style='color:#FF5'>         HIGHLIGHT</p>
-<p></span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #highlight </span><span style='color:#FFF'>{</span><span style='color:#AAA'>string</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>color names</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>priority</span><span style='color:#FFF'>}</p>
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#COMMANDS'>commands</a>, <a href='#DEBUG'>debug</a>, <a href='#IGNORE'>ignore</a>, <a href='#INFO'>info</a>, <a href='#MESSAGE'>message</a> and <a href='#STATEMENTS'>statements</a>.</p>
+</div>
+<h2 id="HIGHLIGHT"></span><span style='color:#FF5'>HIGHLIGHT</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #highlight </span><span style='color:#FFF'>{</span><span style='color:#AAA'>string</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>color names</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>priority</span><span style='color:#FFF'>}
 <p></span><span style='color:#AAA'>         The highlight command is used to change the color of incoming text.</p>
 <p>Available color options are:</p>
 <p>reset      - resets the color state to default
@@ -1214,15 +1255,16 @@ Highlights the name Bubba as red underscored text on green background.</p>
 <p></span><span style='color:#FFF'>Comment</span><span style='color:#AAA'>: See ‘#help substitute’, for more advanced color substitution.</p>
 <p></span><span style='color:#FFF'>Comment</span><span style='color:#AAA'>: This command only works with ANSI/VT100 terminals or emulators.</p>
 <p></span><span style='color:#FFF'>Comment</span><span style='color:#AAA'>: You can remove a highlight with the #unhighlight command.</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#ACTION'>action</a>, <a href='#GAG'>gag</a>, <a href='#PROMPT'>prompt</a> and <a href='#SUBSTITUTE'>substitute</a>.
-<a name='HISTORY'></a></p>
-<p></span><span style='color:#FF5'>         HISTORY</p>
-<p></span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #history </span><span style='color:#FFF'>{</span><span style='color:#AAA'>delete</span><span style='color:#FFF'>}</span><span style='color:#AAA'>                    Delete the last command.
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#ACTION'>action</a>, <a href='#GAG'>gag</a>, <a href='#PROMPT'>prompt</a> and <a href='#SUBSTITUTE'>substitute</a>.</p>
+</div>
+<h2 id="HISTORY"></span><span style='color:#FF5'>HISTORY</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #history </span><span style='color:#FFF'>{</span><span style='color:#AAA'>delete</span><span style='color:#FFF'>}</span><span style='color:#AAA'>                    Delete the last command.
 #history </span><span style='color:#FFF'>{</span><span style='color:#AAA'>get</span><span style='color:#FFF'>}    {</span><span style='color:#AAA'>variable</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>range</span><span style='color:#FFF'>}</span><span style='color:#AAA'> Store list in variable.
 #history </span><span style='color:#FFF'>{</span><span style='color:#AAA'>insert</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>command</span><span style='color:#FFF'>}</span><span style='color:#AAA'>          Insert a command.
 #history </span><span style='color:#FFF'>{</span><span style='color:#AAA'>list</span><span style='color:#FFF'>}     </span><span style='color:#AAA'>                 Display the command history.
 #history </span><span style='color:#FFF'>{</span><span style='color:#AAA'>read</span><span style='color:#FFF'>}   {</span><span style='color:#AAA'>filename</span><span style='color:#FFF'>}</span><span style='color:#AAA'>         Read a command history from file.
-#history </span><span style='color:#FFF'>{</span><span style='color:#AAA'>write</span><span style='color:#FFF'>}  {</span><span style='color:#AAA'>filename</span><span style='color:#FFF'>}</span><span style='color:#AAA'>         Write a command history to file.</p>
+#history </span><span style='color:#FFF'>{</span><span style='color:#AAA'>write</span><span style='color:#FFF'>}  {</span><span style='color:#AAA'>filename</span><span style='color:#FFF'>}</span><span style='color:#AAA'>         Write a command history to file.
 <p>Without an argument all available options are shown.</p>
 <p>By default all commands are saved to the history list and the history
 list is saved between sessions in the ~/.tintin/history.txt file.</p>
@@ -1239,10 +1281,11 @@ search mode, or by issuing #cursor {history search}.</p>
 the history list by default. You can bind these with a macro yourself
 using #cursor {history next} and #cursor {history prev}. Many #cursor
 commands only work properly when bound with a macro.</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#ALIAS'>alias</a>, <a href='#CURSOR'>cursor</a>, <a href='#KEYPAD'>keypad</a>, <a href='#MACRO'>macro</a>, <a href='#SPEEDWALK'>speedwalk</a> and <a href='#TAB'>tab</a>.
-<a name='IF'></a></p>
-<p></span><span style='color:#FF5'>         IF</p>
-<p></span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #if </span><span style='color:#FFF'>{</span><span style='color:#AAA'>conditional</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>commands if true</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>commands if false</span><span style='color:#FFF'>}</p>
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#ALIAS'>alias</a>, <a href='#CURSOR'>cursor</a>, <a href='#KEYPAD'>keypad</a>, <a href='#MACRO'>macro</a>, <a href='#SPEEDWALK'>speedwalk</a> and <a href='#TAB'>tab</a>.</p>
+</div>
+<h2 id="IF"></span><span style='color:#FF5'>IF</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #if </span><span style='color:#FFF'>{</span><span style='color:#AAA'>conditional</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>commands if true</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>commands if false</span><span style='color:#FFF'>}
 <p></span><span style='color:#AAA'>         The #if command works similar to an if statement in other languages,
 and is based on the way C handles its conditional statements.
 When an #if command is encountered, the conditional statement is
@@ -1257,18 +1300,20 @@ third argument.</p>
 If someone gives you more than 5000 coins, thank them.</p>
 <p></span><span style='color:#FFF'>Example</span><span style='color:#AAA'>: #alias {k} {#if {&amp;;%0&amp;; == &amp;;&amp;;} {kill &amp;dollar;target};#else {kill %0}}</p>
 <p></span><span style='color:#FFF'>Example</span><span style='color:#AAA'>: #if {&amp;;%0&amp;; == &amp;;{bli|bla}&amp;;} {#showme %0 is either bli or bla.}</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#CASE'>case</a>, <a href='#DEFAULT'>default</a>, <a href='#ELSE'>else</a>, <a href='#ELSEIF'>elseif</a>, <a href='#MATH'>math</a>, <a href='#SWITCH'>switch</a> and <a href='#REGEXP'>regexp</a>.
-<a name='IGNORE'></a></p>
-<p></span><span style='color:#FF5'>         IGNORE</p>
-<p></span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #ignore </span><span style='color:#FFF'>{</span><span style='color:#AAA'>listname</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>on</span><span style='color:#FFF'>|</span><span style='color:#AAA'>off</span><span style='color:#FFF'>}</p>
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#CASE'>case</a>, <a href='#DEFAULT'>default</a>, <a href='#ELSE'>else</a>, <a href='#ELSEIF'>elseif</a>, <a href='#MATH'>math</a>, <a href='#SWITCH'>switch</a> and <a href='#REGEXP'>regexp</a>.</p>
+</div>
+<h2 id="IGNORE"></span><span style='color:#FF5'>IGNORE</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #ignore </span><span style='color:#FFF'>{</span><span style='color:#AAA'>listname</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>on</span><span style='color:#FFF'>|</span><span style='color:#AAA'>off</span><span style='color:#FFF'>}
 <p></span><span style='color:#AAA'>         Toggles a list on or off. With no arguments it shows your current
 settings, as well as the list names that you can ignore.</p>
 <p>If you for example use #IGNORE ACTIONS ON actions will no longer
 trigger. Not every list can be ignored.</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#CLASS'>class</a>, <a href='#DEBUG'>debug</a>, <a href='#INFO'>info</a>, <a href='#KILL'>kill</a> and <a href='#MESSAGE'>message</a>.
-<a name='INDEX'></a></p>
-<p></span><span style='color:#FF5'>         INDEX</p>
-<p></span><span style='color:#08F'>                   ████████┐██████┐███┐   ██┐████████┐██████┐███┐   ██┐
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#CLASS'>class</a>, <a href='#DEBUG'>debug</a>, <a href='#INFO'>info</a>, <a href='#KILL'>kill</a> and <a href='#MESSAGE'>message</a>.</p>
+</div>
+<h2 id="INDEX"></span><span style='color:#FF5'>INDEX</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#08F'>                   ████████┐██████┐███┐   ██┐████████┐██████┐███┐   ██┐
 └──██┌──┘└─██┌─┘████┐  ██│└──██┌──┘└─██┌─┘████┐  ██│
 ██│     ██│  ██┌██┐ ██│   ██│     ██│  ██┌██┐ ██│
 ██│     ██│  ██│└██┐██│   ██│     ██│  ██│└██┐██│
@@ -1279,7 +1324,7 @@ trigger. Not every list can be ignored.</p>
 ████████┐████████┐
 └──██┌──┘└──██┌──┘
 ██│      ██│
-└─┘      └─┘</p>
+└─┘      └─┘
 <p></span><span style='color:#AAA'>                       </span><span style='color:#08F'>(</span><span style='color:#06B'>T</span><span style='color:#08F'>)</span><span style='color:#06B'>he K</span><span style='color:#08F'>(</span><span style='color:#06B'>I</span><span style='color:#08F'>)</span><span style='color:#06B'>cki</span><span style='color:#08F'>(</span><span style='color:#06B'>N</span><span style='color:#08F'>)</span><span style='color:#06B'> </span><span style='color:#08F'>(</span><span style='color:#06B'>T)ickin D</span><span style='color:#08F'>(</span><span style='color:#06B'>I</span><span style='color:#08F'>)</span><span style='color:#06B'>kumud Clie</span><span style='color:#08F'>(</span><span style='color:#06B'>N</span><span style='color:#08F'>)</span><span style='color:#06B'>t</p>
 <p></span><span style='color:#AAA'>         </span><span style='color:#5F5'>What is TinTin++?</p>
 <p></span><span style='color:#AAA'>         TinTin++ is a client program specialized to help playing muds. This is
@@ -1291,10 +1336,11 @@ to ya Peter. You started the ball rolling.</p>
 <p></span><span style='color:#5F5'>Introduction</p>
 <p></span><span style='color:#AAA'>         If you’re new to TinTin++ a good place to start is the introduction,
 which should be linked below.</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#INTRODUCTION'>introduction</a>
-<a name='INFO'></a></p>
-<p></span><span style='color:#FF5'>         INFO</p>
-<p></span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #info </span><span style='color:#FFF'>{</span><span style='color:#AAA'>listname</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>LIST</span><span style='color:#FFF'>|</span><span style='color:#AAA'>ON</span><span style='color:#FFF'>|</span><span style='color:#AAA'>OFF</span><span style='color:#FFF'>|</span><span style='color:#AAA'>SAVE</span><span style='color:#FFF'>}</p>
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#INTRODUCTION'>introduction</a></p>
+</div>
+<h2 id="INFO"></span><span style='color:#FF5'>INFO</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #info </span><span style='color:#FFF'>{</span><span style='color:#AAA'>listname</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>LIST</span><span style='color:#FFF'>|</span><span style='color:#AAA'>ON</span><span style='color:#FFF'>|</span><span style='color:#AAA'>OFF</span><span style='color:#FFF'>|</span><span style='color:#AAA'>SAVE</span><span style='color:#FFF'>}
 <p></span><span style='color:#AAA'>         Without an argument info displays the settings of every tintin list.</p>
 <p>By providing the name of a list and the LIST option it shows all
 triggers/variables associated with that list. With the SAVE option
@@ -1314,11 +1360,12 @@ this data is written to the info variable.</p>
 #info system will show some system information.
 #info tokenizer will show information about the script stack.
 #info unicode will show information on the provided character.</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#CLASS'>class</a>, <a href='#DEBUG'>debug</a>, <a href='#IGNORE'>ignore</a>, <a href='#KILL'>kill</a> and <a href='#MESSAGE'>message</a>.
-<a name='INTRODUCTION'></a></p>
-<p></span><span style='color:#FF5'>         INTRODUCTION</p>
-<p></span><span style='color:#AAA'>         On this page you’ll find an introduction to using TinTin++. Additional
-information can be found in the individual help sections.</p>
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#CLASS'>class</a>, <a href='#DEBUG'>debug</a>, <a href='#IGNORE'>ignore</a>, <a href='#KILL'>kill</a> and <a href='#MESSAGE'>message</a>.</p>
+</div>
+<h2 id="INTRODUCTION"></span><span style='color:#FF5'>INTRODUCTION</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#AAA'>         On this page you'll find an introduction to using TinTin++. Additional
+information can be found in the individual help sections.
 <p></span><span style='color:#5F5'>Starting and Ending</p>
 <p></span><span style='color:#AAA'>         The syntax for starting TinTin++ is: ./tt++ [command file]</p>
 <p>Read more about the command file in the files section below. Remember
@@ -1480,11 +1527,12 @@ which try to explain the TinTin++ commands and features in greater
 detail. Entries in cyan describe commands, while entries in white
 describe various features, often in greater detail.</p>
 <p></span><span style='color:#5F5'>That’s all for the introduction, enjoy</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#CHARACTERS'>characters</a>, <a href='#COLORS'>colors</a>, <a href='#COORDINATES'>coordinates</a>, <a href='#EDITING'>editing</a>, <a href='#ESCAPE_CODES'>escape_codes</a>, <a href='#GREETING'>greeting</a>, <a href='#KEYPAD'>keypad</a>, <a href='#LISTS'>lists</a>, <a href='#MAPPING'>mapping</a>, <a href='#MATHEMATICS'>mathematics</a>, <a href='#SCREEN_READER'>screen_reader</a>, <a href='#SESSIONNAME'>sessionname</a>, <a href='#SPEEDWALK'>speedwalk</a>, <a href='#STATEMENTS'>statements</a>, <a href='#SUSPEND'>suspend</a> and <a href='#TIME'>time</a>.
-<a name='KEYPAD'></a></p>
-<p></span><span style='color:#FF5'>         KEYPAD</p>
-<p></span><span style='color:#AAA'>         When TinTin++ starts up it sends &amp;bsol;e= to the terminal to enable the
-terminal’s application keypad mode, which can be disabled using #show {&amp;bsol;e&amp;;}</p>
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#CHARACTERS'>characters</a>, <a href='#COLORS'>colors</a>, <a href='#COORDINATES'>coordinates</a>, <a href='#EDITING'>editing</a>, <a href='#ESCAPE_CODES'>escape_codes</a>, <a href='#GREETING'>greeting</a>, <a href='#KEYPAD'>keypad</a>, <a href='#LISTS'>lists</a>, <a href='#MAPPING'>mapping</a>, <a href='#MATHEMATICS'>mathematics</a>, <a href='#SCREEN_READER'>screen_reader</a>, <a href='#SESSIONNAME'>sessionname</a>, <a href='#SPEEDWALK'>speedwalk</a>, <a href='#STATEMENTS'>statements</a>, <a href='#SUSPEND'>suspend</a> and <a href='#TIME'>time</a>.</p>
+</div>
+<h2 id="KEYPAD"></span><span style='color:#FF5'>KEYPAD</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#AAA'>         When TinTin++ starts up it sends &amp;bsol;e= to the terminal to enable the
+terminal's application keypad mode, which can be disabled using #show {&amp;bsol;e&;}
 <p></span><span style='color:#FFF'>      Configuration A           Configuration B           Configuration C
 </span><span style='color:#0AA'> ╭─────┬─────┬─────┬─────╮ ╭─────┬─────┬─────┬─────╮ ╭─────┬─────┬─────┬─────╮
 │</span><span style='color:#FFF'>num</span><span style='color:#0AA'>  │</span><span style='color:#FFF'>/</span><span style='color:#0AA'>    │</span><span style='color:#FFF'><em></span><span style='color:#0AA'>    │</span><span style='color:#FFF'>-</span><span style='color:#0AA'>    │ │</span><span style='color:#FFF'>num</span><span style='color:#0AA'>  │</span><span style='color:#FFF'>/</span><span style='color:#0AA'>    │</span><span style='color:#FFF'></em></span><span style='color:#0AA'>    │</span><span style='color:#FFF'>-</span><span style='color:#0AA'>    │ │</span><span style='color:#FFF'>Num</span><span style='color:#0AA'>  │</span><span style='color:#FFF'>nkp/</span><span style='color:#0AA'> │</span><span style='color:#FFF'>nkp*</span><span style='color:#0AA'> │</span><span style='color:#FFF'>nkp-</span><span style='color:#0AA'> │
@@ -1511,20 +1559,22 @@ ctrl left-click menu. Or edit ~/.Xresources and add
 XTerm*VT100.numLock:false</p>
 <p>Mac OS X Terminal requires enabling ‘strict vt100 keypad behavior’ in
 Terminal -&amp;; Window Settings -&amp;; Emulation.</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#COLORS'>colors</a>, <a href='#COORDINATES'>coordinates</a>, <a href='#ESCAPE_CODES'>escape_codes</a>, <a href='#MATHEMATICS'>mathematics</a> and <a href='#PCRE'>pcre</a>.
-<a name='KILL'></a></p>
-<p></span><span style='color:#FF5'>         KILL</p>
-<p></span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #kill </span><span style='color:#FFF'>{</span><span style='color:#AAA'>list</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>pattern</span><span style='color:#FFF'>}</p>
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#COLORS'>colors</a>, <a href='#COORDINATES'>coordinates</a>, <a href='#ESCAPE_CODES'>escape_codes</a>, <a href='#MATHEMATICS'>mathematics</a> and <a href='#PCRE'>pcre</a>.</p>
+</div>
+<h2 id="KILL"></span><span style='color:#FF5'>KILL</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #kill </span><span style='color:#FFF'>{</span><span style='color:#AAA'>list</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>pattern</span><span style='color:#FFF'>}
 <p></span><span style='color:#AAA'>         Without an argument, the kill command clears all lists.  Useful if
 you don’t want to exit tintin to reload your command files.</p>
 <p>With one argument a specific list can be cleared.</p>
 <p>With two arguments the triggers in the chosen list that match the
 given pattern will be removed.</p>
 <p></span><span style='color:#FFF'>Example</span><span style='color:#AAA'>: #kill alias %<em>test</em></p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#CLASS'>class</a>, <a href='#DEBUG'>debug</a>, <a href='#IGNORE'>ignore</a>, <a href='#INFO'>info</a> and <a href='#MESSAGE'>message</a>.
-<a name='LINE'></a></p>
-<p></span><span style='color:#FF5'>         LINE</p>
-<p></span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #line </span><span style='color:#FFF'>{</span><span style='color:#AAA'>option</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>argument</span><span style='color:#FFF'>}</p>
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#CLASS'>class</a>, <a href='#DEBUG'>debug</a>, <a href='#IGNORE'>ignore</a>, <a href='#INFO'>info</a> and <a href='#MESSAGE'>message</a>.</p>
+</div>
+<h2 id="LINE"></span><span style='color:#FF5'>LINE</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #line </span><span style='color:#FFF'>{</span><span style='color:#AAA'>option</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>argument</span><span style='color:#FFF'>}
 <p></span><span style='color:#AAA'>         </span><span style='color:#5F5'>Line options that alter the argument.</p>
 <p></span><span style='color:#AAA'>         </span><span style='color:#FFF'>#line json &amp;;variable&amp;; &amp;;argument&amp;;
 </span><span style='color:#AAA'>           The variable is translated to json and the argument is executed
@@ -1579,10 +1629,11 @@ substitutions.</p>
 </span><span style='color:#AAA'>           Argument is executed with most system messages enabled.</p>
 <p>When using #line log and logging in html format use &amp;bsol;c&amp;; &amp;bsol;c&amp;; &amp;bsol;c&amp;; &amp;bsol;c&amp;; to
 log a literal &amp;; &amp;; &amp;; and &amp;;.</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#CLASS'>class</a> and <a href='#CONFIG'>config</a>.
-<a name='LIST'></a></p>
-<p></span><span style='color:#FF5'>         LIST</p>
-<p></span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #list </span><span style='color:#FFF'>{</span><span style='color:#AAA'>variable</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>option</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>argument</span><span style='color:#FFF'>}</p>
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#CLASS'>class</a> and <a href='#CONFIG'>config</a>.</p>
+</div>
+<h2 id="LIST"></span><span style='color:#FF5'>LIST</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #list </span><span style='color:#FFF'>{</span><span style='color:#AAA'>variable</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>option</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>argument</span><span style='color:#FFF'>}
 <p></span><span style='color:#AAA'>         #list {var} {add} &amp;;items&amp;;              Add &amp;;items&amp;; to the list
 #list {var} {clear}                    Empty the given list
 #list {var} {collapse} &amp;;separator&amp;;     Turn list into a variable
@@ -1629,13 +1680,14 @@ to the SELECT option in SQL. All entries must contain the given key.</p>
 directly access the size of a list using &amp;;var[].</p>
 <p>You can directly access elements in a list variable using &amp;dollar;var[+1],
 &amp;dollar;var[+2], &amp;dollar;var[-1], etc.</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#BREAK'>break</a>, <a href='#CONTINUE'>continue</a>, <a href='#FOREACH'>foreach</a>, <a href='#LOOP'>loop</a>, <a href='#PARSE'>parse</a>, <a href='#REPEAT'>repeat</a>, <a href='#RETURN'>return</a> and <a href='#WHILE'>while</a>.
-<a name='LISTS'></a></p>
-<p></span><span style='color:#FF5'>         LISTS</p>
-<p></span><span style='color:#AAA'>         There are several different types of lists in tintin which behave in a
-fairly universal manner. To properly explain lists it’s easiest to
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#BREAK'>break</a>, <a href='#CONTINUE'>continue</a>, <a href='#FOREACH'>foreach</a>, <a href='#LOOP'>loop</a>, <a href='#PARSE'>parse</a>, <a href='#REPEAT'>repeat</a>, <a href='#RETURN'>return</a> and <a href='#WHILE'>while</a>.</p>
+</div>
+<h2 id="LISTS"></span><span style='color:#FF5'>LISTS</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#AAA'>         There are several different types of lists in tintin which behave in a
+fairly universal manner. To properly explain lists it's easiest to
 explain the most basic variable type first before discussing more
-complex types.</p>
+complex types.
 <ul>
 <li>
 <p>Basic variable: The standard key = value variable.</p>
@@ -1880,10 +1932,11 @@ Looping through a hash table is relatively easy as well.</p>
 }
 }
 }</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#BREAK'>break</a>, <a href='#CONTINUE'>continue</a>, <a href='#FOREACH'>foreach</a>, <a href='#LOOP'>loop</a>, <a href='#PARSE'>parse</a>, <a href='#REPEAT'>repeat</a>, <a href='#RETURN'>return</a> and <a href='#WHILE'>while</a>.
-<a name='LOCAL'></a></p>
-<p></span><span style='color:#FF5'>         LOCAL</p>
-<p></span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #local </span><span style='color:#FFF'>{</span><span style='color:#AAA'>variable name</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>text to fill variable</span><span style='color:#FFF'>}</p>
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#BREAK'>break</a>, <a href='#CONTINUE'>continue</a>, <a href='#FOREACH'>foreach</a>, <a href='#LOOP'>loop</a>, <a href='#PARSE'>parse</a>, <a href='#REPEAT'>repeat</a>, <a href='#RETURN'>return</a> and <a href='#WHILE'>while</a>.</p>
+</div>
+<h2 id="LOCAL"></span><span style='color:#FF5'>LOCAL</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #local </span><span style='color:#FFF'>{</span><span style='color:#AAA'>variable name</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>text to fill variable</span><span style='color:#FFF'>}
 <p></span><span style='color:#AAA'>         The local command sets a local variable. Unlike a regular variable
 a local variable will only stay in memory for the duration of the
 event that created it. They are accessed in the same way as a
@@ -1895,10 +1948,11 @@ it is best to avoid setting a local variable that is identical to an
 existing regular variable.</p>
 <p></span><span style='color:#FFF'>Example</span><span style='color:#AAA'>: #alias {swap} {#local x %0;#replace x {e} {u};#show &amp;dollar;x}</p>
 <p></span><span style='color:#FFF'>Comment</span><span style='color:#AAA'>: You can remove a local variable with the #unlocal command.</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#FORMAT'>format</a>, <a href='#FUNCTION'>function</a>, <a href='#MATH'>math</a>, <a href='#REPLACE'>replace</a>, <a href='#SCRIPT'>script</a> and <a href='#VARIABLE'>variable</a>.
-<a name='LOG'></a></p>
-<p></span><span style='color:#FF5'>         LOG</p>
-<p></span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #log </span><span style='color:#FFF'>{</span><span style='color:#AAA'>option</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>argument</span><span style='color:#FFF'>}</p>
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#FORMAT'>format</a>, <a href='#FUNCTION'>function</a>, <a href='#MATH'>math</a>, <a href='#REPLACE'>replace</a>, <a href='#SCRIPT'>script</a> and <a href='#VARIABLE'>variable</a>.</p>
+</div>
+<h2 id="LOG"></span><span style='color:#FF5'>LOG</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #log </span><span style='color:#FFF'>{</span><span style='color:#AAA'>option</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>argument</span><span style='color:#FFF'>}
 <p></span><span style='color:#AAA'>         The log command allows logging session output to file.</p>
 <p></span><span style='color:#FFF'>#config log_level &amp;;low|high&amp;;
 </span><span style='color:#AAA'>           Default is high. Low, logs server output before triggers.</p>
@@ -1924,10 +1978,11 @@ file.</p>
 </span><span style='color:#AAA'>           When set the timestamp will be prepended to each line logged to file.
 The format will be formatted as a date using the strftime format
 specifiers as described in #help time.</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#READ'>read</a>, <a href='#SCAN'>scan</a>, <a href='#TEXTIN'>textin</a>, <a href='#TIME'>time</a> and <a href='#WRITE'>write</a>.
-<a name='LOOP'></a></p>
-<p></span><span style='color:#FF5'>         LOOP</p>
-<p></span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #loop </span><span style='color:#FFF'>{</span><span style='color:#AAA'>&amp;;start&amp;;</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>&amp;;finish&amp;;</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>&amp;;variable&amp;;</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>commands</span><span style='color:#FFF'>}</p>
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#READ'>read</a>, <a href='#SCAN'>scan</a>, <a href='#TEXTIN'>textin</a>, <a href='#TIME'>time</a> and <a href='#WRITE'>write</a>.</p>
+</div>
+<h2 id="LOOP"></span><span style='color:#FF5'>LOOP</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #loop </span><span style='color:#FFF'>{</span><span style='color:#AAA'>&;start&;</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>&;finish&;</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>&;variable&;</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>commands</span><span style='color:#FFF'>}
 <p></span><span style='color:#AAA'>         Like a for statement, loop will loop from start to finish incrementing
 or decrementing by 1 each time through.  The value of the loop counter
 is stored in the provided variable, which you can use in the commands.</p>
@@ -1935,10 +1990,11 @@ is stored in the provided variable, which you can use in the commands.</p>
 This equals ‘get all 1.corpse;get all 2.corpse;get all 3.corpse’.</p>
 <p></span><span style='color:#FFF'>Example</span><span style='color:#AAA'>: #loop 3 1 cnt {drop &amp;dollar;cnt&amp;bsol;.key}
 This equals ‘drop 3.key;drop 2.key;drop 1.key’.</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#BREAK'>break</a>, <a href='#CONTINUE'>continue</a>, <a href='#FOREACH'>foreach</a>, <a href='#LIST'>list</a>, <a href='#PARSE'>parse</a>, <a href='#REPEAT'>repeat</a>, <a href='#RETURN'>return</a> and <a href='#WHILE'>while</a>.
-<a name='MACRO'></a></p>
-<p></span><span style='color:#FF5'>         MACRO</p>
-<p></span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #macro </span><span style='color:#FFF'>{</span><span style='color:#AAA'>key sequence</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>commands</span><span style='color:#FFF'>}</p>
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#BREAK'>break</a>, <a href='#CONTINUE'>continue</a>, <a href='#FOREACH'>foreach</a>, <a href='#LIST'>list</a>, <a href='#PARSE'>parse</a>, <a href='#REPEAT'>repeat</a>, <a href='#RETURN'>return</a> and <a href='#WHILE'>while</a>.</p>
+</div>
+<h2 id="MACRO"></span><span style='color:#FF5'>MACRO</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #macro </span><span style='color:#FFF'>{</span><span style='color:#AAA'>key sequence</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>commands</span><span style='color:#FFF'>}
 <p></span><span style='color:#AAA'>         Macros allow you to make tintin respond to function keys.</p>
 <p>The key sequence sent to the terminal when pressing a function key
 differs for every OS and terminal. To find out what sequence is sent
@@ -1958,10 +2014,11 @@ Makes pressing n twice on an empty line execute north.</p>
 If this is the case you can still use the keypad, but instead of the
 arrow keys use ctrl b, f, p, and n.</p>
 <p></span><span style='color:#FFF'>Comment</span><span style='color:#AAA'>: You can remove a macro with the #unmacro command.</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#ALIAS'>alias</a>, <a href='#CURSOR'>cursor</a>, <a href='#HISTORY'>history</a>, <a href='#KEYPAD'>keypad</a>, <a href='#SPEEDWALK'>speedwalk</a> and <a href='#TAB'>tab</a>.
-<a name='MAP'></a></p>
-<p></span><span style='color:#FF5'>         MAP</p>
-<p></span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #map</p>
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#ALIAS'>alias</a>, <a href='#CURSOR'>cursor</a>, <a href='#HISTORY'>history</a>, <a href='#KEYPAD'>keypad</a>, <a href='#SPEEDWALK'>speedwalk</a> and <a href='#TAB'>tab</a>.</p>
+</div>
+<h2 id="MAP"></span><span style='color:#FF5'>MAP</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #map
 <p>The map command is the backbone of the auto mapping feature.</p>
 <p></span><span style='color:#FFF'>#map at &amp;;exit|vnum&amp;; &amp;;command&amp;;
 </span><span style='color:#AAA'>           Execute the command at the given exit or vnum.</p>
@@ -2216,13 +2273,14 @@ provided the first available room in that range is selected.</p>
 <p></span><span style='color:#FFF'>#map write &amp;;filename&amp;; [force]
 </span><span style='color:#AAA'>           Will save the map, if you want to save a map to a .tin file
 you must provide the {force} argument.</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#PATH'>path</a>, <a href='#PATHDIR'>pathdir</a> and <a href='#SPEEDWALK'>speedwalk</a>.
-<a name='MAPPING'></a></p>
-<p></span><span style='color:#FF5'>         MAPPING</p>
-<p></span><span style='color:#AAA'>         TinTin++ has a powerful automapper that uses a room system similar to
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#PATH'>path</a>, <a href='#PATHDIR'>pathdir</a> and <a href='#SPEEDWALK'>speedwalk</a>.</p>
+</div>
+<h2 id="MAPPING"></span><span style='color:#FF5'>MAPPING</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#AAA'>         TinTin++ has a powerful automapper that uses a room system similar to
 Diku MUDs which means that odd map layouts and weird exit
-configurations aren’t a problem. The mapper provides tools to improve
-the visual map display. For basic path tracking see #help PATH.</p>
+configurations aren't a problem. The mapper provides tools to improve
+the visual map display. For basic path tracking see #help PATH.
 <p></span><span style='color:#FFF'>         #map create [size]</p>
 <p></span><span style='color:#AAA'>         This command creates the initial map. The size is 50,000 by default
 and can be changed at any time with the #map resize command. If you
@@ -2309,14 +2367,15 @@ adjacent room to find the room vnum, then use #map goto {vnum} to
 visit.</p>
 <p>It’s also possible to align rooms using void rooms. This is easily
 done using #map insert north void.</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#MAP'>map</a>, <a href='#PATH'>path</a> and <a href='#PATHDIR'>pathdir</a>.
-<a name='MATH'></a></p>
-<p></span><span style='color:#FF5'>         MATH</p>
-<p></span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #math </span><span style='color:#FFF'>{</span><span style='color:#AAA'>variable</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>expression</span><span style='color:#FFF'>}</p>
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#MAP'>map</a>, <a href='#PATH'>path</a> and <a href='#PATHDIR'>pathdir</a>.</p>
+</div>
+<h2 id="MATH"></span><span style='color:#FF5'>MATH</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #math </span><span style='color:#FFF'>{</span><span style='color:#AAA'>variable</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>expression</span><span style='color:#FFF'>}
 <p></span><span style='color:#AAA'>         Performs math operations and stores the result in a variable.  The math
 follows a C-like precedence, as follows, with the top of the list
 having the highest priority.</p>
-<h2>Operators       Priority     Function</h2>
+<h2 id="operators-priority-function">Operators       Priority     Function</h2>
 <p>!               0            logical not
 ~               0            bitwise not
 d               1            integer random dice</p>
@@ -2382,11 +2441,12 @@ the amount still needed.</p>
 <p></span><span style='color:#FFF'>Example</span><span style='color:#AAA'>: #action {%0 tells %1}
 {#if {{%0} == {Bubba} &amp;;&amp;; &amp;dollar;afk} {reply I’m away, my friend.}}
 When you are away from keyboard, it will only reply to your friend.</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#CAT'>cat</a>, <a href='#FORMAT'>format</a>, <a href='#FUNCTION'>function</a>, <a href='#LOCAL'>local</a>, <a href='#MATHEMATICS'>mathematics</a>, <a href='#REPLACE'>replace</a>, <a href='#SCRIPT'>script</a> and <a href='#VARIABLE'>variable</a>.
-<a name='MATHEMATICS'></a></p>
-<p></span><span style='color:#FF5'>         MATHEMATICS</p>
-<p></span><span style='color:#AAA'>         </span><span style='color:#FFF'>Number operations</p>
-<h2></span><span style='color:#AAA'>         Operators       Priority     Function</h2>
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#CAT'>cat</a>, <a href='#FORMAT'>format</a>, <a href='#FUNCTION'>function</a>, <a href='#LOCAL'>local</a>, <a href='#MATHEMATICS'>mathematics</a>, <a href='#REPLACE'>replace</a>, <a href='#SCRIPT'>script</a> and <a href='#VARIABLE'>variable</a>.</p>
+</div>
+<h2 id="MATHEMATICS"></span><span style='color:#FF5'>MATHEMATICS</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#AAA'>         </span><span style='color:#FFF'>Number operations
+<h2 id="span-span-style-color-aaa-operators-priority-function"></span><span style='color:#AAA'>         Operators       Priority     Function</h2>
 <p>!               0            logical not
 ~               0            bitwise not</p>
 <ul>
@@ -2429,7 +2489,7 @@ d               1            integer random dice roll</p>
 <p>Operator priority can be ignored by using parentheses, for example
 (1 + 1) * 2 equals 4, while 1 + 1 * 2 equals 3.</p>
 <p></span><span style='color:#FFF'>String operations</p>
-<h2></span><span style='color:#AAA'>         Operators       Priority     Function</h2>
+<h2 id="span-span-style-color-aaa-operators-priority-function"></span><span style='color:#AAA'>         Operators       Priority     Function</h2>
 <p>&amp;;               4            alphabetical greater than
 &amp;;=              4            alphabetical greater than or equal
 &amp;;               4            alphabetical less than
@@ -2443,19 +2503,21 @@ operators perform basic string comparisons. The == != operators perform
 regular expressions, with the argument on the left being the string,
 and the argument on the right being the regex. For example
 {bla} == {%*a} would evaluate as 1.</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#MATH'>math</a> and <a href='#REGEXP'>regexp</a>.
-<a name='MESSAGE'></a></p>
-<p></span><span style='color:#FF5'>         MESSAGE</p>
-<p></span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #message </span><span style='color:#FFF'>{</span><span style='color:#AAA'>listname</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>on</span><span style='color:#FFF'>|</span><span style='color:#AAA'>off</span><span style='color:#FFF'>}</p>
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#MATH'>math</a> and <a href='#REGEXP'>regexp</a>.</p>
+</div>
+<h2 id="MESSAGE"></span><span style='color:#FF5'>MESSAGE</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #message </span><span style='color:#FFF'>{</span><span style='color:#AAA'>listname</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>on</span><span style='color:#FFF'>|</span><span style='color:#AAA'>off</span><span style='color:#FFF'>}
 <p></span><span style='color:#AAA'>         This will show the message status of all your lists if typed without an
 argument. If you set for example VARIABLES to OFF you will no longer be
 spammed when correctly using the #VARIABLE and #UNVARIABLE commands.</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#CLASS'>class</a>, <a href='#DEBUG'>debug</a>, <a href='#IGNORE'>ignore</a>, <a href='#INFO'>info</a> and <a href='#KILL'>kill</a>.
-<a name='METRIC_SYSTEM'></a></p>
-<p></span><span style='color:#FF5'>         METRIC SYSTEM</p>
-<p></span><span style='color:#AAA'>         The #math command supports using 1K, 1M, 1m, and 1u to make large and
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#CLASS'>class</a>, <a href='#DEBUG'>debug</a>, <a href='#IGNORE'>ignore</a>, <a href='#INFO'>info</a> and <a href='#KILL'>kill</a>.</p>
+</div>
+<h2 id="METRIC_SYSTEM"></span><span style='color:#FF5'>METRIC SYSTEM</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#AAA'>         The #math command supports using 1K, 1M, 1m, and 1u to make large and
 small number handling a little easier. These are case sensitive. Only
-four symbols are supported to keep false positives to a minimum.</p>
+four symbols are supported to keep false positives to a minimum.
 <p></span><span style='color:#0AA'>         ╭─────────┬────────┬─────────────────────────────────╮
 │</span><span style='color:#FFF'>    Name </span><span style='color:#0AA'>│</span><span style='color:#FFF'> Symbol </span><span style='color:#0AA'>│</span><span style='color:#FFF'>                           Factor</span><span style='color:#0AA'>│
 ├─────────┼────────┼─────────────────────────────────┤
@@ -2465,10 +2527,11 @@ four symbols are supported to keep false positives to a minimum.</p>
 │</span><span style='color:#FFF'>   milli </span><span style='color:#0AA'>│</span><span style='color:#FFF'>      m </span><span style='color:#0AA'>│</span><span style='color:#FFF'>                            0.001</span><span style='color:#0AA'>│
 │</span><span style='color:#FFF'>   micro </span><span style='color:#0AA'>│</span><span style='color:#FFF'>      u </span><span style='color:#0AA'>│</span><span style='color:#FFF'>                        0.000 001</span><span style='color:#0AA'>│
 ╰─────────┴────────┴─────────────────────────────────╯</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#ECHO'>echo</a>, <a href='#FORMAT'>format</a> and <a href='#MATH'>math</a>.
-<a name='MOUSE'></a></p>
-<p></span><span style='color:#FF5'>         MOUSE</p>
-<p></span><span style='color:#AAA'>         To enable xterm mouse tracking use #CONFIG MOUSE ON.</p>
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#ECHO'>echo</a>, <a href='#FORMAT'>format</a> and <a href='#MATH'>math</a>.</p>
+</div>
+<h2 id="MOUSE"></span><span style='color:#FF5'>MOUSE</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#AAA'>         To enable xterm mouse tracking use #CONFIG MOUSE ON.
 <p>To see mouse events as they happen use #CONFIG MOUSE INFO. This
 information can then be used to create mouse events with the #event
 command and buttons with the #button command.</p>
@@ -2480,20 +2543,22 @@ which allows creating named events for enter handling.</p>
 specific events when clicked.</p>
 <p>In order to copy/paste, most terminals require that you press the shift
 key during selection.</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#BUTTON'>button</a>, <a href='#DRAW'>draw</a>, <a href='#EVENT'>event</a> and <a href='#MSLP'>mslp</a>.
-<a name='MSDP'></a></p>
-<p></span><span style='color:#FF5'>         MSDP</p>
-<p></span><span style='color:#AAA'>         MSDP (Mud Server Data Protocol) is part of the #port functionality.
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#BUTTON'>button</a>, <a href='#DRAW'>draw</a>, <a href='#EVENT'>event</a> and <a href='#MSLP'>mslp</a>.</p>
+</div>
+<h2 id="MSDP"></span><span style='color:#FF5'>MSDP</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#AAA'>         MSDP (Mud Server Data Protocol) is part of the #port functionality.
 See #help event for additional documentation as all MSDP events are
-available as regular events.</p>
+available as regular events.
 <p>Available MSDP events can be queried using the MSDP protocol
 as described in the specification.</p>
 <p></span><span style='color:#5FF'><a href="https://tintin.mudhalla.net/protocols/msdp">https://tintin.mudhalla.net/protocols/msdp</a></p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#EVENT'>event</a> and <a href='#PORT'>port</a>.
-<a name='MSLP'></a></p>
-<p></span><span style='color:#FF5'>         MSLP</p>
-<p></span><span style='color:#AAA'>         MSLP (Mud Server Link Protocol) requires enabling #config mouse on,
-and creating the appropriate LINK events.</p>
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#EVENT'>event</a> and <a href='#PORT'>port</a>.</p>
+</div>
+<h2 id="MSLP"></span><span style='color:#FF5'>MSLP</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#AAA'>         MSLP (Mud Server Link Protocol) requires enabling #config mouse on,
+and creating the appropriate LINK events.
 <p>The simplest link can be created by surrounding a keyword with the
 &amp;bsol;e[4m and &amp;bsol;e[24m tags.</p>
 <p></span><span style='color:#FFF'>Example</span><span style='color:#AAA'>: #substitute {&amp;bsol;b{n|e|s|w|u|d}&amp;bsol;b} {&amp;bsol;e[4m%1&amp;bsol;e[24m}</p>
@@ -2524,10 +2589,11 @@ event.</p>
 </span><span style='color:#FFF'>       </span><span style='color:#AAA'>  #event {PRESSED SECURE LINK EXEC MOUSE BUTTON ONE} {%4}</p>
 <p>This would make you start a reply when clicking on a tell.</p>
 <p></span><span style='color:#FFF'>Website</span><span style='color:#AAA'>: <a href="https://tintin.mudhalla.net/protocols/mslp">https://tintin.mudhalla.net/protocols/mslp</a></p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#EVENT'>event</a> and <a href='#PORT'>port</a>.
-<a name='NOP'></a></p>
-<p></span><span style='color:#FF5'>         NOP</p>
-<p></span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #nop </span><span style='color:#FFF'>{</span><span style='color:#AAA'>whatever</span><span style='color:#FFF'>}</p>
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#EVENT'>event</a> and <a href='#PORT'>port</a>.</p>
+</div>
+<h2 id="NOP"></span><span style='color:#FF5'>NOP</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #nop </span><span style='color:#FFF'>{</span><span style='color:#AAA'>whatever</span><span style='color:#FFF'>}
 <p></span><span style='color:#AAA'>         Short for ‘no operation’, and is ignored by the client.  It is useful
 for commenting in your coms file, any text after the nop and before a
 semicolon or end of line is ignored. You shouldn’t put braces { } in it
@@ -2538,18 +2604,20 @@ file.</p>
 <p>For commenting out an entire trigger and especially large sections of
 triggers you would want to use /* text */</p>
 <p></span><span style='color:#FFF'>Example</span><span style='color:#AAA'>: #nop This is the start of my script file.</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#READ'>read</a>
-<a name='PARSE'></a></p>
-<p></span><span style='color:#FF5'>         PARSE</p>
-<p></span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #parse </span><span style='color:#FFF'>{</span><span style='color:#AAA'>string</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>variable</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>commands</span><span style='color:#FFF'>}</p>
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#READ'>read</a></p>
+</div>
+<h2 id="PARSE"></span><span style='color:#FF5'>PARSE</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #parse </span><span style='color:#FFF'>{</span><span style='color:#AAA'>string</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>variable</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>commands</span><span style='color:#FFF'>}
 <p></span><span style='color:#AAA'>         Like the loop statement, parse will loop from start to finish through
 the given string.  The value of the current character is stored in the
 provided variable.</p>
 <p></span><span style='color:#FFF'>Example</span><span style='color:#AAA'>: #parse {hello world} {char} {#show &amp;dollar;char}</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#BREAK'>break</a>, <a href='#CONTINUE'>continue</a>, <a href='#FOREACH'>foreach</a>, <a href='#LIST'>list</a>, <a href='#LOOP'>loop</a>, <a href='#REPEAT'>repeat</a>, <a href='#RETURN'>return</a> and <a href='#WHILE'>while</a>.
-<a name='PATH'></a></p>
-<p></span><span style='color:#FF5'>         PATH</p>
-<p></span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #path </span><span style='color:#FFF'>{</span><span style='color:#AAA'>option</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>argument</span><span style='color:#FFF'>}</p>
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#BREAK'>break</a>, <a href='#CONTINUE'>continue</a>, <a href='#FOREACH'>foreach</a>, <a href='#LIST'>list</a>, <a href='#LOOP'>loop</a>, <a href='#REPEAT'>repeat</a>, <a href='#RETURN'>return</a> and <a href='#WHILE'>while</a>.</p>
+</div>
+<h2 id="PATH"></span><span style='color:#FF5'>PATH</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #path </span><span style='color:#FFF'>{</span><span style='color:#AAA'>option</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>argument</span><span style='color:#FFF'>}
 <p></span><span style='color:#AAA'>         create   Will clear the path and start path mapping.
 delete   Will delete the last move of the path.
 describe Describe the path and current position.
@@ -2572,10 +2640,11 @@ unzip    Load the given speedwalk as the new path.
 walk     Take one step forward or backward.
 zip      Turn the path into a speedwalk.</p>
 <p></span><span style='color:#FFF'>Example</span><span style='color:#AAA'>: #path ins {unlock n;open n} {unlock s;open s}</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#MAP'>map</a>, <a href='#PATHDIR'>pathdir</a> and <a href='#SPEEDWALK'>speedwalk</a>.
-<a name='PATHDIR'></a></p>
-<p></span><span style='color:#FF5'>         PATHDIR</p>
-<p></span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #pathdir </span><span style='color:#FFF'>{</span><span style='color:#AAA'>dir</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>reversed dir</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>coord</span><span style='color:#FFF'>}</p>
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#MAP'>map</a>, <a href='#PATHDIR'>pathdir</a> and <a href='#SPEEDWALK'>speedwalk</a>.</p>
+</div>
+<h2 id="PATHDIR"></span><span style='color:#FF5'>PATHDIR</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #pathdir </span><span style='color:#FFF'>{</span><span style='color:#AAA'>dir</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>reversed dir</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>coord</span><span style='color:#FFF'>}
 <p></span><span style='color:#AAA'>         By default tintin sets the most commonly used movement commands
 meaning you generally don’t really have to bother with pathdirs.
 Pathdirs are used by the #path and #map commands.</p>
@@ -2591,15 +2660,16 @@ needs to be given the value of 9. This value is required for the
 <p></span><span style='color:#FFF'>Example</span><span style='color:#AAA'>: #pathdir {ue} {dw} {18}
 #pathdir {dw} {ue} {40}</p>
 <p></span><span style='color:#FFF'>Comment</span><span style='color:#AAA'>: You can remove a pathdir with the #unpathdir command.</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#MAP'>map</a> and <a href='#PATH'>path</a>.
-<a name='PCRE'></a></p>
-<p></span><span style='color:#FF5'>         PCRE</p>
-<p></span><span style='color:#AAA'>         A regular expression, regex or regexp is a sequence of characters that
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#MAP'>map</a> and <a href='#PATH'>path</a>.</p>
+</div>
+<h2 id="PCRE"></span><span style='color:#FF5'>PCRE</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#AAA'>         A regular expression, regex or regexp is a sequence of characters that
 defines a search pattern. Since the 1980s, different syntaxes for
 writing regular expressions exist, the two most widely used ones being
 the POSIX syntax and the similar but more advanced Perl standard.
 TinTin++ supports the Perl standard known as PCRE (Perl Compatible
-Regular Expressions).</p>
+Regular Expressions).
 <p>Regular expressions are an integral part of TinTin++, but keep in mind
 that tintin doesn’t allow you to use regular expressions directly,
 instead it uses a simpler intermediate syntax that still allows more
@@ -2742,10 +2812,11 @@ white color trigger will save the roomname.</p>
 <p>This covers the basics. PCRE has more options, most of which are
 somewhat obscure, so you’ll have to read a PCRE manual for additional
 information.</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#MAP'>map</a> and <a href='#PATH'>path</a>.
-<a name='PORT'></a></p>
-<p></span><span style='color:#FF5'>         PORT</p>
-<p></span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #port </span><span style='color:#FFF'>{</span><span style='color:#AAA'>option</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>argument</span><span style='color:#FFF'>}</p>
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#MAP'>map</a> and <a href='#PATH'>path</a>.</p>
+</div>
+<h2 id="PORT"></span><span style='color:#FF5'>PORT</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #port </span><span style='color:#FFF'>{</span><span style='color:#AAA'>option</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>argument</span><span style='color:#FFF'>}
 <p></span><span style='color:#AAA'>         </span><span style='color:#FFF'>#port {init} {name} {port} {file}
 </span><span style='color:#AAA'>           Initilize a port session.</p>
 <p></span><span style='color:#FFF'>#port {call} {address} {port}
@@ -2776,10 +2847,11 @@ information.</p>
 new session dedicated to receiving socket connections at the given
 port number without built-in support for a communication protocol.</p>
 <p>You can init with 0 as the port number to create a dummy session.</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#ALL'>all</a>, <a href='#CHAT'>chat</a>, <a href='#RUN'>run</a>, <a href='#SESSION'>session</a>, <a href='#SESSIONNAME'>sessionname</a>, <a href='#SNOOP'>snoop</a>, <a href='#SSL'>ssl</a> and <a href='#ZAP'>zap</a>.
-<a name='PROMPT'></a></p>
-<p></span><span style='color:#FF5'>         PROMPT</p>
-<p></span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #prompt </span><span style='color:#FFF'>{</span><span style='color:#AAA'>text</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>new text</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>row #</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>col #</span><span style='color:#FFF'>}</p>
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#ALL'>all</a>, <a href='#CHAT'>chat</a>, <a href='#RUN'>run</a>, <a href='#SESSION'>session</a>, <a href='#SESSIONNAME'>sessionname</a>, <a href='#SNOOP'>snoop</a>, <a href='#SSL'>ssl</a> and <a href='#ZAP'>zap</a>.</p>
+</div>
+<h2 id="PROMPT"></span><span style='color:#FF5'>PROMPT</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #prompt </span><span style='color:#FFF'>{</span><span style='color:#AAA'>text</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>new text</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>row #</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>col #</span><span style='color:#FFF'>}
 <p></span><span style='color:#AAA'>         Prompt is a feature for split window mode, which will capture a line
 received from the server and display it on the status bar of your
 split screen terminal. You would define &amp;;text&amp;; and &amp;;new text&amp;; the
@@ -2807,19 +2879,21 @@ including colors. Use {&amp;bsol;} for a blank line.</p>
 <p></span><span style='color:#FFF'>Comment</span><span style='color:#AAA'>: See </span><span style='color:#FFF'>#help substitute</span><span style='color:#AAA'> for more information on text
 substitutions.</p>
 <p></span><span style='color:#FFF'>Comment</span><span style='color:#AAA'>: You can remove a prompt with the #unprompt command.</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#ACTION'>action</a>, <a href='#GAG'>gag</a>, <a href='#HIGHLIGHT'>highlight</a> and <a href='#SUBSTITUTE'>substitute</a>.
-<a name='READ'></a></p>
-<p></span><span style='color:#FF5'>         READ</p>
-<p></span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #read </span><span style='color:#FFF'>{</span><span style='color:#AAA'>filename</span><span style='color:#FFF'>}</p>
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#ACTION'>action</a>, <a href='#GAG'>gag</a>, <a href='#HIGHLIGHT'>highlight</a> and <a href='#SUBSTITUTE'>substitute</a>.</p>
+</div>
+<h2 id="READ"></span><span style='color:#FF5'>READ</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #read </span><span style='color:#FFF'>{</span><span style='color:#AAA'>filename</span><span style='color:#FFF'>}
 <p></span><span style='color:#AAA'>         Reads a commands file into memory.  The commands are merged with the
 currently loaded commands.  Duplicate commands are overwritten.</p>
 <p>If you uses braces you can use several lines for each command.  You
 must match every { with a } for the read command to work.</p>
 <p>You can comment out triggers using /* text */</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#LOG'>log</a>, <a href='#SCAN'>scan</a>, <a href='#TEXTIN'>textin</a> and <a href='#WRITE'>write</a>.
-<a name='REGEXP'></a></p>
-<p></span><span style='color:#FF5'>         REGEXP</p>
-<p></span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #regexp </span><span style='color:#FFF'>{</span><span style='color:#AAA'>string</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>expression</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>true</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>false</span><span style='color:#FFF'>}</p>
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#LOG'>log</a>, <a href='#SCAN'>scan</a>, <a href='#TEXTIN'>textin</a> and <a href='#WRITE'>write</a>.</p>
+</div>
+<h2 id="REGEXP"></span><span style='color:#FF5'>REGEXP</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #regexp </span><span style='color:#FFF'>{</span><span style='color:#AAA'>string</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>expression</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>true</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>false</span><span style='color:#FFF'>}
 <p></span><span style='color:#AAA'>         Compares the string to the given regular expression.</p>
 <p>The expression can contain escapes, and if you want to match a literal
 &amp;bsol; character you’ll have to use &amp;bsol;&amp;bsol; to match a single backslash.</p>
@@ -2868,35 +2942,39 @@ starting at %1 and incrementing by 1 for every regex. If you use
 would be %16. To prevent a match from being stored use %!*, %!w, etc.</p>
 <p></span><span style='color:#FFF'>Example</span><span style='color:#AAA'>: #regexp {bli bla blo} {bli {.*} blo} {#show &amp;;1}</p>
 <p></span><span style='color:#FFF'>Comment</span><span style='color:#AAA'>: Like an alias or function #regex has its own scope.</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#PCRE'>pcre</a> and <a href='#REPLACE'>replace</a>.
-<a name='REPEAT'></a></p>
-<p></span><span style='color:#FF5'>         REPEAT</p>
-<p></span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #</span><span style='color:#FFF'>[</span><span style='color:#AAA'>number</span><span style='color:#FFF'>] {</span><span style='color:#AAA'>commands</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>…</span><span style='color:#FFF'>}</p>
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#PCRE'>pcre</a> and <a href='#REPLACE'>replace</a>.</p>
+</div>
+<h2 id="REPEAT"></span><span style='color:#FF5'>REPEAT</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #</span><span style='color:#FFF'>[</span><span style='color:#AAA'>number</span><span style='color:#FFF'>] {</span><span style='color:#AAA'>commands</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>..</span><span style='color:#FFF'>}
 <p></span><span style='color:#AAA'>        Sometimes you want to repeat the same command multiple times. This is
 the easiest way to accomplish that.</p>
 <p></span><span style='color:#FFF'>Example</span><span style='color:#AAA'>: #10 {buy bread}
 </span><span style='color:#FFF'>Example</span><span style='color:#AAA'>: #2 {buy bread} {buy apple}</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#MATHEMATICS'>mathematics</a> and <a href='#STATEMENTS'>statements</a>.
-<a name='REPLACE'></a></p>
-<p></span><span style='color:#FF5'>         REPLACE</p>
-<p></span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #replace </span><span style='color:#FFF'>{</span><span style='color:#AAA'>variable</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>oldtext</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>newtext</span><span style='color:#FFF'>}</p>
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#MATHEMATICS'>mathematics</a> and <a href='#STATEMENTS'>statements</a>.</p>
+</div>
+<h2 id="REPLACE"></span><span style='color:#FF5'>REPLACE</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #replace </span><span style='color:#FFF'>{</span><span style='color:#AAA'>variable</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>oldtext</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>newtext</span><span style='color:#FFF'>}
 <p></span><span style='color:#AAA'>         Searches the given variable, replacing each occurrence of ‘oldtext’
 with ‘newtext’. The ‘oldtext’ argument is a regular expression.</p>
 <p>Variables are stored in &amp;;1 to &amp;;99 with &amp;;0 holding the entire matched
 substring.</p>
 <p></span><span style='color:#FFF'>Example</span><span style='color:#AAA'>: #function rnd #math result 1d9;#replace test {%.} {@rnd{}}</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#CAT'>cat</a>, <a href='#FORMAT'>format</a>, <a href='#FUNCTION'>function</a>, <a href='#LOCAL'>local</a>, <a href='#MATH'>math</a>, <a href='#SCRIPT'>script</a> and <a href='#VARIABLE'>variable</a>.
-<a name='RETURN'></a></p>
-<p></span><span style='color:#FF5'>         RETURN</p>
-<p></span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #return </span><span style='color:#FFF'>{</span><span style='color:#AAA'>text</span><span style='color:#FFF'>}</p>
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#CAT'>cat</a>, <a href='#FORMAT'>format</a>, <a href='#FUNCTION'>function</a>, <a href='#LOCAL'>local</a>, <a href='#MATH'>math</a>, <a href='#SCRIPT'>script</a> and <a href='#VARIABLE'>variable</a>.</p>
+</div>
+<h2 id="RETURN"></span><span style='color:#FF5'>RETURN</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #return </span><span style='color:#FFF'>{</span><span style='color:#AAA'>text</span><span style='color:#FFF'>}
 <p></span><span style='color:#AAA'>         This command can be used to break out of a command string being
 executed.</p>
 <p>If used inside a #function you can use #return with an argument to both
 break out of the function and set the result variable.</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#BREAK'>break</a>, <a href='#CONTINUE'>continue</a>, <a href='#FOREACH'>foreach</a>, <a href='#LIST'>list</a>, <a href='#LOOP'>loop</a>, <a href='#PARSE'>parse</a>, <a href='#REPEAT'>repeat</a> and <a href='#WHILE'>while</a>.
-<a name='RUN'></a></p>
-<p></span><span style='color:#FF5'>         RUN</p>
-<p></span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #run </span><span style='color:#FFF'>{</span><span style='color:#AAA'>name</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>shell command</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>file</span><span style='color:#FFF'>}</p>
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#BREAK'>break</a>, <a href='#CONTINUE'>continue</a>, <a href='#FOREACH'>foreach</a>, <a href='#LIST'>list</a>, <a href='#LOOP'>loop</a>, <a href='#PARSE'>parse</a>, <a href='#REPEAT'>repeat</a> and <a href='#WHILE'>while</a>.</p>
+</div>
+<h2 id="RUN"></span><span style='color:#FF5'>RUN</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #run </span><span style='color:#FFF'>{</span><span style='color:#AAA'>name</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>shell command</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>file</span><span style='color:#FFF'>}
 <p></span><span style='color:#AAA'>         The run command works much like the system command except that it
 runs the command in a pseudo terminal. The run command also creates
 a session that treats the given shell command as a server. This
@@ -2905,10 +2983,11 @@ full tintin scripting capabilities. If a file name is given the file
 is loaded prior to execution.</p>
 <p></span><span style='color:#FFF'>Example</span><span style='color:#AAA'>: #run {somewhere} {ssh <a href="mailto:someone@somewhere.com">someone@somewhere.com</a>}
 </span><span style='color:#FFF'>Example</span><span style='color:#AAA'>: #run {something} {tail -f chats.log}</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#ALL'>all</a>, <a href='#PORT'>port</a>, <a href='#SESSION'>session</a>, <a href='#SESSIONNAME'>sessionname</a>, <a href='#SNOOP'>snoop</a>, <a href='#SSL'>ssl</a> and <a href='#ZAP'>zap</a>.
-<a name='SCAN'></a></p>
-<p></span><span style='color:#FF5'>         SCAN</p>
-<p></span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #scan </span><span style='color:#FFF'>{</span><span style='color:#AAA'>abort</span><span style='color:#FFF'>|</span><span style='color:#AAA'>csv</span><span style='color:#FFF'>|</span><span style='color:#AAA'>tsv</span><span style='color:#FFF'>|</span><span style='color:#AAA'>txt</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>filename</span><span style='color:#FFF'>}</p>
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#ALL'>all</a>, <a href='#PORT'>port</a>, <a href='#SESSION'>session</a>, <a href='#SESSIONNAME'>sessionname</a>, <a href='#SNOOP'>snoop</a>, <a href='#SSL'>ssl</a> and <a href='#ZAP'>zap</a>.</p>
+</div>
+<h2 id="SCAN"></span><span style='color:#FF5'>SCAN</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #scan </span><span style='color:#FFF'>{</span><span style='color:#AAA'>abort</span><span style='color:#FFF'>|</span><span style='color:#AAA'>csv</span><span style='color:#FFF'>|</span><span style='color:#AAA'>tsv</span><span style='color:#FFF'>|</span><span style='color:#AAA'>txt</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>filename</span><span style='color:#FFF'>}
 <p></span><span style='color:#AAA'>         The scan command is a file reading utility.</p>
 <p></span><span style='color:#FFF'>#scan {abort}
 </span><span style='color:#AAA'>           This command must be called from with a SCAN event and will
@@ -2950,10 +3029,11 @@ raw log files.</p>
 <p>Actions, highlights, and substitutions will trigger as normal, and it
 is possible to create an action to execute #scan abort to prematurely
 stop the scan.</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#READ'>read</a> and <a href='#TEXTIN'>textin</a>.
-<a name='SCREEN'></a></p>
-<p></span><span style='color:#FF5'>         SCREEN</p>
-<p></span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #screen </span><span style='color:#FFF'>{</span><span style='color:#AAA'>option</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>argument</span><span style='color:#FFF'>}</p>
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#READ'>read</a> and <a href='#TEXTIN'>textin</a>.</p>
+</div>
+<h2 id="SCREEN"></span><span style='color:#FF5'>SCREEN</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #screen </span><span style='color:#FFF'>{</span><span style='color:#AAA'>option</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>argument</span><span style='color:#FFF'>}
 <p></span><span style='color:#AAA'>         The screen command offers a variety of screen manipulation
 commands and utilities.</p>
 <p></span><span style='color:#FFF'>#screen blur
@@ -2997,10 +3077,11 @@ used to create named RECEIVED INPUT [NAME] events.</p>
 </span><span style='color:#AAA'>           Set the title, label, or both. Only title works on Windows.</p>
 <p></span><span style='color:#FFF'>#screen swap
 </span><span style='color:#AAA'>           Swap the input and scroll region.</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#BELL'>bell</a>
-<a name='SCREEN_READER'></a></p>
-<p></span><span style='color:#FF5'>         SCREEN READER</p>
-<p></span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #config </span><span style='color:#FFF'>{</span><span style='color:#AAA'>SCREEN READER</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>ON|OFF</span><span style='color:#FFF'>}</p>
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#BELL'>bell</a></p>
+</div>
+<h2 id="SCREEN_READER"></span><span style='color:#FF5'>SCREEN READER</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #config </span><span style='color:#FFF'>{</span><span style='color:#AAA'>SCREEN READER</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>ON|OFF</span><span style='color:#FFF'>}
 <p></span><span style='color:#AAA'>         Screen reader mode is enabled by using #config screen on. One purpose
 of the screen reader mode is to report to servers that a screen reader
 is being used by utilizing the MTTS standard. The MTTS specification
@@ -3008,10 +3089,11 @@ is available at:</p>
 <p><a href="https://tintin.mudhalla.net/protocols/mtts">https://tintin.mudhalla.net/protocols/mtts</a></p>
 <p>With the screen reader mode enabled TinTin++ will try to remove or
 alter visual elements where possible.</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#CONFIG'>config</a>
-<a name='SCRIPT'></a></p>
-<p></span><span style='color:#FF5'>         SCRIPT</p>
-<p></span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #script </span><span style='color:#FFF'>{</span><span style='color:#AAA'>variable</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>shell command</span><span style='color:#FFF'>}</p>
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#CONFIG'>config</a></p>
+</div>
+<h2 id="SCRIPT"></span><span style='color:#FF5'>SCRIPT</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #script </span><span style='color:#FFF'>{</span><span style='color:#AAA'>variable</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>shell command</span><span style='color:#FFF'>}
 <p></span><span style='color:#AAA'>         The script command works much like the system command except that it
 treats the generated echos as commands if no variable is provided.</p>
 <p>This is useful for running php, perl, ruby, and python scripts. You
@@ -3022,16 +3104,18 @@ scripting language allows this.</p>
 </span><span style='color:#FFF'>Example</span><span style='color:#AAA'>: #script {python -c ‘print &amp;;#show hello world&amp;;’}
 </span><span style='color:#FFF'>Example</span><span style='color:#AAA'>: #script {php -r ‘echo &amp;;#show hello world&amp;;’}
 </span><span style='color:#FFF'>Example</span><span style='color:#AAA'>: #script {path} {pwd};#show The path is &amp;dollar;path[1].</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#FORMAT'>format</a>, <a href='#FUNCTION'>function</a>, <a href='#LOCAL'>local</a>, <a href='#MATH'>math</a>, <a href='#REPLACE'>replace</a> and <a href='#VARIABLE'>variable</a>.
-<a name='SEND'></a></p>
-<p></span><span style='color:#FF5'>         SEND</p>
-<p></span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #send </span><span style='color:#FFF'>{</span><span style='color:#AAA'>text</span><span style='color:#FFF'>}</p>
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#FORMAT'>format</a>, <a href='#FUNCTION'>function</a>, <a href='#LOCAL'>local</a>, <a href='#MATH'>math</a>, <a href='#REPLACE'>replace</a> and <a href='#VARIABLE'>variable</a>.</p>
+</div>
+<h2 id="SEND"></span><span style='color:#FF5'>SEND</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #send </span><span style='color:#FFF'>{</span><span style='color:#AAA'>text</span><span style='color:#FFF'>}
 <p></span><span style='color:#AAA'>         Sends the text directly to the server, useful if you want to start
 with an escape code.</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#TEXTIN'>textin</a>
-<a name='SESSION'></a></p>
-<p></span><span style='color:#FF5'>         SESSION</p>
-<p></span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #session </span><span style='color:#FFF'>{</span><span style='color:#AAA'>name</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>host</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>port</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>file</span><span style='color:#FFF'>}</p>
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#TEXTIN'>textin</a></p>
+</div>
+<h2 id="SESSION"></span><span style='color:#FF5'>SESSION</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #session </span><span style='color:#FFF'>{</span><span style='color:#AAA'>name</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>host</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>port</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>file</span><span style='color:#FFF'>}
 <p></span><span style='color:#AAA'>         Starts a telnet session with the given name, host, port, and optional
 file name. The name can be anything you want, except the name of an
 already existing session, a number, or the keywords ‘+’ and ‘-’.</p>
@@ -3059,10 +3143,11 @@ the current active session.</p>
 <p>The startup session is named ‘gts’ and can be used for relog scripts.
 Do keep in mind that tickers do not work in the startup session.</p>
 <p></span><span style='color:#FFF'>Example</span><span style='color:#AAA'>: #event {SESSION DISCONNECTED} {#gts #delay 10 #ses %0 <a href="http://tintin.net">tintin.net</a> 4321}</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#ALL'>all</a>, <a href='#PORT'>port</a>, <a href='#RUN'>run</a>, <a href='#SESSIONNAME'>sessionname</a>, <a href='#SNOOP'>snoop</a>, <a href='#SSL'>ssl</a> and <a href='#ZAP'>zap</a>.
-<a name='SESSIONNAME'></a></p>
-<p></span><span style='color:#FF5'>         SESSIONNAME</p>
-<p></span><span style='color:#FFF'>Syntax</span><span style='color:#AAA'>:  #[sessionname] </span><span style='color:#FFF'>{</span><span style='color:#AAA'>commands</span><span style='color:#FFF'>}</p>
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#ALL'>all</a>, <a href='#PORT'>port</a>, <a href='#RUN'>run</a>, <a href='#SESSIONNAME'>sessionname</a>, <a href='#SNOOP'>snoop</a>, <a href='#SSL'>ssl</a> and <a href='#ZAP'>zap</a>.</p>
+</div>
+<h2 id="SESSIONNAME"></span><span style='color:#FF5'>SESSIONNAME</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#FFF'>Syntax</span><span style='color:#AAA'>:  #[sessionname] </span><span style='color:#FFF'>{</span><span style='color:#AAA'>commands</span><span style='color:#FFF'>}
 <p></span><span style='color:#AAA'>         You can create multiple sessions with the #session command. By default
 only one session is active, meaning commands you input are executed in
 the active session. While all sessions receive output, only output sent
@@ -3085,10 +3170,11 @@ to be used you need to use ‘&amp;dollar;&amp;dollar;{variable}’ to properly 
 can do so in a similar way as you would use a #function call. Using
 #showme {@two{&amp;dollar;test}} in session one would print the value of &amp;dollar;test,
 as defined by session two.</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#SUSPEND'>suspend</a>
-<a name='SHOWME'></a></p>
-<p></span><span style='color:#FF5'>         SHOWME</p>
-<p></span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #show </span><span style='color:#FFF'>{</span><span style='color:#AAA'>string</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>row</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>col</span><span style='color:#FFF'>}</p>
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#SUSPEND'>suspend</a></p>
+</div>
+<h2 id="SHOWME"></span><span style='color:#FF5'>SHOWME</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #show </span><span style='color:#FFF'>{</span><span style='color:#AAA'>string</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>row</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>col</span><span style='color:#FFF'>}
 <p></span><span style='color:#AAA'>         Display the string to the terminal, do not send to the server.  Useful
 for status, warnings, etc.  The {row} and col number are optional and
 work the same way as the row number of the #prompt trigger.</p>
@@ -3097,10 +3183,11 @@ this from happening use: #line ignore #show {&amp;;string&amp;;}.</p>
 <p></span><span style='color:#FFF'>Example</span><span style='color:#AAA'>: #tick {TICK} {#delay 50 #show 10 SECONDS TO TICK!!!} {60}</p>
 <p></span><span style='color:#FFF'>Comment</span><span style='color:#AAA'>: The #prompt helpfile contains more information on using the
 option {row} and {col} arguments.</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#BUFFER'>buffer</a>, <a href='#DRAW'>draw</a>, <a href='#ECHO'>echo</a>, <a href='#GREP'>grep</a> and <a href='#PROMPT'>prompt</a>.
-<a name='SNOOP'></a></p>
-<p></span><span style='color:#FF5'>         SNOOP</p>
-<p></span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #snoop </span><span style='color:#FFF'>{</span><span style='color:#AAA'>session name</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>on</span><span style='color:#FFF'>|</span><span style='color:#AAA'>off</span><span style='color:#FFF'>|</span><span style='color:#AAA'>scroll</span><span style='color:#FFF'>}</p>
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#BUFFER'>buffer</a>, <a href='#DRAW'>draw</a>, <a href='#ECHO'>echo</a>, <a href='#GREP'>grep</a> and <a href='#PROMPT'>prompt</a>.</p>
+</div>
+<h2 id="SNOOP"></span><span style='color:#FF5'>SNOOP</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #snoop </span><span style='color:#FFF'>{</span><span style='color:#AAA'>session name</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>on</span><span style='color:#FFF'>|</span><span style='color:#AAA'>off</span><span style='color:#FFF'>|</span><span style='color:#AAA'>scroll</span><span style='color:#FFF'>}
 <p></span><span style='color:#AAA'>         If there are multiple sessions active, this command allows you to
 monitor what is going on in the sessions that are not currently active.
 The line of text from other sessions will be prefixed by the session’s
@@ -3110,10 +3197,11 @@ name.</p>
 region which will overwrite the display of whichever session is active.
 You can change the size and location of a session’s scroll region by
 using the #split and #screen scrollregion commands.</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#ALL'>all</a>, <a href='#PORT'>port</a>, <a href='#RUN'>run</a>, <a href='#SESSION'>session</a>, <a href='#SESSIONNAME'>sessionname</a>, <a href='#SSL'>ssl</a> and <a href='#ZAP'>zap</a>.
-<a name='SPEEDWALK'></a></p>
-<p></span><span style='color:#FF5'>         SPEEDWALK</p>
-<p></span><span style='color:#5F5'>         SPEEDWALK V1</p>
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#ALL'>all</a>, <a href='#PORT'>port</a>, <a href='#RUN'>run</a>, <a href='#SESSION'>session</a>, <a href='#SESSIONNAME'>sessionname</a>, <a href='#SSL'>ssl</a> and <a href='#ZAP'>zap</a>.</p>
+</div>
+<h2 id="SPEEDWALK"></span><span style='color:#FF5'>SPEEDWALK</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#5F5'>         SPEEDWALK V1
 <p></span><span style='color:#AAA'>         Speedwalking allows you to enter multiple directions without using
 semicolons. Directions should be prefixed with a number and will be
 executed the given number of times.</p>
@@ -3134,10 +3222,11 @@ the speedwalk was saved using #path save in which case a v2 compatible
 format is used that can also contain timing data.</p>
 <p></span><span style='color:#FFF'>Example</span><span style='color:#AAA'>: #path unzip 3n1e2nw
 </span><span style='color:#FFF'>Example</span><span style='color:#AAA'>: #map move 3ne1d</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#KEYPAD'>keypad</a>, <a href='#MAPPING'>mapping</a> and <a href='#REPEAT'>repeat</a>.
-<a name='SPLIT'></a></p>
-<p></span><span style='color:#FF5'>         SPLIT</p>
-<p></span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #split </span><span style='color:#FFF'>{</span><span style='color:#AAA'>top bar</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>bottom bar</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>left bar</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>right bar</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>input bar</span><span style='color:#FFF'>}</p>
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#KEYPAD'>keypad</a>, <a href='#MAPPING'>mapping</a> and <a href='#REPEAT'>repeat</a>.</p>
+</div>
+<h2 id="SPLIT"></span><span style='color:#FF5'>SPLIT</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #split </span><span style='color:#FFF'>{</span><span style='color:#AAA'>top bar</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>bottom bar</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>left bar</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>right bar</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>input bar</span><span style='color:#FFF'>}
 <p></span><span style='color:#AAA'>         This option requires for your terminal to support VT100 emulation.</p>
 <p>#split allows the creation of a top status bar, a left and right status
 bar, a scrolling region, a bottom status bar, and an input line.</p>
@@ -3181,16 +3270,18 @@ the prompt sent by the MUD.</p>
 <p></span><span style='color:#FFF'>Comment</span><span style='color:#AAA'>: You can display text on the split line(s) with the #prompt and
 #show {line} {row} commands.</p>
 <p></span><span style='color:#FFF'>Comment</span><span style='color:#AAA'>: You can remove split mode with the #unsplit command.</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#ECHO'>echo</a>, <a href='#PROMPT'>prompt</a> and <a href='#SHOWME'>showme</a>.
-<a name='SSL'></a></p>
-<p></span><span style='color:#FF5'>         SSL</p>
-<p></span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #ssl </span><span style='color:#FFF'>{</span><span style='color:#AAA'>name</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>host</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>port</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>file</span><span style='color:#FFF'>}</p>
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#ECHO'>echo</a>, <a href='#PROMPT'>prompt</a> and <a href='#SHOWME'>showme</a>.</p>
+</div>
+<h2 id="SSL"></span><span style='color:#FF5'>SSL</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #ssl </span><span style='color:#FFF'>{</span><span style='color:#AAA'>name</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>host</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>port</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>file</span><span style='color:#FFF'>}
 <p></span><span style='color:#AAA'>         Starts a secure socket telnet session with the given name, host, port,
 and optional file name.</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#ALL'>all</a>, <a href='#PORT'>port</a>, <a href='#RUN'>run</a>, <a href='#SESSIONNAME'>sessionname</a>, <a href='#SNOOP'>snoop</a>, <a href='#SSL'>ssl</a> and <a href='#ZAP'>zap</a>.
-<a name='STATEMENTS'></a></p>
-<p></span><span style='color:#FF5'>         STATEMENTS</p>
-<p></span><span style='color:#AAA'>         TinTin++ knows the following statements.</p>
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#ALL'>all</a>, <a href='#PORT'>port</a>, <a href='#RUN'>run</a>, <a href='#SESSIONNAME'>sessionname</a>, <a href='#SNOOP'>snoop</a>, <a href='#SSL'>ssl</a> and <a href='#ZAP'>zap</a>.</p>
+</div>
+<h2 id="STATEMENTS"></span><span style='color:#FF5'>STATEMENTS</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#AAA'>         TinTin++ knows the following statements.
 <p>#break
 #case {value} {true}
 #continue
@@ -3204,10 +3295,11 @@ and optional file name.</p>
 #return {value}
 #switch {expression} {commands}
 #while {expression} {commands}</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#MATHEMATICS'>mathematics</a>, <a href='#PCRE'>pcre</a> and <a href='#REPEAT'>repeat</a>.
-<a name='SUBSTITUTE'></a></p>
-<p></span><span style='color:#FF5'>         SUBSTITUTE</p>
-<p></span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #substitute </span><span style='color:#FFF'>{</span><span style='color:#AAA'>text</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>new text</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>priority</span><span style='color:#FFF'>}</p>
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#MATHEMATICS'>mathematics</a>, <a href='#PCRE'>pcre</a> and <a href='#REPEAT'>repeat</a>.</p>
+</div>
+<h2 id="SUBSTITUTE"></span><span style='color:#FF5'>SUBSTITUTE</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #substitute </span><span style='color:#FFF'>{</span><span style='color:#AAA'>text</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>new text</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>priority</span><span style='color:#FFF'>}
 <p></span><span style='color:#AAA'>         Allows you to replace text from the server with the new text.</p>
 <p>The %1-%99 variables can be used to capture text and use it as part of
 the new output.</p>
@@ -3226,10 +3318,11 @@ Replace a line containing ‘massacres’ with ‘MASSACRES’ in red.</p>
 <p></span><span style='color:#FFF'>Comment</span><span style='color:#AAA'>: See ‘#help action’, for more information about triggers.</p>
 <p></span><span style='color:#FFF'>Comment</span><span style='color:#AAA'>: See ‘#help colors’, for more information.</p>
 <p></span><span style='color:#FFF'>Comment</span><span style='color:#AAA'>: You can remove a substitution with the #unsubstitute command.</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#ACTION'>action</a>, <a href='#GAG'>gag</a>, <a href='#HIGHLIGHT'>highlight</a> and <a href='#PROMPT'>prompt</a>.
-<a name='SUBSTITUTIONS'></a></p>
-<p></span><span style='color:#FF5'>         SUBSTITUTIONS</p>
-<p></span><span style='color:#AAA'>          TinTin++ will perform various types of substitions as detailed below.</p>
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#ACTION'>action</a>, <a href='#GAG'>gag</a>, <a href='#HIGHLIGHT'>highlight</a> and <a href='#PROMPT'>prompt</a>.</p>
+</div>
+<h2 id="SUBSTITUTIONS"></span><span style='color:#FF5'>SUBSTITUTIONS</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#AAA'>          TinTin++ will perform various types of substitions as detailed below.
 <p></span><span style='color:#5F5'>          Variables</p>
 <p></span><span style='color:#FFF'>&amp;dollar; &amp;; * @</span><span style='color:#AAA'>   All variable and function names must begin with an alphabetic
 character, followed by any combination of alphanumeric characters and
@@ -3274,18 +3367,20 @@ are listed at #help escape. Escapes are typically escaped when text
 leaves the client, by being sent to a server, the shell, being
 displayed on the screen, or being processed as part of a regex.
 Escapes try to mimic escapes in PCRE when possible.</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#CHARACTERS'>characters</a>, <a href='#COLORS'>colors</a>, <a href='#ESCAPE_CODES'>escape_codes</a> and <a href='#PCRE'>pcre</a>.
-<a name='SUSPEND'></a></p>
-<p></span><span style='color:#FF5'>         SUSPEND</p>
-<p></span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #cursor suspend</p>
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#CHARACTERS'>characters</a>, <a href='#COLORS'>colors</a>, <a href='#ESCAPE_CODES'>escape_codes</a> and <a href='#PCRE'>pcre</a>.</p>
+</div>
+<h2 id="SUSPEND"></span><span style='color:#FF5'>SUSPEND</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #cursor suspend
 <p>Temporarily suspends tintin and returns you to your shell.  To
 return to tintin, type ‘fg’ at the shell prompt.</p>
 <p>While suspended your tintin sessions will freeze. To keep a
 suspended session running use the #daemon command.</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#SESSIONNAME'>sessionname</a>
-<a name='SWITCH'></a></p>
-<p></span><span style='color:#FF5'>         SWITCH</p>
-<p></span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #switch </span><span style='color:#FFF'>{</span><span style='color:#AAA'>conditional</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>arguments</span><span style='color:#FFF'>}</p>
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#SESSIONNAME'>sessionname</a></p>
+</div>
+<h2 id="SWITCH"></span><span style='color:#FF5'>SWITCH</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #switch </span><span style='color:#FFF'>{</span><span style='color:#AAA'>conditional</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>arguments</span><span style='color:#FFF'>}
 <p></span><span style='color:#AAA'>         The switch command works similar to the switch statement in other
 languages. When the ‘switch’ command is encountered its body is parsed
 and each ‘case’ command found will be compared to the conditional
@@ -3295,15 +3390,17 @@ enclosed in quote characters.</p>
 <p>If the ‘default’ command is found and no ‘case’ statement has been
 matched the default command’s argument is executed.</p>
 <p></span><span style='color:#FFF'>Example</span><span style='color:#AAA'>: #switch {1d4} {#case 1 cackle;#case 2 smile;#default giggle}</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#STATEMENTS'>statements</a>
-<a name='SYSTEM'></a></p>
-<p></span><span style='color:#FF5'>         SYSTEM</p>
-<p></span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #system </span><span style='color:#FFF'>{</span><span style='color:#AAA'>command</span><span style='color:#FFF'>}</p>
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#STATEMENTS'>statements</a></p>
+</div>
+<h2 id="SYSTEM"></span><span style='color:#FF5'>SYSTEM</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #system </span><span style='color:#FFF'>{</span><span style='color:#AAA'>command</span><span style='color:#FFF'>}
 <p></span><span style='color:#AAA'>         Executes the command specified as a shell command.</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#DETACH'>detach</a>, <a href='#SCRIPT'>script</a> and <a href='#RUN'>run</a>.
-<a name='TAB'></a></p>
-<p></span><span style='color:#FF5'>         TAB</p>
-<p></span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #tab </span><span style='color:#FFF'>{</span><span style='color:#AAA'>word</span><span style='color:#FFF'>}</p>
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#DETACH'>detach</a>, <a href='#SCRIPT'>script</a> and <a href='#RUN'>run</a>.</p>
+</div>
+<h2 id="TAB"></span><span style='color:#FF5'>TAB</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #tab </span><span style='color:#FFF'>{</span><span style='color:#AAA'>word</span><span style='color:#FFF'>}
 <p></span><span style='color:#AAA'>         Adds a word to the tab completion list, alphabetically sorted.</p>
 <p>If no tabs are defined tintin will use the scrollback buffer for auto
 tab completion.</p>
@@ -3311,28 +3408,31 @@ tab completion.</p>
 by default is bound to the tab key.</p>
 <p></span><span style='color:#FFF'>Example</span><span style='color:#AAA'>: #macro &amp;bsol;t #cursor tab list scrollback caseless forward</p>
 <p></span><span style='color:#FFF'>Comment</span><span style='color:#AAA'>: You can remove a tab with the #untab command.</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#ALIAS'>alias</a>, <a href='#CURSOR'>cursor</a>, <a href='#HISTORY'>history</a>, <a href='#KEYPAD'>keypad</a>, <a href='#MACRO'>macro</a> and <a href='#SPEEDWALK'>speedwalk</a>.
-<a name='TEXTIN'></a></p>
-<p></span><span style='color:#FF5'>         TEXTIN</p>
-<p></span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #textin </span><span style='color:#FFF'>{</span><span style='color:#AAA'>filename</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>delay</span><span style='color:#FFF'>}</p>
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#ALIAS'>alias</a>, <a href='#CURSOR'>cursor</a>, <a href='#HISTORY'>history</a>, <a href='#KEYPAD'>keypad</a>, <a href='#MACRO'>macro</a> and <a href='#SPEEDWALK'>speedwalk</a>.</p>
+</div>
+<h2 id="TEXTIN"></span><span style='color:#FF5'>TEXTIN</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #textin </span><span style='color:#FFF'>{</span><span style='color:#AAA'>filename</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>delay</span><span style='color:#FFF'>}
 <p></span><span style='color:#AAA'>         Textin allows the user to read in a file, and send its contents
 directly to the server.  Useful for doing online creation, or message
 writing.</p>
 <p>The delay is in seconds and takes a floating point number which is
 cumulatively applied to each outgoing line.</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#SCAN'>scan</a> and <a href='#SEND'>send</a>.
-<a name='TICKER'></a></p>
-<p></span><span style='color:#FF5'>         TICKER</p>
-<p></span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #ticker </span><span style='color:#FFF'>{</span><span style='color:#AAA'>name</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>commands</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>interval in seconds</span><span style='color:#FFF'>}</p>
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#SCAN'>scan</a> and <a href='#SEND'>send</a>.</p>
+</div>
+<h2 id="TICKER"></span><span style='color:#FF5'>TICKER</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #ticker </span><span style='color:#FFF'>{</span><span style='color:#AAA'>name</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>commands</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>interval in seconds</span><span style='color:#FFF'>}
 <p></span><span style='color:#AAA'>         Executes given command every # of seconds. Floating point precision
 for the interval is allowed. A ticker cannot fire more often than
 10 times per second.</p>
 <p></span><span style='color:#FFF'>Comment</span><span style='color:#AAA'>: Tickers don’t work in the startup session.</p>
 <p></span><span style='color:#FFF'>Comment</span><span style='color:#AAA'>: You can remove a ticker with the #unticker command.</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#DELAY'>delay</a> and <a href='#EVENT'>event</a>.
-<a name='TIME'></a></p>
-<p></span><span style='color:#FF5'>         TIME</p>
-<p></span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #format </span><span style='color:#FFF'>{</span><span style='color:#AAA'>variable</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>%t</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>argument</span><span style='color:#FFF'>}</p>
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#DELAY'>delay</a> and <a href='#EVENT'>event</a>.</p>
+</div>
+<h2 id="TIME"></span><span style='color:#FF5'>TIME</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #format </span><span style='color:#FFF'>{</span><span style='color:#AAA'>variable</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>%t</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>argument</span><span style='color:#FFF'>}
 <p></span><span style='color:#AAA'>         The %t format specifier of the #format command allows printing dates
 using the strftime() format specifiers. By default the time stamp used
 is the current time, if you want to print a past or future date use:</p>
@@ -3362,12 +3462,13 @@ Below are some common specifiers, see man strftime for the full list.</p>
 %Y  4 digit numeric year. (1970 … 2038)
 %z  5 digit timezone offset. (-1200 … +1400)
 %Z  Abbreviated name of the time zone. (CET, GMT, etc)</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#ECHO'>echo</a>, <a href='#EVENT'>event</a> and <a href='#FORMAT'>format</a>.
-<a name='TRIGGERS'></a></p>
-<p></span><span style='color:#FF5'>         TRIGGERS</p>
-<p></span><span style='color:#AAA'>         All available triggers in TinTin++ are displayed when you use the #info
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#ECHO'>echo</a>, <a href='#EVENT'>event</a> and <a href='#FORMAT'>format</a>.</p>
+</div>
+<h2 id="TRIGGERS"></span><span style='color:#FF5'>TRIGGERS</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#AAA'>         All available triggers in TinTin++ are displayed when you use the #info
 command without an argument. All of them are written to file when you
-use the #write command, except commands, histories, and paths.</p>
+use the #write command, except commands, histories, and paths.
 <p>Triggers can be disabled with the #ignore command. The #message
 command can be used to disable messages generated or related to the
 corresponding trigger, though this is generally not needed.</p>
@@ -3430,10 +3531,11 @@ before the final processing of a line of text.</p>
 must be set to on to enable mouse tracking.</p>
 <p></span><span style='color:#5F5'>         Event triggers</p>
 <p></span><span style='color:#AAA'>         Events can be used for a wide variety of pre-defined triggers.</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#PCRE'>pcre</a>, <a href='#SUBSTITUTIONS'>substitutions</a> and <a href='#ESCAPE_CODES'>escape_codes</a>.
-<a name='VARIABLE'></a></p>
-<p></span><span style='color:#FF5'>         VARIABLE</p>
-<p></span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #variable </span><span style='color:#FFF'>{</span><span style='color:#AAA'>variable name</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>text to fill variable</span><span style='color:#FFF'>}</p>
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#PCRE'>pcre</a>, <a href='#SUBSTITUTIONS'>substitutions</a> and <a href='#ESCAPE_CODES'>escape_codes</a>.</p>
+</div>
+<h2 id="VARIABLE"></span><span style='color:#FF5'>VARIABLE</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #variable </span><span style='color:#FFF'>{</span><span style='color:#AAA'>variable name</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>text to fill variable</span><span style='color:#FFF'>}
 <p></span><span style='color:#AAA'>         Variables differ from the %0-99 arguments in the fact that you can
 specify a full word as a variable, and they stay in memory for the
 full session unless they are changed.  They can be saved in the
@@ -3477,10 +3579,11 @@ the equivalent of #var {hp} {{self}{34} {target}{46}} as well as
 #var {hp} {{self}{34}} {{target}{46}} or if you want to get creative
 the equivalent of #var hp[self] 34;#var {hp} {&amp;dollar;hp} {{target}{46}}.</p>
 <p></span><span style='color:#FFF'>Comment</span><span style='color:#AAA'>: You can remove a variable with the #unvariable command.</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#CAT'>cat</a>, <a href='#FORMAT'>format</a>, <a href='#FUNCTION'>function</a>, <a href='#LOCAL'>local</a>, <a href='#MATH'>math</a>, <a href='#REPLACE'>replace</a> and <a href='#SCRIPT'>script</a>.
-<a name='WHILE'></a></p>
-<p></span><span style='color:#FF5'>         WHILE</p>
-<p></span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #while </span><span style='color:#FFF'>{</span><span style='color:#AAA'>conditional</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>commands</span><span style='color:#FFF'>}</p>
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#CAT'>cat</a>, <a href='#FORMAT'>format</a>, <a href='#FUNCTION'>function</a>, <a href='#LOCAL'>local</a>, <a href='#MATH'>math</a>, <a href='#REPLACE'>replace</a> and <a href='#SCRIPT'>script</a>.</p>
+</div>
+<h2 id="WHILE"></span><span style='color:#FF5'>WHILE</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #while </span><span style='color:#FFF'>{</span><span style='color:#AAA'>conditional</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>commands</span><span style='color:#FFF'>}
 <p></span><span style='color:#AAA'>         This command works similar to a ‘while’ statement in other languages.</p>
 <p>When a ‘while’ command is encourated, the conditional is evaluated,
 and if TRUE (any non-zero result) the commands are executed. The
@@ -3491,23 +3594,28 @@ nest it inside a trigger, like an alias or action.</p>
 <p>The conditional is evaluated exactly the same as in the ‘math’ command.</p>
 <p></span><span style='color:#FFF'>Example</span><span style='color:#AAA'>: #math cnt 0;#while {&amp;dollar;cnt &amp;; 20} {#math cnt &amp;dollar;cnt + 1;say &amp;dollar;cnt}</p>
 <p></span><span style='color:#FFF'>Comment</span><span style='color:#AAA'>: See ‘#help math’, for more information.</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#STATEMENTS'>statements</a>
-<a name='WRITE'></a></p>
-<p></span><span style='color:#FF5'>         WRITE</p>
-<p></span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #write </span><span style='color:#FFF'>{</span><span style='color:#AAA'>&amp;;filename&amp;;</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>[FORCE]</span><span style='color:#FFF'>}</p>
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#STATEMENTS'>statements</a></p>
+</div>
+<h2 id="WRITE"></span><span style='color:#FF5'>WRITE</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #write </span><span style='color:#FFF'>{</span><span style='color:#AAA'>&;filename&;</span><span style='color:#FFF'>} {</span><span style='color:#AAA'>[FORCE]</span><span style='color:#FFF'>}
 <p></span><span style='color:#AAA'>         Writes all current actions, aliases, subs, highlights, and variables
 to a command file, specified by filename.</p>
 <p>By default you cannot write to .map files to prevent accidentally
 overwriting a map file. Use the FORCE argument to ignore this
 protection.</p>
-<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#LOG'>log</a>, <a href='#READ'>read</a>, <a href='#SCAN'>scan</a> and <a href='#TEXTIN'>textin</a>.
-<a name='ZAP'></a></p>
-<p></span><span style='color:#FF5'>         ZAP</p>
-<p></span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #zap {[session]}</p>
+<p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#LOG'>log</a>, <a href='#READ'>read</a>, <a href='#SCAN'>scan</a> and <a href='#TEXTIN'>textin</a>.</p>
+</div>
+<h2 id="ZAP"></span><span style='color:#FF5'>ZAP</h2>
+<div class="terminal-container bg-black p-4 rounded-lg mb-8 overflow-x-auto font-mono text-sm leading-relaxed border border-gray-700 shadow-2xl">
+</span><span style='color:#FFF'>Command</span><span style='color:#AAA'>: #zap {[session]}
 <p>Kill your current session.  If there is no current session, it will
 cause the program to terminate. If you provide an argument it’ll zap
 the given session instead.</p>
 <p></span><span style='color:#FFF'>Related</span><span style='color:#AAA'>: <a href='#ALL'>all</a>, <a href='#PORT'>port</a>, <a href='#RUN'>run</a>, <a href='#SESSION'>session</a>, <a href='#SESSIONNAME'>sessionname</a>, <a href='#SNOOP'>snoop</a> and <a href='#SSL'>ssl</a>.</p>
+</div>
+</span>
+</div>
 
         </article>
     </div>

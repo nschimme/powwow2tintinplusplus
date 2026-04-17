@@ -1,679 +1,844 @@
-# JMC Help
-
-
-<h1 class="text-center mb-6">JMC Help and Commands</h1>
-<p class="text-center text-gray-400 mb-8">Comprehensive English Documentation for Jaba Mud Client</p>
-
-<h2 id="introduction">Introduction</h2>
-<div class="section-indent">
-<p>JMC (Jaba Mud Client) is a powerful MUD client featuring triggers, aliases, variables, and an integrated scripting engine. This document provides a complete reference for JMC commands.</p>
-</div>
-
-<h2 id="command-index">Command Index</h2>
-<div class="nav-grid">
-<a href="#action">#action</a> <a href="#alias">#alias</a> <a href="#antisubstitute">#antisubstitute</a> <a href="#autoreconnect">#autoreconnect</a>
-<a href="#bell">#bell</a> <a href="#break">#break</a> <a href="#char">#char</a> <a href="#clean">#clean</a>
-<a href="#colon">#colon</a> <a href="#comment">#comment</a> <a href="#connect">#connect</a> <a href="#cr">#cr</a>
-<a href="#daa">#daa</a> <a href="#drop">#drop</a> <a href="#echo">#echo</a> <a href="#feed">#feed</a>
-<a href="#flash">#flash</a> <a href="#gag">#gag</a> <a href="#grab">#grab</a> <a href="#group">#group</a>
-<a href="#help">#help</a> <a href="#hide">#hide</a> <a href="#hidewindow">#hidewindow</a> <a href="#highlight">#highlight</a>
-<a href="#hotkey">#hotkey</a> <a href="#if">#if</a> <a href="#ignore">#ignore</a> <a href="#info">#info</a>
-<a href="#kickall">#kickall</a> <a href="#killall">#killall</a> <a href="#lick">#lick</a> <a href="#llist">#llist</a>
-<a href="#log">#log</a> <a href="#logadd">#logadd</a> <a href="#logpass">#logpass</a> <a href="#loop">#loop</a>
-<a href="#map">#map</a> <a href="#mark">#mark</a> <a href="#math">#math</a> <a href="#message">#message</a>
-<a href="#multiaction">#multiaction</a> <a href="#multihighlight">#multihighlight</a> <a href="#multisubstitute">#multisubstitute</a> <a href="#next">#next</a>
-<a href="#nodrop">#nodrop</a> <a href="#nope">#nope</a> <a href="#output">#output</a> <a href="#path">#path</a>
-<a href="#pathdir">#pathdir</a> <a href="#pinch">#pinch</a> <a href="#play">#play</a> <a href="#prefix">#prefix</a>
-<a href="#presub">#presub</a> <a href="#ps">#ps</a> <a href="#quit">#quit</a> <a href="#race">#race</a>
-<a href="#read">#read</a> <a href="#reloadscripts">#reloadscripts</a> <a href="#restorewindow">#restorewindow</a> <a href="#resume">#resume</a>
-<a href="#return">#return</a> <a href="#run">#run</a> <a href="#savepath">#savepath</a> <a href="#scriptlet">#scriptlet</a>
-<a href="#showme">#showme</a> <a href="#sos">#sos</a> <a href="#speedwalk">#speedwalk</a> <a href="#spit">#spit</a>
-<a href="#status">#status</a> <a href="#stick">#stick</a> <a href="#substitute">#substitute</a> <a href="#systemexec">#systemexec</a>
-<a href="#tabadd">#tabadd</a> <a href="#tabdel">#tabdel</a> <a href="#terminate">#terminate</a> <a href="#textin">#textin</a>
-<a href="#tick">#tick</a> <a href="#tmlist">#tmlist</a> <a href="#togglesubs">#togglesubs</a> <a href="#tolower">#tolower</a>
-<a href="#toupper">#toupper</a> <a href="#tray">#tray</a> <a href="#tskill">#tskill</a> <a href="#tslist">#tslist</a>
-<a href="#unaction">#unaction</a> <a href="#unalias">#unalias</a> <a href="#unantisubstitute">#unantisubstitute</a> <a href="#unhotkey">#unhotkey</a>
-<a href="#unpath">#unpath</a> <a href="#unsubstitute">#unsubstitute</a> <a href="#unuse">#unuse</a> <a href="#unvar">#unvar</a>
-<a href="#use">#use</a> <a href="#variable">#variable</a> <a href="#verbatim">#verbatim</a> <a href="#wait">#wait</a>
-<a href="#wamp">#wamp</a> <a href="#wdock">#wdock</a> <a href="#whisper">#whisper</a> <a href="#winamp">#winamp</a>
-<a href="#wlog">#wlog</a> <a href="#wname">#wname</a> <a href="#woutput">#woutput</a> <a href="#wpos">#wpos</a>
-<a href="#write">#write</a> <a href="#wshow">#wshow</a> <a href="#wt">#wt</a> <a href="#zap">#zap</a>
-</div>
-
-<h3 id="action">#action</h3>
-<div class="section-indent">
-<pre>Syntax: #action {input string} {actions} {priority}</pre>
-<p>Triggers a sequence of commands when a specific string is received from the MUD. Parts of the input string can be captured using variables %0-%9.</p>
-<ul>
-<li>Strings starting with <code>^</code> match only at the beginning of a line.</li>
-<li>Priority ranges from 0 (highest) to 9 (lowest).</li>
-</ul>
-<p>Example: <code>#action {^%0 arrived from the %1} {kill %0} {0}</code></p>
-</div>
-
-<h3 id="alias">#alias</h3>
-<div class="section-indent">
-<pre>Syntax: #alias {name} {commands}</pre>
-<p>Defines a custom command that expands into one or more other commands. Use %1-%9 for arguments, and %0 for the full argument string.</p>
-<p>Example: <code>#alias {k} {kill %1}</code></p>
-</div>
-
-<h3 id="antisubstitute">#antisubstitute</h3>
-<div class="section-indent">
-<pre>Syntax: #antisubstitute {string}</pre>
-<p>Prevents <code>#substitute</code> and <code>#gag</code> from affecting any lines that contain the specified string.</p>
-</div>
-
-<h3 id="autoreconnect">#autoreconnect</h3>
-<div class="section-indent">
-<pre>Syntax: #autoreconnect [on|off]</pre>
-<p>Toggles automatic reconnection when the connection to the MUD is lost.</p>
-</div>
-
-<h3 id="bell">#bell</h3>
-<div class="section-indent">
-<pre>Syntax: #bell</pre>
-<p>Plays the default Windows system sound or a PC speaker beep.</p>
-</div>
-
-<h3 id="break">#break</h3>
-<div class="section-indent">
-<pre>Syntax: #break {timerID|all}</pre>
-<p>Interrupts active loops. See <code>#loop</code>.</p>
-</div>
-
-<h3 id="char">#char</h3>
-<div class="section-indent">
-<pre>Syntax: #char {symbol}</pre>
-<p>Sets the character used to prefix JMC commands (default is #).</p>
-</div>
-
-<h3 id="clean">#clean</h3>
-<div class="section-indent">
-<pre>Syntax: #clean</pre>
-<p>Sends a <code>WM_USER+600</code> message to the window. Its exact behavior is undocumented/internal.</p>
-</div>
-
-<h3 id="colon">#colon</h3>
-<div class="section-indent">
-<pre>Syntax: #colon {leave|replace}</pre>
-<p>Determines whether unescaped semicolons (;) are treated as command separators during parsing.</p>
-</div>
-
-<h3 id="comment">#comment</h3>
-<div class="section-indent">
-<pre>Syntax: #comment &;text&; or ## &;text&;</pre>
-<p>A no-op command used for adding comments to script files. <code>#nope</code> is also a synonym.</p>
-</div>
-
-<h3 id="connect">#connect</h3>
-<div class="section-indent">
-<pre>Syntax: #connect &;address&; &;port&;</pre>
-<p>Connects to the specified MUD server.</p>
-</div>
-
-<h3 id="cr">#cr</h3>
-<div class="section-indent">
-<pre>Syntax: #cr</pre>
-<p>Sends a newline/carriage return to the server, simulating the Enter key.</p>
-</div>
-
-<h3 id="daa">#daa</h3>
-<div class="section-indent">
-<pre>Syntax: #daa &;message&;</pre>
-<p>Sends text to the MUD without displaying it on the screen or writing it to the log. Useful for passwords.</p>
-</div>
-
-<h3 id="drop">#drop</h3>
-<div class="section-indent">
-<pre>Syntax: #drop</pre>
-<p>Used within an <code>#action</code> to prevent the triggering line from being displayed or logged.</p>
-</div>
-
-<h3 id="echo">#echo</h3>
-<div class="section-indent">
-<pre>Syntax: #echo [on|off]</pre>
-<p>Toggles the display of commands generated by triggers.</p>
-</div>
-
-<h3 id="feed">#feed</h3>
-<div class="section-indent">
-<p>Synonym for <code>#spit</code>.</p>
-</div>
-
-<h3 id="flash">#flash</h3>
-<div class="section-indent">
-<pre>Syntax: #flash</pre>
-<p>Flashes the JMC window taskbar icon or brings it to the foreground.</p>
-</div>
-
-<h3 id="gag">#gag</h3>
-<div class="section-indent">
-<pre>Syntax: #gag {string}</pre>
-<p>Suppresses the display of any line containing the specified text.</p>
-</div>
-
-<h3 id="grab">#grab</h3>
-<div class="section-indent">
-<pre>Syntax: #grab [num] {filename} [format]</pre>
-<p>Reads line <code>num</code> from a file and sends it to the MUD using the specified <code>format</code> (where %0 is the line content).</p>
-</div>
-
-<h3 id="group">#group</h3>
-<div class="section-indent">
-<pre>Syntax: #group {list|delete|disable|enable|info|global|local} [name]</pre>
-<p>Manages groups of triggers, aliases, and hotkeys, allowing them to be enabled or disabled together.</p>
-</div>
-
-<h3 id="help">#help</h3>
-<div class="section-indent">
-<pre>Syntax: #help &;command&;</pre>
-<p>Shows built-in help for a command. Files are usually stored in <code>help/command.jht</code>.</p>
-</div>
-
-<h3 id="hide">#hide</h3>
-<div class="section-indent">
-<p>Synonym for <code>#daa</code>.</p>
-</div>
-
-<h3 id="hidewindow">#hidewindow</h3>
-<div class="section-indent">
-<pre>Syntax: #hidewindow</pre>
-<p>Minimizes the JMC window to the taskbar.</p>
-</div>
-
-<h3 id="highlight">#highlight</h3>
-<div class="section-indent">
-<pre>Syntax: #highlight {color} {string}</pre>
-<p>Highlights lines containing the specified text with the given color or effect (e.g., bold, reverse, red, light green).</p>
-</div>
-
-<h3 id="hotkey">#hotkey</h3>
-<div class="section-indent">
-<pre>Syntax: #hotkey {key} {commands} {group}</pre>
-<p>Assigns commands to a keyboard shortcut. Supports modifiers like <code>Ctrl+</code>, <code>Alt+</code>, and <code>Shift+</code>.</p>
-</div>
-
-<h3 id="if">#if</h3>
-<div class="section-indent">
-<pre>Syntax: #if {condition} {then-commands} [{else-commands}]</pre>
-<p>Executes commands based on the truth value of a numeric condition.</p>
-</div>
-
-<h3 id="ignore">#ignore</h3>
-<div class="section-indent">
-<pre>Syntax: #ignore [on|off]</pre>
-<p>Toggles whether triggers are active.</p>
-</div>
-
-<h3 id="info">#info</h3>
-<div class="section-indent">
-<pre>Syntax: #info</pre>
-<p>Displays the number of currently defined triggers, aliases, variables, etc.</p>
-</div>
-
-<h3 id="kickall">#kickall</h3>
-<div class="section-indent">
-<p>Synonym for <code>#killall</code>.</p>
-</div>
-
-<h3 id="killall">#killall</h3>
-<div class="section-indent">
-<pre>Syntax: #killall</pre>
-<p>Deletes all aliases, actions, variables, highlights, and substitutions.</p>
-</div>
-
-<h3 id="lick">#lick</h3>
-<div class="section-indent">
-<p>Synonym for <code>#spit</code>.</p>
-</div>
-
-<h3 id="llist">#llist</h3>
-<div class="section-indent">
-<p>Lists active loops. See <code>#loop</code>.</p>
-</div>
-
-<h3 id="log">#log</h3>
-<div class="section-indent">
-<pre>Syntax: #log {filename} {append|overwrite}</pre>
-<p>Starts or stops logging the session to a file.</p>
-</div>
-
-<h3 id="logadd">#logadd</h3>
-<div class="section-indent">
-<pre>Syntax: #logadd &;string&;</pre>
-<p>Manually adds a line of text to the current log file.</p>
-</div>
-
-<h3 id="logpass">#logpass</h3>
-<div class="section-indent">
-<pre>Syntax: #logpass</pre>
-<p>Prevents the current line from being saved to the log file (usually used in triggers).</p>
-</div>
-
-<h3 id="loop">#loop</h3>
-<div class="section-indent">
-<pre>Syntax: #loop {from,to[:delay]} {commands}</pre>
-<p>Executes commands in a loop. The counter value is stored in %0. <code>#&;num&; {commands}</code> is a shorthand.</p>
-</div>
-
-<h3 id="map">#map</h3>
-<div class="section-indent">
-<pre>Syntax: #map &;direction&;</pre>
-<p>Manually adds a direction to the current movement path buffer.</p>
-</div>
-
-<h3 id="mark">#mark</h3>
-<div class="section-indent">
-<pre>Syntax: #mark [start|stop]</pre>
-<p>Starts or stops recording movements into the path buffer.</p>
-</div>
-
-<h3 id="math">#math</h3>
-<div class="section-indent">
-<pre>Syntax: #math {variable} {expression}</pre>
-<p>Performs integer arithmetic and stores the result in a variable.</p>
-</div>
-
-<h3 id="message">#message</h3>
-<div class="section-indent">
-<pre>Syntax: #message {type}</pre>
-<p>Toggles system messages for specific events (e.g., alias creation, variable setting).</p>
-</div>
-
-<h3 id="multiaction">#multiaction</h3>
-<div class="section-indent">
-<pre>Syntax: #multiaction [on|off]</pre>
-<p>Toggles whether multiple triggers can match and execute for a single incoming line.</p>
-</div>
-
-<h3 id="multihighlight">#multihighlight</h3>
-<div class="section-indent">
-<pre>Syntax: #multihighlight [on|off]</pre>
-<p>Toggles whether multiple highlights can be applied to a single line.</p>
-</div>
-
-<h3 id="multisubstitute">#multisubstitute</h3>
-<div class="section-indent">
-<pre>Syntax: #multisubstitute [on|off]</pre>
-<p>Toggles whether multiple substitutions can be applied to a single line.</p>
-</div>
-
-<h3 id="next">#next</h3>
-<div class="section-indent">
-<pre>Syntax: #next</pre>
-<p>Allows one more trigger iteration for the current line if <code>#multiaction</code> is off.</p>
-</div>
-
-<h3 id="nodrop">#nodrop</h3>
-<div class="section-indent">
-<pre>Syntax: #nodrop</pre>
-<p>Cancels a previous <code>#drop</code> command for the current line.</p>
-</div>
-
-<h3 id="nope">#nope</h3>
-<div class="section-indent">
-<p>Synonym for <code>#comment</code>.</p>
-</div>
-
-<h3 id="output">#output</h3>
-<div class="section-indent">
-<pre>Syntax: #output [color] &;text&;</pre>
-<p>Displays colored text in the main output window.</p>
-</div>
-
-<h3 id="path">#path</h3>
-<div class="section-indent">
-<pre>Syntax: #path</pre>
-<p>Displays the contents of the recorded movement path.</p>
-</div>
-
-<h3 id="pathdir">#pathdir</h3>
-<div class="section-indent">
-<pre>Syntax: #pathdir &;direction&; {reverse-direction}</pre>
-<p>Defines movement directions and their opposites for the mapping system.</p>
-</div>
-
-<h3 id="pinch">#pinch</h3>
-<div class="section-indent">
-<p>Resumes a paused loop. See <code>#loop</code>.</p>
-</div>
-
-<h3 id="play">#play</h3>
-<div class="section-indent">
-<pre>Syntax: #play &;filename&;</pre>
-<p>Plays a WAV audio file.</p>
-</div>
-
-<h3 id="prefix">#prefix</h3>
-<div class="section-indent">
-<pre>#prefix {string}</pre>
-<p>Adds a prefix to every string sent to the MUD.</p>
-</div>
-
-<h3 id="presub">#presub</h3>
-<div class="section-indent">
-<pre>Syntax: #presub [on|off]</pre>
-<p>Toggles whether triggers process the line *after* substitutions have been applied.</p>
-</div>
-
-<h3 id="ps">#ps</h3>
-<div class="section-indent">
-<p>Lists active processes started via <code>#systemexec</code>.</p>
-</div>
-
-<h3 id="quit">#quit</h3>
-<div class="section-indent">
-<pre>Syntax: #quit</pre>
-<p>Exits JMC.</p>
-</div>
-
-<h3 id="race">#race</h3>
-<div class="section-indent">
-<pre>Syntax: #race [format|move|reverse]</pre>
-<p>Specialized commands for speedwalking and movement formatting.</p>
-</div>
-
-<h3 id="read">#read</h3>
-<div class="section-indent">
-<pre>Syntax: #read {filename}</pre>
-<p>Reads and executes commands from a file.</p>
-</div>
-
-<h3 id="reloadscripts">#reloadscripts</h3>
-<div class="section-indent">
-<pre>Syntax: #reloadscripts</pre>
-<p>Reloads active script files (e.g., JScript/VBScript).</p>
-</div>
-
-<h3 id="restorewindow">#restorewindow</h3>
-<div class="section-indent">
-<pre>Syntax: #restorewindow</pre>
-<p>Restores the JMC window from its minimized state.</p>
-</div>
-
-<h3 id="resume">#resume</h3>
-<div class="section-indent">
-<p>Resumes a paused loop. See <code>#loop</code>.</p>
-</div>
-
-<h3 id="return">#return</h3>
-<div class="section-indent">
-<pre>Syntax: #return</pre>
-<p>Sends the reverse of the last recorded movement direction and removes it from the path buffer.</p>
-</div>
-
-<h3 id="run">#run</h3>
-<div class="section-indent">
-<pre>Syntax: #run &;command_line&;</pre>
-<p>Runs an external application or opens a document via ShellExecute.</p>
-</div>
-
-<h3 id="savepath">#savepath</h3>
-<div class="section-indent">
-<pre>Syntax: #savepath &;alias_name&; [reverse]</pre>
-<p>Saves the current path buffer into an alias.</p>
-</div>
-
-<h3 id="scriptlet">#scriptlet</h3>
-<div class="section-indent">
-<pre>Syntax: #scriptlet &;script_code&;</pre>
-<p>Executes a single line of script code using the active scripting engine.</p>
-</div>
-
-<h3 id="showme">#showme</h3>
-<div class="section-indent">
-<pre>Syntax: #showme {text}</pre>
-<p>Displays text locally in the output window.</p>
-</div>
-
-<h3 id="sos">#sos</h3>
-<div class="section-indent">
-<pre>Syntax: #sos [list|clear|save|...]</pre>
-<p>Manages "templates" for saving specific groups of aliases, triggers, or variables to files.</p>
-</div>
-
-<h3 id="speedwalk">#speedwalk</h3>
-<div class="section-indent">
-<pre>Syntax: #speedwalk [on|off]</pre>
-<p>Toggles speedwalking mode (e.g., <code>3n2e</code> expands to <code>n;n;n;e;e</code>).</p>
-</div>
-
-<h3 id="spit">#spit</h3>
-<div class="section-indent">
-<pre>Syntax: #spit &;filename&; &;format&; [options]</pre>
-<p>Sends the contents of a file to the MUD line by line, inserting each line into the <code>format</code> string at %0.</p>
-</div>
-
-<h3 id="status">#status</h3>
-<div class="section-indent">
-<pre>Syntax: #status [1-5] {text} [color]</pre>
-<p>Sets the text of one of the status bar segments.</p>
-</div>
-
-<h3 id="stick">#stick</h3>
-<div class="section-indent">
-<p>Synonym for <code>#spit</code>.</p>
-</div>
-
-<h3 id="substitute">#substitute</h3>
-<div class="section-indent">
-<pre>Syntax: #substitute {old_text} {new_text}</pre>
-<p>Replaces occurrences of <code>old_text</code> with <code>new_text</code> in incoming MUD lines.</p>
-</div>
-
-<h3 id="systemexec">#systemexec</h3>
-<div class="section-indent">
-<pre>Syntax: #systemexec &;cmd&;</pre>
-<p>Executes a system command and redirects its output to the JMC main window.</p>
-</div>
-
-<h3 id="tabadd">#tabadd</h3>
-<div class="section-indent">
-<pre>Syntax: #tabadd &;word&;</pre>
-<p>Adds a word to the tab-completion dictionary.</p>
-</div>
-
-<h3 id="tabdel">#tabdel</h3>
-<div class="section-indent">
-<pre>Syntax: #tabdel &;word&;</pre>
-<p>Removes a word from the tab-completion dictionary.</p>
-</div>
-
-<h3 id="terminate">#terminate</h3>
-<div class="section-indent">
-<pre>Syntax: #terminate &;pid&;|all|last</pre>
-<p>Kills processes started with <code>#systemexec</code>.</p>
-</div>
-
-<h3 id="textin">#textin</h3>
-<div class="section-indent">
-<pre>Syntax: #textin {filename}</pre>
-<p>Sends the raw contents of a file to the MUD without processing.</p>
-</div>
-
-<h3 id="tick">#tick</h3>
-<div class="section-indent">
-<pre>Syntax: #tick, #tickset, #ticksize</pre>
-<p>Manages the internal MUD tick timer.</p>
-</div>
-
-<h3 id="tmlist">#tmlist</h3>
-<div class="section-indent">
-<p>Lists active loop timers. See <code>#loop</code>.</p>
-</div>
-
-<h3 id="togglesubs">#togglesubs</h3>
-<div class="section-indent">
-<pre>Syntax: #togglesubs</pre>
-<p>Toggles whether substitutions are currently active.</p>
-</div>
-
-<h3 id="tolower">#tolower</h3>
-<div class="section-indent">
-<pre>Syntax: #tolower &;varname&; &;text&;</pre>
-<p>Converts <code>text</code> to lowercase and stores it in <code>varname</code>.</p>
-</div>
-
-<h3 id="toupper">#toupper</h3>
-<div class="section-indent">
-<pre>Syntax: #toupper &;varname&; &;text&;</pre>
-<p>Converts <code>text</code> to uppercase and stores it in <code>varname</code>.</p>
-</div>
-
-<h3 id="tray">#tray</h3>
-<div class="section-indent">
-<pre>Syntax: #tray &;hide|show&;</pre>
-<p>Minimizes or restores JMC to/from the system tray.</p>
-</div>
-
-<h3 id="tskill">#tskill</h3>
-<div class="section-indent">
-<p>Synonym for <code>#terminate</code>.</p>
-</div>
-
-<h3 id="tslist">#tslist</h3>
-<div class="section-indent">
-<p>Synonym for <code>#ps</code>.</p>
-</div>
-
-<h3 id="unaction">#unaction</h3>
-<div class="section-indent">
-<pre>Syntax: #unaction {string}</pre>
-<p>Deletes a trigger. Supports wildcards (e.g., <code>*you*</code>).</p>
-</div>
-
-<h3 id="unalias">#unalias</h3>
-<div class="section-indent">
-<pre>Syntax: #unalias {name}</pre>
-<p>Deletes an alias. Supports wildcards.</p>
-</div>
-
-<h3 id="unantisubstitute">#unantisubstitute</h3>
-<div class="section-indent">
-<pre>Syntax: #unantisub {string}</pre>
-<p>Deletes an antisubstitution.</p>
-</div>
-
-<h3 id="unhotkey">#unhotkey</h3>
-<div class="section-indent">
-<pre>Syntax: #unhotkey &;key&;</pre>
-<p>Deletes a hotkey.</p>
-</div>
-
-<h3 id="unpath">#unpath</h3>
-<div class="section-indent">
-<pre>Syntax: #unpath</pre>
-<p>Removes the last entry from the path buffer.</p>
-</div>
-
-<h3 id="unsubstitute">#unsubstitute</h3>
-<div class="section-indent">
-<pre>Syntax: #unsubs {string}</pre>
-<p>Deletes a substitution.</p>
-</div>
-
-<h3 id="unuse">#unuse</h3>
-<div class="section-indent">
-<pre>Syntax: #unuse [filename]</pre>
-<p>Removes a script file from the active scripts list.</p>
-</div>
-
-<h3 id="unvar">#unvar</h3>
-<div class="section-indent">
-<pre>Syntax: #unvar {name}</pre>
-<p>Deletes a variable.</p>
-</div>
-
-<h3 id="use">#use</h3>
-<div class="section-indent">
-<pre>Syntax: #use &;filename&;</pre>
-<p>Loads a script file (JScript or VBScript).</p>
-</div>
-
-<h3 id="variable">#variable</h3>
-<div class="section-indent">
-<pre>Syntax: #variable {name} {value}</pre>
-<p>Sets a variable. Built-in variables include <code>$YEAR</code>, <code>$HOUR</code>, <code>$INPUT</code>, etc.</p>
-</div>
-
-<h3 id="verbatim">#verbatim</h3>
-<div class="section-indent">
-<pre>Syntax: #verbatim [on|off]</pre>
-<p>Toggles "verbatim" mode where input is sent directly to the MUD without JMC processing.</p>
-</div>
-
-<h3 id="wait">#wait</h3>
-<div class="section-indent">
-<pre>Syntax: #wait &;deciseconds&;</pre>
-<p>Introduces a delay before sending commands. Synonym: <code>#wt</code>.</p>
-</div>
-
-<h3 id="wamp">#wamp</h3>
-<div class="section-indent">
-<p>Synonym for <code>#winamp</code>.</p>
-</div>
-
-<h3 id="wdock">#wdock</h3>
-<div class="section-indent">
-<pre>Syntax: #wdock &;window&; [disable]</pre>
-<p>Controls whether an output window can be docked.</p>
-</div>
-
-<h3 id="whisper">#whisper</h3>
-<div class="section-indent">
-<p>Synonym for <code>#daa</code>.</p>
-</div>
-
-<h3 id="winamp">#winamp</h3>
-<div class="section-indent">
-<pre>Syntax: #winamp {command}</pre>
-<p>Controls WinAMP (e.g., play, stop, next, volume+, volume-).</p>
-</div>
-
-<h3 id="wlog">#wlog</h3>
-<div class="section-indent">
-<pre>Syntax: #wlog &;window&; &;file&; [append|overwrite|html]</pre>
-<p>Starts logging for a specific output window.</p>
-</div>
-
-<h3 id="wname">#wname</h3>
-<div class="section-indent">
-<pre>Syntax: #wname &;window&; [name]</pre>
-<p>Sets the title of an output window.</p>
-</div>
-
-<h3 id="woutput">#woutput</h3>
-<div class="section-indent">
-<pre>Syntax: #woutput &;window&; [color] &;text&;</pre>
-<p>Sends colored text to a specific output window.</p>
-</div>
-
-<h3 id="wpos">#wpos</h3>
-<div class="section-indent">
-<pre>Syntax: #wpos {window} {x} {y}</pre>
-<p>Positions a non-docked output window.</p>
-</div>
-
-<h3 id="write">#write</h3>
-<div class="section-indent">
-<pre>Syntax: #write {filename}</pre>
-<p>Saves all current aliases, triggers, and variables to a file.</p>
-</div>
-
-<h3 id="wshow">#wshow</h3>
-<div class="section-indent">
-<pre>Syntax: #wshow &;window&; [toggle|show|hide]</pre>
-<p>Shows or hides an output window.</p>
-</div>
-
-<h3 id="wt">#wt</h3>
-<div class="section-indent">
-<p>Synonym for <code>#wait</code>.</p>
-</div>
-
-<h3 id="zap">#zap</h3>
-<div class="section-indent">
-<pre>Syntax: #zap</pre>
-<p>Immediately closes the current connection.</p>
-</div>
+# JMC Help and Commands
+
+Comprehensive English Documentation for Jaba Mud Client
+
+## Introduction
+
+JMC (Jaba Mud Client) is a powerful MUD client featuring triggers, aliases, variables, and an integrated scripting engine. This document provides a complete reference for JMC commands.
+
+## Command Index
+
+[#action](#action) [#alias](#alias) [#antisubstitute](#antisubstitute) [#autoreconnect](#autoreconnect)
+[#bell](#bell) [#break](#break) [#char](#char) [#clean](#clean)
+[#colon](#colon) [#comment](#comment) [#connect](#connect) [#cr](#cr)
+[#daa](#daa) [#drop](#drop) [#echo](#echo) [#feed](#feed)
+[#flash](#flash) [#gag](#gag) [#grab](#grab) [#group](#group)
+[#help](#help) [#hide](#hide) [#hidewindow](#hidewindow) [#highlight](#highlight)
+[#hotkey](#hotkey) [#if](#if) [#ignore](#ignore) [#info](#info)
+[#kickall](#kickall) [#killall](#killall) [#lick](#lick) [#llist](#llist)
+[#log](#log) [#logadd](#logadd) [#logpass](#logpass) [#loop](#loop)
+[#map](#map) [#mark](#mark) [#math](#math) [#message](#message)
+[#multiaction](#multiaction) [#multihighlight](#multihighlight) [#multisubstitute](#multisubstitute) [#next](#next)
+[#nodrop](#nodrop) [#nope](#nope) [#output](#output) [#path](#path)
+[#pathdir](#pathdir) [#pinch](#pinch) [#play](#play) [#prefix](#prefix)
+[#presub](#presub) [#ps](#ps) [#quit](#quit) [#race](#race)
+[#read](#read) [#reloadscripts](#reloadscripts) [#restorewindow](#restorewindow) [#resume](#resume)
+[#return](#return) [#run](#run) [#savepath](#savepath) [#scriptlet](#scriptlet)
+[#showme](#showme) [#sos](#sos) [#speedwalk](#speedwalk) [#spit](#spit)
+[#status](#status) [#stick](#stick) [#substitute](#substitute) [#systemexec](#systemexec)
+[#tabadd](#tabadd) [#tabdel](#tabdel) [#terminate](#terminate) [#textin](#textin)
+[#tick](#tick) [#tmlist](#tmlist) [#togglesubs](#togglesubs) [#tolower](#tolower)
+[#toupper](#toupper) [#tray](#tray) [#tskill](#tskill) [#tslist](#tslist)
+[#unaction](#unaction) [#unalias](#unalias) [#unantisubstitute](#unantisubstitute) [#unhotkey](#unhotkey)
+[#unpath](#unpath) [#unsubstitute](#unsubstitute) [#unuse](#unuse) [#unvar](#unvar)
+[#use](#use) [#variable](#variable) [#verbatim](#verbatim) [#wait](#wait)
+[#wamp](#wamp) [#wdock](#wdock) [#whisper](#whisper) [#winamp](#winamp)
+[#wlog](#wlog) [#wname](#wname) [#woutput](#woutput) [#wpos](#wpos)
+[#write](#write) [#wshow](#wshow) [#wt](#wt) [#zap](#zap)
+
+### #action
+
+```
+Syntax: #action {input string} {actions} {priority}
+```
+
+Triggers a sequence of commands when a specific string is received from the MUD. Parts of the input string can be captured using variables %0-%9.
+
+Strings starting with `^` match only at the beginning of a line.
+Priority ranges from 0 (highest) to 9 (lowest).
+
+Example: `#action {^%0 arrived from the %1} {kill %0} {0}`
+
+### #alias
+
+```
+Syntax: #alias {name} {commands}
+```
+
+Defines a custom command that expands into one or more other commands. Use %1-%9 for arguments, and %0 for the full argument string.
+
+Example: `#alias {k} {kill %1}`
+
+### #antisubstitute
+
+```
+Syntax: #antisubstitute {string}
+```
+
+Prevents `#substitute` and `#gag` from affecting any lines that contain the specified string.
+
+### #autoreconnect
+
+```
+Syntax: #autoreconnect [on|off]
+```
+
+Toggles automatic reconnection when the connection to the MUD is lost.
+
+### #bell
+
+```
+Syntax: #bell
+```
+
+Plays the default Windows system sound or a PC speaker beep.
+
+### #break
+
+```
+Syntax: #break {timerID|all}
+```
+
+Interrupts active loops. See `#loop` .
+
+### #char
+
+```
+Syntax: #char {symbol}
+```
+
+Sets the character used to prefix JMC commands (default is #).
+
+### #clean
+
+```
+Syntax: #clean
+```
+
+Sends a `WM_USER+600` message to the window. Its exact behavior is undocumented/internal.
+
+### #colon
+
+```
+Syntax: #colon {leave|replace}
+```
+
+Determines whether unescaped semicolons (;) are treated as command separators during parsing.
+
+### #comment
+
+```
+Syntax: #comment or ##
+```
+
+A no-op command used for adding comments to script files. `#nope` is also a synonym.
+
+### #connect
+
+```
+Syntax: #connect <address>
+```
+
+Connects to the specified MUD server.
+
+### #cr
+
+```
+Syntax: #cr
+```
+
+Sends a newline/carriage return to the server, simulating the Enter key.
+
+### #daa
+
+```
+Syntax: #daa
+```
+
+Sends text to the MUD without displaying it on the screen or writing it to the log. Useful for passwords.
+
+### #drop
+
+```
+Syntax: #drop
+```
+
+Used within an `#action` to prevent the triggering line from being displayed or logged.
+
+### #echo
+
+```
+Syntax: #echo [on|off]
+```
+
+Toggles the display of commands generated by triggers.
+
+### #feed
+
+Synonym for `#spit` .
+
+### #flash
+
+```
+Syntax: #flash
+```
+
+Flashes the JMC window taskbar icon or brings it to the foreground.
+
+### #gag
+
+```
+Syntax: #gag {string}
+```
+
+Suppresses the display of any line containing the specified text.
+
+### #grab
+
+```
+Syntax: #grab [num] {filename} [format]
+```
+
+Reads line `num` from a file and sends it to the MUD using the specified `format` (where %0 is the line content).
+
+### #group
+
+```
+Syntax: #group {list|delete|disable|enable|info|global|local} [name]
+```
+
+Manages groups of triggers, aliases, and hotkeys, allowing them to be enabled or disabled together.
+
+### #help
+
+```
+Syntax: #help
+```
+
+Shows built-in help for a command. Files are usually stored in `help/command.jht` .
+
+### #hide
+
+Synonym for `#daa` .
+
+### #hidewindow
+
+```
+Syntax: #hidewindow
+```
+
+Minimizes the JMC window to the taskbar.
+
+### #highlight
+
+```
+Syntax: #highlight {color} {string}
+```
+
+Highlights lines containing the specified text with the given color or effect (e.g., bold, reverse, red, light green).
+
+### #hotkey
+
+```
+Syntax: #hotkey {key} {commands} {group}
+```
+
+Assigns commands to a keyboard shortcut. Supports modifiers like `Ctrl+` , `Alt+` , and `Shift+` .
+
+### #if
+
+```
+Syntax: #if {condition} {then-commands} [{else-commands}]
+```
+
+Executes commands based on the truth value of a numeric condition.
+
+### #ignore
+
+```
+Syntax: #ignore [on|off]
+```
+
+Toggles whether triggers are active.
+
+### #info
+
+```
+Syntax: #info
+```
+
+Displays the number of currently defined triggers, aliases, variables, etc.
+
+### #kickall
+
+Synonym for `#killall` .
+
+### #killall
+
+```
+Syntax: #killall
+```
+
+Deletes all aliases, actions, variables, highlights, and substitutions.
+
+### #lick
+
+Synonym for `#spit` .
+
+### #llist
+
+Lists active loops. See `#loop` .
+
+### #log
+
+```
+Syntax: #log {filename} {append|overwrite}
+```
+
+Starts or stops logging the session to a file.
+
+### #logadd
+
+```
+Syntax: #logadd
+```
+
+Manually adds a line of text to the current log file.
+
+### #logpass
+
+```
+Syntax: #logpass
+```
+
+Prevents the current line from being saved to the log file (usually used in triggers).
+
+### #loop
+
+```
+Syntax: #loop {from,to[:delay]} {commands}
+```
+
+Executes commands in a loop. The counter value is stored in %0. `# {commands}` is a shorthand.
+
+### #map
+
+```
+Syntax: #map
+```
+
+Manually adds a direction to the current movement path buffer.
+
+### #mark
+
+```
+Syntax: #mark [start|stop]
+```
+
+Starts or stops recording movements into the path buffer.
+
+### #math
+
+```
+Syntax: #math {variable} {expression}
+```
+
+Performs integer arithmetic and stores the result in a variable.
+
+### #message
+
+```
+Syntax: #message {type}
+```
+
+Toggles system messages for specific events (e.g., alias creation, variable setting).
+
+### #multiaction
+
+```
+Syntax: #multiaction [on|off]
+```
+
+Toggles whether multiple triggers can match and execute for a single incoming line.
+
+### #multihighlight
+
+```
+Syntax: #multihighlight [on|off]
+```
+
+Toggles whether multiple highlights can be applied to a single line.
+
+### #multisubstitute
+
+```
+Syntax: #multisubstitute [on|off]
+```
+
+Toggles whether multiple substitutions can be applied to a single line.
+
+### #next
+
+```
+Syntax: #next
+```
+
+Allows one more trigger iteration for the current line if `#multiaction` is off.
+
+### #nodrop
+
+```
+Syntax: #nodrop
+```
+
+Cancels a previous `#drop` command for the current line.
+
+### #nope
+
+Synonym for `#comment` .
+
+### #output
+
+```
+Syntax: #output [color]
+```
+
+Displays colored text in the main output window.
+
+### #path
+
+```
+Syntax: #path
+```
+
+Displays the contents of the recorded movement path.
+
+### #pathdir
+
+```
+Syntax: #pathdir {reverse-direction}
+```
+
+Defines movement directions and their opposites for the mapping system.
+
+### #pinch
+
+Resumes a paused loop. See `#loop` .
+
+### #play
+
+```
+Syntax: #play
+```
+
+Plays a WAV audio file.
+
+### #prefix
+
+```
+#prefix {string}
+```
+
+Adds a prefix to every string sent to the MUD.
+
+### #presub
+
+```
+Syntax: #presub [on|off]
+```
+
+Toggles whether triggers process the line *after* substitutions have been applied.
+
+### #ps
+
+Lists active processes started via `#systemexec` .
+
+### #quit
+
+```
+Syntax: #quit
+```
+
+Exits JMC.
+
+### #race
+
+```
+Syntax: #race [format|move|reverse]
+```
+
+Specialized commands for speedwalking and movement formatting.
+
+### #read
+
+```
+Syntax: #read {filename}
+```
+
+Reads and executes commands from a file.
+
+### #reloadscripts
+
+```
+Syntax: #reloadscripts
+```
+
+Reloads active script files (e.g., JScript/VBScript).
+
+### #restorewindow
+
+```
+Syntax: #restorewindow
+```
+
+Restores the JMC window from its minimized state.
+
+### #resume
+
+Resumes a paused loop. See `#loop` .
+
+### #return
+
+```
+Syntax: #return
+```
+
+Sends the reverse of the last recorded movement direction and removes it from the path buffer.
+
+### #run
+
+```
+Syntax: #run
+```
+
+Runs an external application or opens a document via ShellExecute.
+
+### #savepath
+
+```
+Syntax: #savepath <alias_name> [reverse]
+```
+
+Saves the current path buffer into an alias.
+
+### #scriptlet
+
+```
+Syntax: #scriptlet
+```
+
+Executes a single line of script code using the active scripting engine.
+
+### #showme
+
+```
+Syntax: #showme {text}
+```
+
+Displays text locally in the output window.
+
+### #sos
+
+```
+Syntax: #sos [list|clear|save|...]
+```
+
+Manages "templates" for saving specific groups of aliases, triggers, or variables to files.
+
+### #speedwalk
+
+```
+Syntax: #speedwalk [on|off]
+```
+
+Toggles speedwalking mode (e.g., `3n2e` expands to `n;n;n;e;e` ).
+
+### #spit
+
+```
+Syntax: #spit [options]
+```
+
+Sends the contents of a file to the MUD line by line, inserting each line into the `format` string at %0.
+
+### #status
+
+```
+Syntax: #status [1-5] {text} [color]
+```
+
+Sets the text of one of the status bar segments.
+
+### #stick
+
+Synonym for `#spit` .
+
+### #substitute
+
+```
+Syntax: #substitute {old_text} {new_text}
+```
+
+Replaces occurrences of `old_text` with `new_text` in incoming MUD lines.
+
+### #systemexec
+
+```
+Syntax: #systemexec
+```
+
+Executes a system command and redirects its output to the JMC main window.
+
+### #tabadd
+
+```
+Syntax: #tabadd
+```
+
+Adds a word to the tab-completion dictionary.
+
+### #tabdel
+
+```
+Syntax: #tabdel
+```
+
+Removes a word from the tab-completion dictionary.
+
+### #terminate
+
+```
+Syntax: #terminate |all|last
+```
+
+Kills processes started with `#systemexec` .
+
+### #textin
+
+```
+Syntax: #textin {filename}
+```
+
+Sends the raw contents of a file to the MUD without processing.
+
+### #tick
+
+```
+Syntax: #tick, #tickset, #ticksize
+```
+
+Manages the internal MUD tick timer.
+
+### #tmlist
+
+Lists active loop timers. See `#loop` .
+
+### #togglesubs
+
+```
+Syntax: #togglesubs
+```
+
+Toggles whether substitutions are currently active.
+
+### #tolower
+
+```
+Syntax: #tolower
+```
+
+Converts `text` to lowercase and stores it in `varname` .
+
+### #toupper
+
+```
+Syntax: #toupper
+```
+
+Converts `text` to uppercase and stores it in `varname` .
+
+### #tray
+
+```
+Syntax: #tray <hide|show>
+```
+
+Minimizes or restores JMC to/from the system tray.
+
+### #tskill
+
+Synonym for `#terminate` .
+
+### #tslist
+
+Synonym for `#ps` .
+
+### #unaction
+
+```
+Syntax: #unaction {string}
+```
+
+Deletes a trigger. Supports wildcards (e.g., `*you*` ).
+
+### #unalias
+
+```
+Syntax: #unalias {name}
+```
+
+Deletes an alias. Supports wildcards.
+
+### #unantisubstitute
+
+```
+Syntax: #unantisub {string}
+```
+
+Deletes an antisubstitution.
+
+### #unhotkey
+
+```
+Syntax: #unhotkey
+```
+
+Deletes a hotkey.
+
+### #unpath
+
+```
+Syntax: #unpath
+```
+
+Removes the last entry from the path buffer.
+
+### #unsubstitute
+
+```
+Syntax: #unsubs {string}
+```
+
+Deletes a substitution.
+
+### #unuse
+
+```
+Syntax: #unuse [filename]
+```
+
+Removes a script file from the active scripts list.
+
+### #unvar
+
+```
+Syntax: #unvar {name}
+```
+
+Deletes a variable.
+
+### #use
+
+```
+Syntax: #use
+```
+
+Loads a script file (JScript or VBScript).
+
+### #variable
+
+```
+Syntax: #variable {name} {value}
+```
+
+Sets a variable. Built-in variables include `$YEAR` , `$HOUR` , `$INPUT` , etc.
+
+### #verbatim
+
+```
+Syntax: #verbatim [on|off]
+```
+
+Toggles "verbatim" mode where input is sent directly to the MUD without JMC processing.
+
+### #wait
+
+```
+Syntax: #wait
+```
+
+Introduces a delay before sending commands. Synonym: `#wt` .
+
+### #wamp
+
+Synonym for `#winamp` .
+
+### #wdock
+
+```
+Syntax: #wdock [disable]
+```
+
+Controls whether an output window can be docked.
+
+### #whisper
+
+Synonym for `#daa` .
+
+### #winamp
+
+```
+Syntax: #winamp {command}
+```
+
+Controls WinAMP (e.g., play, stop, next, volume+, volume-).
+
+### #wlog
+
+```
+Syntax: #wlog [append|overwrite|html]
+```
+
+Starts logging for a specific output window.
+
+### #wname
+
+```
+Syntax: #wname [name]
+```
+
+Sets the title of an output window.
+
+### #woutput
+
+```
+Syntax: #woutput [color]
+```
+
+Sends colored text to a specific output window.
+
+### #wpos
+
+```
+Syntax: #wpos {window} {x} {y}
+```
+
+Positions a non-docked output window.
+
+### #write
+
+```
+Syntax: #write {filename}
+```
+
+Saves all current aliases, triggers, and variables to a file.
+
+### #wshow
+
+```
+Syntax: #wshow [toggle|show|hide]
+```
+
+Shows or hides an output window.
+
+### #wt
+
+Synonym for `#wait` .
+
+### #zap
+
+```
+Syntax: #zap
+```
+
+Immediately closes the current connection.
