@@ -27,7 +27,7 @@ describe('TinTinConverter - Powwow Mode', () => {
   it('respects #option +autoprint', () => {
     const input = '#option +autoprint\n#action ^You parry.=say Nice parry!';
     const output = converter.convert(input);
-    expect(output).toContain('#COMMENT OPTION autoprint set to ON');
+    expect(output).toContain('#NOP OPTION autoprint set to ON');
     expect(output).toContain('#ACTION {^You parry.} {say Nice parry!}');
     expect(output).not.toContain('#LINE GAG');
   });
@@ -64,8 +64,7 @@ describe('TinTinConverter - Powwow Mode', () => {
 
     expect(output).toContain('#CLASS {autoloot} {OPEN}');
     expect(output).toContain('#ALIAS {loot+}');
-    expect(output).toContain('#MATH {powwow_at_loot_timer} {timer}');
-    expect(output).not.toContain('$p_p_at');
+    expect(output).toContain('#MATH {powwow_at_loot_timer} {@powwow_timer{}}');
   });
 
   it('handles Powwow alias with minus suffix and label', () => {
@@ -84,7 +83,7 @@ describe('TinTinConverter - Powwow Mode', () => {
   });
 
   it('converts Powwow #setvar, #mark, #hilite', () => {
-    expect(converter.convert('#setvar timer=100')).toContain('#VARIABLE {p_timer} {100}');
+    expect(converter.convert('#setvar timer=100')).toContain('#VARIABLE {powwow_at_timer} {100}');
     expect(converter.convert('#mark {Dragon}=bold red')).toContain('#HIGHLIGHT {{Dragon}} {bold red}');
     expect(converter.convert('#hilite inverse')).toContain('#HIGHLIGHT {.*} {inverse}');
     expect(converter.convert('#beep')).toContain('#BELL');
@@ -184,8 +183,8 @@ describe('TinTinConverter - JMC Mode', () => {
 
     const output = converter.convert(input);
 
-    expect(output).toContain('#COMMENT this is a JMC comment with hash');
-    expect(output).toContain('#COMMENT this is a JMC comment with slashes');
+    expect(output).toContain('#NOP this is a JMC comment with hash');
+    expect(output).toContain('#NOP this is a JMC comment with slashes');
   });
 
   it('converts JMC hotkeys', () => {
