@@ -118,6 +118,7 @@ export class TinTinConverter {
     convertVarName(name) {
         const prefix = this.mode === 'jmc' ? 'j_' : 'p_';
         const arrayPrefix = this.mode === 'jmc' ? 'jmc' : 'powwow';
+        const namedPrefix = this.mode === 'jmc' ? 'j_' : 'p_';
 
         if (name.startsWith('@')) {
             const numMatch = name.match(/^@(-?\d+)$/);
@@ -125,14 +126,14 @@ export class TinTinConverter {
                 const n = numMatch[1];
                 return n.startsWith('-') ? `${prefix}at_m${n.substring(1)}` : `${arrayPrefix}_at[${n}]`;
             }
-            return prefix + 'at_' + name.substring(1);
+            return `${arrayPrefix}_at_${name.substring(1)}`;
         } else if (name.startsWith('$')) {
             const numMatch = name.match(/^\$(-?\d+)$/);
             if (numMatch) {
                 const n = numMatch[1];
                 return n.startsWith('-') ? `${prefix}dollar_m${n.substring(1)}` : `${arrayPrefix}_dollar[${n}]`;
             }
-            return prefix + name.substring(1);
+            return `${namedPrefix}${name.substring(1)}`;
         }
         return prefix + name;
     }
@@ -145,21 +146,24 @@ export class TinTinConverter {
 
             // 2. Named parameters/variables in ${var} or #{expr}
             str = str.replace(/\${([a-zA-Z0-9_-]+)}/g, (match, name) => {
-                return `$p_${name}`;
+                return `__VAR__p_${name}`;
             });
             str = str.replace(/#{([^}]+)}/g, (match, expr) => {
                 return `\$math_eval{${this.convertSyntax('(' + expr + ')')}}`;
             });
 
             // 3. Variables:
-            str = str.replace(/@([a-zA-Z_]\w*)/g, (match, name) => `\$${this.convertVarName('@' + name)}`);
-            str = str.replace(/@(\d+)/g, (match, num) => `\$${this.convertVarName('@' + num)}`);
+            str = str.replace(/@([a-zA-Z_]\w*)/g, (match, name) => `__VAR__${this.convertVarName('@' + name)}`);
+            str = str.replace(/@(\d+)/g, (match, num) => `__VAR__${this.convertVarName('@' + num)}`);
 
-            str = str.replace(/(?<![\\%])\$([a-zA-Z_]\w+)/g, (match, name) => `\$${this.convertVarName('$' + name)}`);
+            str = str.replace(/(?<![\\%])\$([a-zA-Z_]\w+)/g, (match, name) => `__VAR__${this.convertVarName('$' + name)}`);
 
             // 4. Standard parameters: $N -> %N, &N -> %N
             str = str.replace(/(?<!\\)\$(\d+)/g, '%$1');
             str = str.replace(/(?<!\\)&(\d+)/g, '%$1');
+
+            // Replace placeholders back with $ prefix
+            str = str.replace(/__VAR__/g, '$');
         } else if (this.mode === 'jmc') {
             // JMC uses %0-%9 for parameters and $var for variables
             // Standard parameters: %N -> %N (no change needed for TT++)
@@ -236,6 +240,10 @@ export class TinTinConverter {
     convertSingleCommand(line) {
         line = line.trim();
 
+        if (this.mode === 'powwow' && line.startsWith('#!')) {
+            return `#SYSTEM {${line.substring(2).trim()}}`;
+        }
+
         if (this.mode === 'powwow') {
             // Group toggle or label direct commands: #+label, #-label, #>label, #<label, #=label, #%label
             const toggleMatch = line.match(/^#\s*([<=>%+-])([\w_-]+)\s*$/);
@@ -282,8 +290,21 @@ export class TinTinConverter {
                 case 'ac':
                 case 'action':
                     return this.convertActionPowwow(args);
+                case 'setvar':
                 case 'var':
                     return this.convertVarPowwow(args);
+                case 'mark':
+                    return this.convertMarkPowwow(args);
+                case 'hilite':
+                    return `#HIGHLIGHT {.*} {${args}}`;
+                case 'beep':
+                    return `#BELL`;
+                case 'time':
+                    return `#FORMAT {powwow_at_time} {%t} {%Y-%m-%d %H:%M:%S}`;
+                case 'save':
+                    return `#WRITE {${args || 'converted.tin'}}`;
+                case 'load':
+                    return `#READ {${args || 'converted.tin'}}`;
                 case 'if':
                     return this.convertIfPowwow(args);
                 case 'while':
@@ -301,6 +322,12 @@ export class TinTinConverter {
                     return this.convertTickerPowwow(args, command);
                 case 'prompt':
                     return this.convertPromptPowwow(args);
+                case 'group':
+                    const pwGroupMatch = args.match(/^(\S+)\s+(on|off)/i);
+                    if (pwGroupMatch) {
+                        return pwGroupMatch[2].toLowerCase() === 'on' ? `#CLASS {${pwGroupMatch[1]}} {OPEN}` : `#CLASS {${pwGroupMatch[1]}} {KILL}`;
+                    }
+                    return `#COMMENT UNCONVERTED POWWOW GROUP: #group ${args}`;
                 case 'reset':
                     return this.convertReset(args);
                 case 'do':
@@ -313,6 +340,8 @@ export class TinTinConverter {
                     return `#COMMENT NICE (Priority) ignored: #nice ${args}`;
                 case 'identify':
                     return `#COMMENT IDENTIFY ignored: #identify ${args}`;
+                case '!':
+                    return `#SYSTEM {${args}}`;
                 case 'request':
                     return `#COMMENT REQUEST ignored: #request ${args}`;
                 case 'option':
@@ -349,6 +378,18 @@ export class TinTinConverter {
                 case 'sub':
                 case 'substitute':
                     return this.convertSubstituteJMC(args);
+                case 'antisubstitute':
+                case 'antisub':
+                    return `#ANTISUBSTITUTE {${this.convertSyntax(this.cleanJMCArgs(args))}}`;
+                case 'unsubstitute':
+                case 'unsub':
+                    return `#UNSUB {${this.convertSyntax(this.cleanJMCArgs(args))}}`;
+                case 'loop':
+                    return this.convertLoopJMC(args);
+                case 'tolower':
+                    return this.convertToLowerJMC(args);
+                case 'toupper':
+                    return this.convertToUpperJMC(args);
                 case 'unalias':
                     return `#UNALIAS {${this.convertSyntax(this.cleanJMCArgs(args))}}`;
                 case 'unaction':
@@ -356,7 +397,17 @@ export class TinTinConverter {
                 case 'unvar':
                     return `#UNVAR {${this.convertVarName(this.cleanJMCArgs(args))}}`;
                 case 'showme':
-                    return `#SHOWME {${this.convertSyntax(args)}}`;
+                case 'output':
+                    return `#SHOWME {${this.convertSyntax(this.cleanJMCArgs(args))}}`;
+                case 'bell':
+                    return `#BELL`;
+                case 'break':
+                    return `#BREAK`;
+                case 'pathdir':
+                    return `#PATHDIR {${this.cleanJMCArgs(args)}}`;
+                case 'wait':
+                case 'wt':
+                    return `#DELAY {${this.cleanJMCArgs(args)}}`;
                 case 'echo':
                     if (args.toLowerCase() === 'on') return `#CONFIG {VERBOSE} {ON}`;
                     if (args.toLowerCase() === 'off') return `#CONFIG {VERBOSE} {OFF}`;
@@ -377,6 +428,10 @@ export class TinTinConverter {
                     return `#TEXTIN {${args}}`;
                 case 'systemexec':
                     return `#SYSTEM {${args}}`;
+                case 'speedwalk':
+                    if (args.toLowerCase() === 'on') return `#CONFIG {SPEEDWALK} {ON}`;
+                    if (args.toLowerCase() === 'off') return `#CONFIG {SPEEDWALK} {OFF}`;
+                    return `#COMMENT JMC SPEEDWALK: #speedwalk ${args}`;
                 case 'hotkey':
                     return this.convertHotkeyJMC(args);
                 case 'unhotkey':
@@ -396,6 +451,10 @@ export class TinTinConverter {
                     return args ? `#COMMENT UNCONVERTED DROP: #drop ${args}` : `#LINE GAG`;
                 case 'cr':
                     return `#SEND {\n}`;
+                case 'daa':
+                case 'hide':
+                case 'whisper':
+                    return `#COMMENT DAA/HIDE/WHISPER (Secure send) partially supported: #SEND {${args}}`;
                 case 'bell':
                     return `#BELL`;
                 case 'ignore':
@@ -409,7 +468,7 @@ export class TinTinConverter {
     // --- Powwow Conversion Methods ---
 
     convertAliasPowwow(args) {
-        const match = args.match(/^(?:([<=>%][+-]?)?([\w_-]+)(?:@([\w_-]+))?\s+)?([^=]+)=(.+)/is);
+        const match = args.match(/^(?:([<=>%][+-]?)?([\w_-]+(?:[+-])?)(?:@([\w_-]+))?\s+)?([^=]+?)(?:@([\w_-]+))?=(.+)/is);
         if (!match) {
             if (args.trim() === '') return `#ALIAS`;
             const simpleMatch = args.match(/^([^=]+)=(.+)/is);
@@ -419,11 +478,11 @@ export class TinTinConverter {
             return `#comment UNCONVERTED ALIAS ARGS: ${args}`;
         }
 
-        const [, op, label, group, name, cmds] = match;
+        const [, op, label, group1, name, group2, cmds] = match;
         const convertedName = this.convertSubstitutions(name.trim());
         const convertedCmds = this.processCommands(cmds);
 
-        const targetClass = group || label;
+        const targetClass = group1 || group2 || label;
         let out = targetClass ? `#CLASS {${targetClass}} {OPEN}\n` : '';
         out += `#ALIAS {${convertedName}} {${convertedCmds}}`;
         if (targetClass) out += `\n#CLASS {${targetClass}} {CLOSE}`;
@@ -437,7 +496,7 @@ export class TinTinConverter {
             return op === '+' ? `#CLASS {${label}} {OPEN}` : `#CLASS {${label}} {KILL}`;
         }
 
-        const match = args.match(/^(?:([<=>%][+-]?)?([\w_-]+)(?:@([\w_-]+))?\s+)?([^=]+)=(.+)?/is);
+        const match = args.match(/^(?:([<=>%][+-]?)?([\w_-]+(?:[+-])?)(?:@([\w_-]+))?\s+)?([^=]+?)(?:@([\w_-]+))?=(.+)?/is);
         if (!match) {
              const simpleMatch = args.match(/^([^=]+)=(.+)?/is);
              if (simpleMatch) {
@@ -448,11 +507,11 @@ export class TinTinConverter {
              return `#comment UNCONVERTED ACTION ARGS: ${args}`;
         }
 
-        const [, op, label, group, pattern, cmds] = match;
+        const [, op, label, group1, pattern, group2, cmds] = match;
         const ttPattern = this.convertSyntax(pattern.trim());
         const ttCmds = cmds ? this.processCommands(cmds) : '';
 
-        const targetClass = group || label;
+        const targetClass = group1 || group2 || label;
         let out = targetClass ? `#CLASS {${targetClass}} {OPEN}\n` : '';
         if (ttCmds === '') {
             out += `#GAG {${ttPattern}}`;
@@ -566,6 +625,16 @@ export class TinTinConverter {
         return `#ACTION {${ttPattern}} {${ttCmds}; #line gag} {1}`;
     }
 
+    convertMarkPowwow(args) {
+        const match = args.match(/^([^=]+)(?:=(.*))?$/is);
+        if (match) {
+            const pattern = this.convertSyntax(match[1].trim());
+            const color = match[2] ? match[2].trim() : 'bold';
+            return `#HIGHLIGHT {${pattern}} {${color}}`;
+        }
+        return `#COMMENT UNCONVERTED MARK: #mark ${args}`;
+    }
+
     convertReset(args) {
         const type = args.toLowerCase().trim();
         if (type === 'alias' || type === 'aliases') return `#KILL ALIASES {*}*`;
@@ -653,13 +722,15 @@ export class TinTinConverter {
     }
 
     convertGroupJMC(args) {
-        // #group {enable|disable} {name}
-        const match = args.match(/^(enable|disable)\s+(\S+)/i);
+        // #group {enable|disable|list|delete|info|global|local} [name]
+        const match = args.match(/^(enable|disable|list|delete|info|global|local)(?:\s+(\S+))?/i);
         if (match) {
             const op = match[1].toLowerCase();
             const label = match[2];
             if (op === 'enable') return `#CLASS {${label}} {OPEN}`;
             if (op === 'disable') return `#CLASS {${label}} {KILL}`;
+            if (op === 'list') return `#CLASS`;
+            if (op === 'delete') return `#CLASS {${label}} {KILL}`;
         }
         return `#comment JMC GROUP COMMAND: #group ${args}`;
     }
@@ -703,6 +774,41 @@ export class TinTinConverter {
             return `#MACRO {${key}} {${this.processCommands(cmds)}}`;
         }
         return `#comment UNCONVERTED JMC HOTKEY: #hotkey ${args}`;
+    }
+
+    convertLoopJMC(args) {
+        // #loop {from,to[:delay]} {commands}
+        const match = args.match(/^{([^,]+),([^}:]+)(?::([^}]+))?}\s*{(.*)}$/s);
+        if (match) {
+            const from = match[1].trim();
+            const to = match[2].trim();
+            const cmds = match[4].trim();
+            // Protect $v from being prefixed by temporarily using a placeholder
+            const processed = this.processCommands(cmds.replace(/%0/g, '___V_VAR___'));
+            return `#LOOP {${from}} {${to}} {v} {${processed.replace(/___V_VAR___/g, '$v')}}`;
+        }
+        return `#COMMENT UNCONVERTED JMC LOOP: #loop ${args}`;
+    }
+
+    convertToLowerJMC(args) {
+        // #tolower {var} {text}
+        const match = args.match(/^{([^}]+)}\s*{(.*)}$/s) || args.match(/^(\S+)\s+(.*)$/s);
+        if (match) {
+            const varName = this.convertVarName(match[1].trim().replace(/^{|}$/g, ''));
+            const text = match[2].trim().replace(/^{|}$/g, '');
+            return `#FORMAT {${varName}} {%l} {${this.convertSyntax(text)}}`;
+        }
+        return `#COMMENT UNCONVERTED JMC TOLOWER: #tolower ${args}`;
+    }
+
+    convertToUpperJMC(args) {
+        const match = args.match(/^{([^}]+)}\s*{(.*)}$/s) || args.match(/^(\S+)\s+(.*)$/s);
+        if (match) {
+            const varName = this.convertVarName(match[1].trim().replace(/^{|}$/g, ''));
+            const text = match[2].trim().replace(/^{|}$/g, '');
+            return `#FORMAT {${varName}} {%u} {${this.convertSyntax(text)}}`;
+        }
+        return `#COMMENT UNCONVERTED JMC TOUPPER: #toupper ${args}`;
     }
 
     convert(inputScript) {

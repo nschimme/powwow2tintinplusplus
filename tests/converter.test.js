@@ -39,6 +39,36 @@ describe('TinTinConverter - Powwow Mode', () => {
     expect(converter.convert('#in (1000) {say hello}')).toContain('#DELAY {1.00} {say hello}');
     expect(converter.convert('#at (5.5) {say hello}')).toContain('#DELAY {5.5} {say hello}');
   });
+
+  it('reproduces reported issue with loot+@autoloot', () => {
+    const input = '#alias loot+@autoloot={#action +loot1;#action +loot2;#(@loot_timer = timer)}';
+    const output = converter.convert(input);
+
+    // User clarified: alias name is "loot+" and class is "autoloot"
+
+    expect(output).toContain('#CLASS {autoloot} {OPEN}');
+    expect(output).toContain('#ALIAS {loot+}');
+    expect(output).toContain('#MATH {powwow_at_loot_timer} {timer}');
+    expect(output).not.toContain('$p_p_at');
+  });
+
+  it('correctly handles named parameters in ${var}', () => {
+    const input = '#alias test=say ${target} is dead';
+    const output = converter.convert(input);
+    expect(output).toContain('say $p_target is dead');
+    expect(output).not.toContain('$p_p_target');
+  });
+
+  it('converts Powwow #setvar, #mark, #hilite', () => {
+    expect(converter.convert('#setvar timer=100')).toContain('#VARIABLE {p_timer} {100}');
+    expect(converter.convert('#mark {Dragon}=bold red')).toContain('#HIGHLIGHT {{Dragon}} {bold red}');
+    expect(converter.convert('#hilite inverse')).toContain('#HIGHLIGHT {.*} {inverse}');
+    expect(converter.convert('#beep')).toContain('#BELL');
+    expect(converter.convert('#time')).toContain('#FORMAT {powwow_at_time}');
+    expect(converter.convert('#save my.tin')).toContain('#WRITE {my.tin}');
+    expect(converter.convert('#load my.tin')).toContain('#READ {my.tin}');
+    expect(converter.convert('#! ls')).toContain('#SYSTEM {ls}');
+  });
 });
 
 describe('TinTinConverter - JMC Mode', () => {
@@ -176,5 +206,25 @@ describe('TinTinConverter - JMC Mode', () => {
     expect(output).toContain('#UNALIAS {k}');
     expect(output).toContain('#UNACT {gag_line}');
     expect(output).toContain('#UNVAR {j_count}');
+  });
+
+  it('converts JMC #loop, #tolower, #toupper, #unsub', () => {
+    expect(converter.convert('#loop {1,5} {say %0}')).toContain('#LOOP {1} {5} {v} {say $v}');
+    expect(converter.convert('#tolower {target} {DRAGON}')).toContain('#FORMAT {j_target} {%l} {DRAGON}');
+    expect(converter.convert('#toupper {target} {dragon}')).toContain('#FORMAT {j_target} {%u} {dragon}');
+    expect(converter.convert('#unsub {foo}')).toContain('#UNSUB {foo}');
+  });
+
+  it('converts JMC #antisub and #speedwalk', () => {
+    expect(converter.convert('#antisub {safe line}')).toContain('#ANTISUBSTITUTE {safe line}');
+    expect(converter.convert('#speedwalk on')).toContain('#CONFIG {SPEEDWALK} {ON}');
+  });
+
+  it('converts more JMC commands: #bell, #break, #output, #pathdir, #wait', () => {
+    expect(converter.convert('#bell')).toContain('#BELL');
+    expect(converter.convert('#break')).toContain('#BREAK');
+    expect(converter.convert('#output {hello}')).toContain('#SHOWME {hello}');
+    expect(converter.convert('#pathdir {n} {s} {1}')).toContain('#PATHDIR {n} {s} {1}');
+    expect(converter.convert('#wait 1.5')).toContain('#DELAY {1.5}');
   });
 });

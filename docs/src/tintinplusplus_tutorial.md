@@ -10,7 +10,7 @@
 
 
 </span><span style='color:#FF5'>        ╭──────────────────────────────────────────────────────────────────────╮
-│                                 <a href='/index.html'>Home</a>                                 │
+│                                 <a href='./index.html'>Home</a>                                 │
 ╰──────────────────────────────────────────────────────────────────────╯
 
 <a href='#INDEX'>INDEX           </a>  <a href='#GREETING'>GREETING        </a>  <a href='#MSDP'>MSDP            </a>  <a href='#STATEMENTS'>STATEMENTS      </a>
