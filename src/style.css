@@ -1,0 +1,31 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-gray-900 text-gray-200 antialiased;
+    font-family: 'Inter', sans-serif;
+  }
+}
+
+@layer components {
+  .tooltip {
+    @apply relative inline-block;
+  }
+  .tooltip .tooltiptext {
+    @apply invisible w-[140px] bg-gray-700 text-white text-center rounded-md p-1.5 absolute z-10 bottom-[125%] left-1/2 -ml-[70px] opacity-0 transition-opacity duration-300;
+  }
+  .tooltip .tooltiptext::after {
+    content: "";
+    @apply absolute top-full left-1/2 -ml-[5px] border-[5px] border-transparent border-t-gray-700;
+  }
+  .tooltip:hover .tooltiptext {
+    @apply visible opacity-100;
+  }
+}
+
+/* Custom styles for documentation */
+.section-indent {
+    @apply ml-6 border-l-2 border-gray-700 pl-4 my-4;
+}
