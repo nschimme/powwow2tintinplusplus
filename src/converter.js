@@ -205,16 +205,25 @@ class TinTinGenerator {
             outputLines.push('#FUNCTION {powwow_search} {#FORMAT {result} {%p} {%2} {%1}}');
         }
 
+        outputLines.push(this.generateNodes(nodes, '\n'));
+
+        outputLines.push('#CLASS {converted} {CLOSE}');
+        return outputLines.join('\n');
+    }
+
+    generateNodes(nodes, separator = '; ') {
+        let outputLines = [];
         let currentCommandNodes = [];
 
         const flush = () => {
             if (currentCommandNodes.length === 0) return;
-            const cmdStr = this.nodesToString(currentCommandNodes).trim();
-            if (cmdStr !== '') {
-                if (cmdStr.startsWith('#')) {
-                    outputLines.push(this.converter.convertSingleCommand(cmdStr));
+            const cmdStr = this.nodesToString(currentCommandNodes);
+            const trimmed = cmdStr.trim();
+            if (trimmed !== '') {
+                if (trimmed.startsWith('#')) {
+                    outputLines.push(this.converter.convertSingleCommand(trimmed).trim());
                 } else {
-                    outputLines.push(this.converter.convertSyntax(cmdStr));
+                    outputLines.push(this.converter.convertSyntax(cmdStr).trim());
                 }
             }
             currentCommandNodes = [];
@@ -222,7 +231,6 @@ class TinTinGenerator {
 
         for (let node of nodes) {
             if (node.type === 'Separator' || node.type === 'Pipe') {
-                // Special case for #sep command which takes the separator as an argument
                 const lastCmd = currentCommandNodes.filter(n => n.type === 'Command').pop();
                 if (lastCmd && lastCmd.value === '#sep') {
                     currentCommandNodes.push(node);
@@ -233,23 +241,28 @@ class TinTinGenerator {
                 flush();
             } else if (node.type === 'Comment') {
                 flush();
-                outputLines.push('#NOP ' + node.value.replace(/\/\/|\/\*|\*\/|##/g, '').trim());
+                const rawComment = node.value;
+                const cleanedComment = rawComment
+                    .replace(/^\s*(\/\/|##|\/\*)\s?/, '')
+                    .replace(/\s*\*\/\s*$/, '')
+                    .trim();
+                const commentLines = cleanedComment.split('\n');
+                commentLines.forEach(line => {
+                    outputLines.push('#NOP ' + line.trim());
+                });
             } else {
                 currentCommandNodes.push(node);
             }
         }
         flush();
-
-        outputLines.push('#CLASS {converted} {CLOSE}');
-        return outputLines.join('\n');
+        return outputLines.join(separator);
     }
 
     nodesToString(nodes) {
         return nodes.map(n => {
             if (n.type === 'BracedBlock') return '{' + this.nodesToString(n.content) + '}';
             if (n.type === 'ParenBlock') return '(' + this.nodesToString(n.content) + ')';
-            if (n.type === 'Comment') return ''; // Comments handled in generate
-            if (n.type === 'Newline') return '\n';
+            if (n.type === 'Comment') return n.value;
             return n.value || '';
         }).join('');
     }
@@ -569,7 +582,9 @@ export class TinTinConverter {
 
         // 3. Operators
         str = str.replace(/\brand\s+([@$a-zA-Z0-9_\[\]-]+|%\d+|\d+)/g, '@powwow_rand{$1}');
-        str = str.replace(/([@$][a-zA-Z0-9_\[\]-]+|%\d+):\?/g, '&$1[]');
+        str = str.replace(/([@$][a-zA-Z0-9_\[\]-]+|%\d+):\?/g, (match, v) => {
+            return `&${this.convertVarName(v)}[]`;
+        });
         str = str.replace(/([@$][a-zA-Z0-9_\[\]-]+|%\d+)\.\?/g, '@powwow_char_length{$1}');
         str = str.replace(/([@$][a-zA-Z0-9_\[\]-]+|%\d+):([@$a-zA-Z0-9_\[\]-]+|%\d+)/g, '$1[$2]');
         str = str.replace(/([@$][a-zA-Z0-9_\[\]-]+|%\d+)\.([@$a-zA-Z0-9_\[\]-]+|%\d+)/g, '$1.char[$2]');
@@ -646,7 +661,7 @@ export class TinTinConverter {
             });
 
             // 3. Variables:
-            str = str.replace(/\\?@([a-zA-Z_]\w*)/g, (match, name) => {
+            str = str.replace(/\\?@([a-zA-Z_]\w+)/g, (match, name) => {
                 if (['powwow_timer', 'powwow_rand', 'powwow_char_length', 'powwow_search'].includes(name)) return `__FUNC__${name}`;
                 if (name.startsWith('powwow_') || name.startsWith('p_')) return `__VAR__${name}`;
                 return `__VAR__${this.convertVarName('@' + name)}`;
@@ -655,7 +670,7 @@ export class TinTinConverter {
 
             str = str.replace(/\${([a-zA-Z0-9_%$-]+)}/g, (match, name) => {
                 let res = name.replace(/\$(\d+)/g, '%$1');
-                res = res.replace(/\$([a-zA-Z_]\w*)/g, 'p_$1');
+                res = res.replace(/\$([a-zA-Z_]\w+)/g, 'p_$1');
                 if (!res.startsWith('p_') && !res.startsWith('%') && !res.startsWith('powwow_')) {
                     res = 'p_' + res;
                 }
@@ -676,18 +691,12 @@ export class TinTinConverter {
             str = str.replace(/__VAR__/g, '$');
             str = str.replace(/__FUNC__/g, '@');
 
-            // Final safety pass for Axel's script: ensure common variables like sessxp are prefixed
-            const common = ['sessxp', 'sesstp', 'gainxp', 'gaintp', 'oldxp', 'oldtp', 'xpcal'];
-            common.forEach(v => {
-                const reg = new RegExp('\\$'+v+'\\b', 'g');
-                str = str.replace(reg, '$p_'+v);
-            });
         } else if (this.mode === 'jmc') {
             // JMC uses %0-%9 for parameters and $var for variables
             // Standard parameters: %N -> %N (no change needed for TT++)
 
             // Variables: $var -> $j_var
-            str = str.replace(/(?<![\\%])\$([a-zA-Z_]\w*)/g, (match, name) => {
+            str = str.replace(/(?<![\\%])\$([a-zA-Z_]\w+)/g, (match, name) => {
                 if (name.startsWith('jmc_') || name.startsWith('j_')) return `\$${name}`;
                 return `\$${this.convertVarName(name)}`;
             });
@@ -724,34 +733,16 @@ export class TinTinConverter {
         if (!commandString) return '';
         let commandsStr = commandString.trim();
         if (commandsStr.startsWith('{') && commandsStr.endsWith('}')) {
-            commandsStr = commandsStr.substring(1, commandsStr.length - 1).trim();
+            commandsStr = commandsStr.substring(1, commandsStr.length - 1);
         }
         if (commandsStr === '') return '';
 
-        const tokens = this.tokenize(commandsStr);
-        const processed = [];
-        for (let i = 0; i < tokens.length; i++) {
-            let t = tokens[i].trim();
-            if (t === '') continue;
+        const lexer = new Lexer(commandsStr, { mode: this.mode, separator: this.separator });
+        const parser = new Parser(lexer);
+        const nodes = parser.parse();
 
-            if (t.toLowerCase().startsWith('#if')) {
-                // Peek for #else (Powwow specific or JMC if it follows that pattern)
-                if (this.mode === 'powwow') {
-                    if (i + 1 < tokens.length && tokens[i+1].trim().toLowerCase().startsWith('#else')) {
-                        t += '; ' + tokens[i+1].trim();
-                        i++;
-                    }
-                }
-            }
-
-            if (t.startsWith('#')) {
-                processed.push(this.convertSingleCommand(t));
-            } else {
-                processed.push(this.convertSyntax(t));
-            }
-        }
-
-        return processed.join('; ');
+        const generator = new TinTinGenerator(this);
+        return generator.generateNodes(nodes, '; ');
     }
 
     cleanJMCArgs(args) {
@@ -1034,8 +1025,15 @@ export class TinTinConverter {
             const seq = match[2];
             const cmd = match[3] || '';
             // We map Powwow bind to TinTin++ MACRO.
-            // Often name is something like 'f1' or 'Up'.
-            return `#MACRO {${name}} {${this.processCommands(cmd)}}`;
+            // If a key sequence is provided, prefer binding the MACRO to that
+            // sequence so that the original trigger semantics are preserved.
+            const macroKey = seq || name;
+            const processedCmd = this.processCommands(cmd);
+
+            // Preserve the original label as a comment if it differs from the sequence.
+            const labelComment = (seq && name && name !== seq) ? `#NOP ORIGINAL BIND LABEL: ${name}\n` : '';
+
+            return `${labelComment}#MACRO {${macroKey}} {${processedCmd}}`;
         }
         return `#NOP UNCONVERTED BIND: #bind ${args}`;
     }
