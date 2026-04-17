@@ -10,10 +10,26 @@ describe('TinTinConverter - Powwow Mode', () => {
     expect(output).toContain('#ALIAS {ks} {kill %1}');
   });
 
-  it('converts simple action', () => {
+  it('converts simple action with default gag behavior', () => {
     const input = '#action ^You parry.=say Nice parry!';
     const output = converter.convert(input);
+    // In Powwow, actions gag by default.
+    expect(output).toContain('#ACTION {^You parry.} {say Nice parry!; #LINE GAG}');
+  });
+
+  it('converts action with #print (no gag)', () => {
+    const input = '#action ^You parry.={#print; say Nice parry!}';
+    const output = converter.convert(input);
+    expect(output).toContain('#ACTION {^You parry.} {#LINE PRINT; say Nice parry!}');
+    expect(output).not.toContain('#LINE GAG');
+  });
+
+  it('respects #option +autoprint', () => {
+    const input = '#option +autoprint\n#action ^You parry.=say Nice parry!';
+    const output = converter.convert(input);
+    expect(output).toContain('#COMMENT OPTION autoprint set to ON');
     expect(output).toContain('#ACTION {^You parry.} {say Nice parry!}');
+    expect(output).not.toContain('#LINE GAG');
   });
 
   it('handles custom separator', () => {
@@ -50,6 +66,14 @@ describe('TinTinConverter - Powwow Mode', () => {
     expect(output).toContain('#ALIAS {loot+}');
     expect(output).toContain('#MATH {powwow_at_loot_timer} {timer}');
     expect(output).not.toContain('$p_p_at');
+  });
+
+  it('handles Powwow alias with minus suffix and label', () => {
+    const input = '#alias loot-@autoloot={#action -loot1}';
+    const output = converter.convert(input);
+    expect(output).toContain('#CLASS {autoloot} {OPEN}');
+    expect(output).toContain('#ALIAS {loot-}');
+    expect(output).toContain('#CLASS {loot1} {KILL}');
   });
 
   it('correctly handles named parameters in ${var}', () => {

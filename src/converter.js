@@ -6,6 +6,12 @@ export class TinTinConverter {
     constructor(options = {}) {
         this.separator = options.separator || ';';
         this.mode = options.mode || 'powwow'; // 'powwow' or 'jmc'
+        this.state = {
+            powwow: {
+                autoprint: false
+            }
+        };
+        this.initHandlers();
     }
 
     setSeparator(sep) {
@@ -17,6 +23,141 @@ export class TinTinConverter {
         if (this.mode === 'jmc') {
             this.separator = ';';
         }
+    }
+
+    initHandlers() {
+        this.powwowHandlers = {
+            'al': args => this.convertAliasPowwow(args),
+            'alias': args => this.convertAliasPowwow(args),
+            'ac': args => this.convertActionPowwow(args),
+            'action': args => this.convertActionPowwow(args),
+            'setvar': args => this.convertVarPowwow(args),
+            'var': args => this.convertVarPowwow(args),
+            'mark': args => this.convertMarkPowwow(args),
+            'hilite': args => `#HIGHLIGHT {.*} {${args}}`,
+            'beep': () => `#BELL`,
+            'time': () => `#FORMAT {powwow_at_time} {%t} {%Y-%m-%d %H:%M:%S}`,
+            'save': args => `#WRITE {${args || 'converted.tin'}}`,
+            'load': args => `#READ {${args || 'converted.tin'}}`,
+            'if': args => this.convertIfPowwow(args),
+            'while': args => this.convertWhilePowwow(args),
+            'for': args => this.convertForPowwow(args),
+            'print': args => args ? `#SHOWME {${this.convertSyntax(args)}}` : `#LINE PRINT`,
+            'send': args => {
+                if (args.startsWith('<')) return `#TEXTIN {${args.substring(1).trim()}}`;
+                if (args.startsWith('!')) return `#SYSTEM {${args.substring(1).trim()}}`;
+                return this.convertSyntax(args);
+            },
+            'in': args => this.convertTickerPowwow(args, 'in'),
+            'at': args => this.convertTickerPowwow(args, 'at'),
+            'prompt': args => this.convertPromptPowwow(args),
+            'group': args => {
+                const pwGroupMatch = args.match(/^(\S+)\s+(on|off)/i);
+                if (pwGroupMatch) {
+                    return pwGroupMatch[2].toLowerCase() === 'on' ? `#CLASS {${pwGroupMatch[1]}} {OPEN}` : `#CLASS {${pwGroupMatch[1]}} {KILL}`;
+                }
+                return `#COMMENT UNCONVERTED POWWOW GROUP: #group ${args}`;
+            },
+            'reset': args => this.convertReset(args),
+            'do': args => {
+                const doMatch = args.match(/^\((.*)\)\s*(.*)$/s);
+                if (doMatch) {
+                    return `#MATH {p_do_cnt} {${this.convertSyntax('(' + doMatch[1] + ')')}}; #$p_do_cnt {${this.processCommands(doMatch[2])}}`;
+                }
+                return `#COMMENT UNCONVERTED DO: #do ${args}`;
+            },
+            'nice': args => `#COMMENT NICE (Priority) ignored: #nice ${args}`,
+            'identify': args => `#COMMENT IDENTIFY ignored: #identify ${args}`,
+            '!': args => `#SYSTEM {${args}}`,
+            'request': args => `#COMMENT REQUEST ignored: #request ${args}`,
+            'option': args => {
+                const match = args.match(/^([+-])(\w+)/);
+                if (match) {
+                    const [, op, name] = match;
+                    if (name.toLowerCase() === 'autoprint') {
+                        this.state.powwow.autoprint = (op === '+');
+                        return `#COMMENT OPTION autoprint set to ${op === '+' ? 'ON' : 'OFF'}`;
+                    }
+                }
+                return `#COMMENT OPTION ignored: #option ${args}`;
+            },
+            'sep': args => {
+                this.setSeparator(args);
+                return `#COMMENT SEPARATOR set to ${args}`;
+            },
+            'quit': () => `#END`
+        };
+
+        this.jmcHandlers = {
+            'al': args => this.convertAliasJMC(args),
+            'alias': args => this.convertAliasJMC(args),
+            'ac': args => this.convertActionJMC(args),
+            'action': args => this.convertActionJMC(args),
+            'var': args => this.convertVarJMC(args),
+            'variable': args => this.convertVarJMC(args),
+            'if': args => this.convertIfJMC(args),
+            'math': args => this.convertMathJMC(args),
+            'group': args => this.convertGroupJMC(args),
+            'highlight': args => this.convertHighlightJMC(args),
+            'gag': args => this.convertGagJMC(args),
+            'sub': args => this.convertSubstituteJMC(args),
+            'substitute': args => this.convertSubstituteJMC(args),
+            'antisubstitute': args => `#ANTISUBSTITUTE {${this.convertSyntax(this.cleanJMCArgs(args))}}`,
+            'antisub': args => `#ANTISUBSTITUTE {${this.convertSyntax(this.cleanJMCArgs(args))}}`,
+            'unsubstitute': args => `#UNSUB {${this.convertSyntax(this.cleanJMCArgs(args))}}`,
+            'unsub': args => `#UNSUB {${this.convertSyntax(this.cleanJMCArgs(args))}}`,
+            'loop': args => this.convertLoopJMC(args),
+            'tolower': args => this.convertToLowerJMC(args),
+            'toupper': args => this.convertToUpperJMC(args),
+            'unalias': args => `#UNALIAS {${this.convertSyntax(this.cleanJMCArgs(args))}}`,
+            'unaction': args => `#UNACT {${this.convertSyntax(this.cleanJMCArgs(args))}}`,
+            'unvar': args => `#UNVAR {${this.convertVarName(this.cleanJMCArgs(args))}}`,
+            'showme': args => `#SHOWME {${this.convertSyntax(this.cleanJMCArgs(args))}}`,
+            'output': args => `#SHOWME {${this.convertSyntax(this.cleanJMCArgs(args))}}`,
+            'bell': () => `#BELL`,
+            'break': () => `#BREAK`,
+            'kickall': () => `#KILL ALL`,
+            'flash': () => `#BELL`,
+            'char': args => `#CONFIG {COMMAND_CHAR} {${this.cleanJMCArgs(args)}}`,
+            'pathdir': args => `#PATHDIR {${this.cleanJMCArgs(args)}}`,
+            'wait': args => `#DELAY {${this.cleanJMCArgs(args)}}`,
+            'wt': args => `#DELAY {${this.cleanJMCArgs(args)}}`,
+            'echo': args => {
+                if (args.toLowerCase() === 'on') return `#CONFIG {VERBOSE} {ON}`;
+                if (args.toLowerCase() === 'off') return `#CONFIG {VERBOSE} {OFF}`;
+                return `#SHOWME {${this.convertSyntax(args)}}`;
+            },
+            'quit': () => `#END`,
+            'zap': () => `#ZAP`,
+            'killall': () => `#KILL ALL`,
+            'read': args => `#READ {${args}}`,
+            'write': args => `#WRITE {${args}}`,
+            'log': args => `#LOG {${args}}`,
+            'textin': args => `#TEXTIN {${args}}`,
+            'systemexec': args => `#SYSTEM {${args}}`,
+            'speedwalk': args => {
+                if (args.toLowerCase() === 'on') return `#CONFIG {SPEEDWALK} {ON}`;
+                if (args.toLowerCase() === 'off') return `#CONFIG {SPEEDWALK} {OFF}`;
+                return `#COMMENT JMC SPEEDWALK: #speedwalk ${args}`;
+            },
+            'hotkey': args => this.convertHotkeyJMC(args),
+            'unhotkey': args => `#UNMACRO {${args}}`,
+            'message': args => {
+                if (args.toLowerCase().includes('off')) return `#CONFIG {VERBOSE} {OFF}`;
+                if (args.toLowerCase().includes('on')) return `#CONFIG {VERBOSE} {ON}`;
+                return `#COMMENT JMC MESSAGE: #message ${args}`;
+            },
+            'ticksize': args => `#VARIABLE {j_ticksize} {${args}}; #TICKER {jmc_tick} {#SHOWME #TICK} {${args}}`,
+            'tickon': () => `#TICKER {jmc_tick} {#SHOWME #TICK} {$j_ticksize}`,
+            'tickset': () => `#TICKER {jmc_tick} {#SHOWME #TICK} {$j_ticksize}`,
+            'tickoff': () => `#UNTICKER {jmc_tick}`,
+            'drop': args => args ? `#COMMENT UNCONVERTED DROP: #drop ${args}` : `#LINE GAG`,
+            'cr': () => `#SEND {\n}`,
+            'daa': args => `#COMMENT DAA/HIDE/WHISPER (Secure send) partially supported: #SEND {${args}}`,
+            'hide': args => `#COMMENT DAA/HIDE/WHISPER (Secure send) partially supported: #SEND {${args}}`,
+            'whisper': args => `#COMMENT DAA/HIDE/WHISPER (Secure send) partially supported: #SEND {${args}}`,
+            'ignore': args => args ? `#IGNORE {${this.convertSyntax(this.cleanJMCArgs(args))}}` : `#IGNORE`
+        };
     }
 
     /**
@@ -283,185 +424,13 @@ export class TinTinConverter {
         let args = cmdMatch[2].trim();
 
         if (this.mode === 'powwow') {
-            switch (command) {
-                case 'al':
-                case 'alias':
-                    return this.convertAliasPowwow(args);
-                case 'ac':
-                case 'action':
-                    return this.convertActionPowwow(args);
-                case 'setvar':
-                case 'var':
-                    return this.convertVarPowwow(args);
-                case 'mark':
-                    return this.convertMarkPowwow(args);
-                case 'hilite':
-                    return `#HIGHLIGHT {.*} {${args}}`;
-                case 'beep':
-                    return `#BELL`;
-                case 'time':
-                    return `#FORMAT {powwow_at_time} {%t} {%Y-%m-%d %H:%M:%S}`;
-                case 'save':
-                    return `#WRITE {${args || 'converted.tin'}}`;
-                case 'load':
-                    return `#READ {${args || 'converted.tin'}}`;
-                case 'if':
-                    return this.convertIfPowwow(args);
-                case 'while':
-                    return this.convertWhilePowwow(args);
-                case 'for':
-                    return this.convertForPowwow(args);
-                case 'print':
-                    return `#SHOWME {${this.convertSyntax(args)}}`;
-                case 'send':
-                    if (args.startsWith('<')) return `#TEXTIN {${args.substring(1).trim()}}`;
-                    if (args.startsWith('!')) return `#SYSTEM {${args.substring(1).trim()}}`;
-                    return this.convertSyntax(args);
-                case 'in':
-                case 'at':
-                    return this.convertTickerPowwow(args, command);
-                case 'prompt':
-                    return this.convertPromptPowwow(args);
-                case 'group':
-                    const pwGroupMatch = args.match(/^(\S+)\s+(on|off)/i);
-                    if (pwGroupMatch) {
-                        return pwGroupMatch[2].toLowerCase() === 'on' ? `#CLASS {${pwGroupMatch[1]}} {OPEN}` : `#CLASS {${pwGroupMatch[1]}} {KILL}`;
-                    }
-                    return `#COMMENT UNCONVERTED POWWOW GROUP: #group ${args}`;
-                case 'reset':
-                    return this.convertReset(args);
-                case 'do':
-                    const doMatch = args.match(/^\((.*)\)\s*(.*)$/s);
-                    if (doMatch) {
-                        return `#MATH {p_do_cnt} {${this.convertSyntax('(' + doMatch[1] + ')')}}; #$p_do_cnt {${this.processCommands(doMatch[2])}}`;
-                    }
-                    return `#COMMENT UNCONVERTED DO: #do ${args}`;
-                case 'nice':
-                    return `#COMMENT NICE (Priority) ignored: #nice ${args}`;
-                case 'identify':
-                    return `#COMMENT IDENTIFY ignored: #identify ${args}`;
-                case '!':
-                    return `#SYSTEM {${args}}`;
-                case 'request':
-                    return `#COMMENT REQUEST ignored: #request ${args}`;
-                case 'option':
-                    return `#COMMENT OPTION ignored: #option ${args}`;
-                case 'sep':
-                    this.setSeparator(args);
-                    return `#COMMENT SEPARATOR set to ${args}`;
-                case 'quit':
-                    return `#END`;
-                default:
-                    return `#COMMENT UNSUPPORTED: ${line}`;
-            }
+            const handler = this.powwowHandlers[command];
+            if (handler) return handler(args);
+            return `#COMMENT UNSUPPORTED: ${line}`;
         } else if (this.mode === 'jmc') {
-            switch (command) {
-                case 'al':
-                case 'alias':
-                    return this.convertAliasJMC(args);
-                case 'ac':
-                case 'action':
-                    return this.convertActionJMC(args);
-                case 'var':
-                case 'variable':
-                    return this.convertVarJMC(args);
-                case 'if':
-                    return this.convertIfJMC(args);
-                case 'math':
-                    return this.convertMathJMC(args);
-                case 'group':
-                    return this.convertGroupJMC(args);
-                case 'highlight':
-                    return this.convertHighlightJMC(args);
-                case 'gag':
-                    return this.convertGagJMC(args);
-                case 'sub':
-                case 'substitute':
-                    return this.convertSubstituteJMC(args);
-                case 'antisubstitute':
-                case 'antisub':
-                    return `#ANTISUBSTITUTE {${this.convertSyntax(this.cleanJMCArgs(args))}}`;
-                case 'unsubstitute':
-                case 'unsub':
-                    return `#UNSUB {${this.convertSyntax(this.cleanJMCArgs(args))}}`;
-                case 'loop':
-                    return this.convertLoopJMC(args);
-                case 'tolower':
-                    return this.convertToLowerJMC(args);
-                case 'toupper':
-                    return this.convertToUpperJMC(args);
-                case 'unalias':
-                    return `#UNALIAS {${this.convertSyntax(this.cleanJMCArgs(args))}}`;
-                case 'unaction':
-                    return `#UNACT {${this.convertSyntax(this.cleanJMCArgs(args))}}`;
-                case 'unvar':
-                    return `#UNVAR {${this.convertVarName(this.cleanJMCArgs(args))}}`;
-                case 'showme':
-                case 'output':
-                    return `#SHOWME {${this.convertSyntax(this.cleanJMCArgs(args))}}`;
-                case 'bell':
-                    return `#BELL`;
-                case 'break':
-                    return `#BREAK`;
-                case 'pathdir':
-                    return `#PATHDIR {${this.cleanJMCArgs(args)}}`;
-                case 'wait':
-                case 'wt':
-                    return `#DELAY {${this.cleanJMCArgs(args)}}`;
-                case 'echo':
-                    if (args.toLowerCase() === 'on') return `#CONFIG {VERBOSE} {ON}`;
-                    if (args.toLowerCase() === 'off') return `#CONFIG {VERBOSE} {OFF}`;
-                    return `#SHOWME {${this.convertSyntax(args)}}`;
-                case 'quit':
-                    return `#END`;
-                case 'zap':
-                    return `#ZAP`;
-                case 'killall':
-                    return `#KILL ALL`;
-                case 'read':
-                    return `#READ {${args}}`;
-                case 'write':
-                    return `#WRITE {${args}}`;
-                case 'log':
-                    return `#LOG {${args}}`;
-                case 'textin':
-                    return `#TEXTIN {${args}}`;
-                case 'systemexec':
-                    return `#SYSTEM {${args}}`;
-                case 'speedwalk':
-                    if (args.toLowerCase() === 'on') return `#CONFIG {SPEEDWALK} {ON}`;
-                    if (args.toLowerCase() === 'off') return `#CONFIG {SPEEDWALK} {OFF}`;
-                    return `#COMMENT JMC SPEEDWALK: #speedwalk ${args}`;
-                case 'hotkey':
-                    return this.convertHotkeyJMC(args);
-                case 'unhotkey':
-                    return `#UNMACRO {${args}}`;
-                case 'message':
-                    if (args.toLowerCase().includes('off')) return `#CONFIG {VERBOSE} {OFF}`;
-                    if (args.toLowerCase().includes('on')) return `#CONFIG {VERBOSE} {ON}`;
-                    return `#COMMENT JMC MESSAGE: #message ${args}`;
-                case 'ticksize':
-                    return `#VARIABLE {j_ticksize} {${args}}; #TICKER {jmc_tick} {#SHOWME #TICK} {${args}}`;
-                case 'tickon':
-                case 'tickset':
-                    return `#TICKER {jmc_tick} {#SHOWME #TICK} {$j_ticksize}`;
-                case 'tickoff':
-                    return `#UNTICKER {jmc_tick}`;
-                case 'drop':
-                    return args ? `#COMMENT UNCONVERTED DROP: #drop ${args}` : `#LINE GAG`;
-                case 'cr':
-                    return `#SEND {\n}`;
-                case 'daa':
-                case 'hide':
-                case 'whisper':
-                    return `#COMMENT DAA/HIDE/WHISPER (Secure send) partially supported: #SEND {${args}}`;
-                case 'bell':
-                    return `#BELL`;
-                case 'ignore':
-                    return args ? `#IGNORE {${this.convertSyntax(this.cleanJMCArgs(args))}}` : `#IGNORE`;
-                default:
-                    return `#${command.toUpperCase()} {${this.convertSyntax(args)}}`;
-            }
+            const handler = this.jmcHandlers[command];
+            if (handler) return handler(args);
+            return `#${command.toUpperCase()} {${this.convertSyntax(args)}}`;
         }
     }
 
@@ -501,22 +470,38 @@ export class TinTinConverter {
              const simpleMatch = args.match(/^([^=]+)=(.+)?/is);
              if (simpleMatch) {
                  const ttPattern = this.convertSyntax(simpleMatch[1].trim());
-                 const ttCmds = simpleMatch[2] ? this.processCommands(simpleMatch[2]) : '';
-                 return ttCmds === '' ? `#GAG {${ttPattern}}` : `#ACTION {${ttPattern}} {${ttCmds}}`;
+                 const rawCmds = simpleMatch[2] || '';
+                 const hasPrint = rawCmds.toLowerCase().includes('#print');
+                 const ttCmds = this.processCommands(rawCmds);
+
+                 if (rawCmds === '') return `#GAG {${ttPattern}}`;
+
+                 // In Powwow, #action intercepts GAG by default unless autoprint is ON or #print is called.
+                 if (this.state.powwow.autoprint || hasPrint) {
+                     return `#ACTION {${ttPattern}} {${ttCmds}}`;
+                 } else {
+                     return `#ACTION {${ttPattern}} {${ttCmds}; #LINE GAG}`;
+                 }
              }
              return `#comment UNCONVERTED ACTION ARGS: ${args}`;
         }
 
         const [, op, label, group1, pattern, group2, cmds] = match;
         const ttPattern = this.convertSyntax(pattern.trim());
-        const ttCmds = cmds ? this.processCommands(cmds) : '';
+        const rawCmds = cmds || '';
+        const hasPrint = rawCmds.toLowerCase().includes('#print');
+        const ttCmds = this.processCommands(rawCmds);
 
         const targetClass = group1 || group2 || label;
         let out = targetClass ? `#CLASS {${targetClass}} {OPEN}\n` : '';
-        if (ttCmds === '') {
+        if (rawCmds === '') {
             out += `#GAG {${ttPattern}}`;
         } else {
-            out += `#ACTION {${ttPattern}} {${ttCmds}}`;
+            if (this.state.powwow.autoprint || hasPrint) {
+                out += `#ACTION {${ttPattern}} {${ttCmds}}`;
+            } else {
+                out += `#ACTION {${ttPattern}} {${ttCmds}; #LINE GAG}`;
+            }
         }
         if (targetClass) out += `\n#CLASS {${targetClass}} {CLOSE}`;
         return out;
