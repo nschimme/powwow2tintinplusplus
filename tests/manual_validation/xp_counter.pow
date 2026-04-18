@@ -1,0 +1,10 @@
+#("=====> XP/TP COUNTER ")
+#var $xpcal=0
+#al xp=info XPCOUNTER: %x %t %X %T.
+#al xpreset={#var $sessxp=0;#var @oldxp=0}
+#al tpreset={#var $sesstp=0;#var @oldtp=0}
+#al xpcalc={#var $gainxp=($1-@oldxp);#var $gaintp=($2-@oldtp);#if (@oldxp==0) {#var $gainxp=0;#var $sessxp=0};#if (@oldtp==0) {#var $gaintp=0;#var $sesstp=0};#var $sessxp=((%($sessxp))+(%($gainxp)));#var $sesstp=((%($sesstp))+(%($gaintp)));#var @oldxp=$1;#var @oldtp=$2}
+#al xpprint={#print (attr "bold green"+"-->"+noattr+" Gained   xp: "+attr "bold white"+($gainxp)+noattr+"\015\011\011\011\011tp: "+attr "bold white"+($gaintp)+noattr);#print (attr "bold green"+"-->"+noattr+" Trip     xp: "+($sessxp)+"\015\011\011\011\011tp: "+($sesstp));#print (attr "bold green"+"-->"+noattr+" Needed   xp: $3\015\011\011\011\011tp: $4")}
+#ac >+xp0 Welcome to the land of Middle Earth.={#print;xpreset;tpreset;xp;#var $xpcal=1}
+#ac >+xp1 XPCOUNTER: &1 &2 &3 &4.={#if ($xpcal=="1") {xpcalc $1 $2;#var $xpcal=0};xpprint $1 $2 $3 $4}
+#ac >+xp2 ^You receive your share of experience.={#print;xp;#var $xpcal=1}

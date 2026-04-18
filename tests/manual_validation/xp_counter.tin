@@ -1,0 +1,33 @@
+#CLASS {converted} {OPEN}
+#NOP --- POWWOW COMPATIBILITY LAYER ---
+#VARIABLE {powwow_at_lines} {24}
+#VARIABLE {powwow_at_mem} {0}
+#VARIABLE {powwow_at_buffer} {0}
+#FORMAT {powwow_start_time} {%T}
+#FUNCTION {powwow_timer} {#FORMAT {now} {%T};#MATH {result} {($now - $powwow_start_time) * 1000}}
+#FUNCTION {powwow_rand} {#MATH {result} {1d%1 - 1}}
+#FUNCTION {powwow_char_length} {#FORMAT {result} {%x} {%1}}
+#FUNCTION {powwow_search} {#FORMAT {result} {%p} {%2} {%1}}
+#FUNCTION {powwow_word_count} {#LIST {p_words} {TOKENIZE} {%1}; #LIST {p_words} {FILTER} {{[^ ]+}}; #LIST {p_words} {SIZE} {result}}
+#FUNCTION {powwow_word} {#LIST {p_words} {TOKENIZE} {%1}; #LIST {p_words} {FILTER} {{[^ ]+}}; #LIST {p_words} {GET} {%2} {result}}
+#FUNCTION {powwow_word_slice_to_end} {#LIST {p_words} {TOKENIZE} {%1}; #LIST {p_words} {FILTER} {{[^ ]+}}; #LIST {p_words} {GET} {%2..-1} {p_slice}; #LIST {p_slice} {COLLAPSE} {result} { }}
+#FUNCTION {powwow_word_slice_from_start} {#LIST {p_words} {TOKENIZE} {%1}; #LIST {p_words} {FILTER} {{[^ ]+}}; #LIST {p_words} {GET} {1..%2} {p_slice}; #LIST {p_slice} {COLLAPSE} {result} { }}
+#FUNCTION {powwow_first_char_ascii} {#FORMAT {result} {%a} {%1}}
+#FUNCTION {powwow_to_number} {#MATH {result} {%1}}
+#MATH {p_result} {"=====> XP/TP COUNTER "}
+#VARIABLE {p_xpcal} {0}
+#ALIAS {xp} {info XPCOUNTER: %x %t %X %T.}
+#ALIAS {xpreset} {#VARIABLE {p_sessxp} {0}; #VARIABLE {powwow_at_oldxp} {0}}
+#ALIAS {tpreset} {#VARIABLE {p_sesstp} {0}; #VARIABLE {powwow_at_oldtp} {0}}
+#ALIAS {xpcalc} {#MATH {p_gainxp} {%1-$powwow_at_oldxp}; #MATH {p_gaintp} {%2-$powwow_at_oldtp}; #IF {$powwow_at_oldxp == 0} {#VARIABLE {p_gainxp} {0}; #VARIABLE {p_sessxp} {0}}; #IF {$powwow_at_oldtp == 0} {#VARIABLE {p_gaintp} {0}; #VARIABLE {p_sesstp} {0}}; #VARIABLE {p_sessxp} {((@powwow_to_number{($p_sessxp)}))+((@powwow_to_number{($p_gainxp)}))}; #VARIABLE {p_sesstp} {((@powwow_to_number{($p_sesstp)}))+((@powwow_to_number{($p_gaintp)}))}; #VARIABLE {powwow_at_oldxp} {%1}; #VARIABLE {powwow_at_oldtp} {%2}}
+#ALIAS {xpprint} {#SHOWME {<129>-->+<099> Gained   xp: +<179>+($p_gainxp)+<099>\015\011\011\011\011tp: +<179>+($p_gaintp)+<099>}; #SHOWME {<129>-->+<099> Trip     xp: +($p_sessxp)+"\015\011\011\011\011tp: "+($p_sesstp)}; #SHOWME {<129>-->+<099> Needed   xp: %3\015\011\011\011\011tp: %4}}
+#CLASS {xp0} {OPEN}
+#ACTION {Welcome to the land of Middle Earth.} {#LINE PRINT; xpreset; tpreset; xp; #VARIABLE {p_xpcal} {1}}
+#CLASS {xp0} {CLOSE}
+#CLASS {xp1} {OPEN}
+#ACTION {XPCOUNTER: %1 %2 %3 %4.} {#IF {$p_xpcal == "1"} {xpcalc %1 %2; #VARIABLE {p_xpcal} {0}}; xpprint %1 %2 %3 %4; #LINE GAG}
+#CLASS {xp1} {CLOSE}
+#CLASS {xp2} {OPEN}
+#ACTION {^You receive your share of experience.} {#LINE PRINT; xp; #VARIABLE {p_xpcal} {1}}
+#CLASS {xp2} {CLOSE}
+#CLASS {converted} {CLOSE}
