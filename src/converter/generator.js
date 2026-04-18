@@ -51,7 +51,14 @@ export class TinTinGenerator {
         let currentCommandNodes = [];
 
         const controlCommands = ['#if', '#else', '#while', '#for', '#at', '#in', '#do'];
-        const assignmentCommands = ['#alias', '#al', '#action', '#ac', '#prompt', '#bind', '#bi', '#hotkey', '#hot', '#math', '#var', '#setvar'];
+        const assignmentCommands = [
+            '#alias', '#al', '#action', '#ac', '#prompt', '#bind', '#bi', '#hotkey', '#hot', '#math', '#var', '#setvar',
+            '#nop', '#message', '#echo', '#ignore', '#highlight', '#gag', '#sub', '#substitute', '#antisub', '#antisubstitute',
+            '#unsub', '#unsubstitute', '#tolower', '#toupper', '#unalias', '#unali', '#unaction', '#unac', '#unvar',
+            '#showme', '#output', '#bell', '#flash', '#char', '#pathdir', '#wait', '#wt', '#read', '#write', '#log', '#textin', '#systemexec',
+            '#speedwalk', '#hotkey', '#unhotkey', '#multiaction', '#multihighlight', '#presub', '#verbat', '#colon', '#comment', '#script',
+            '#ticksize', '#tickon', '#tickset', '#tickoff', '#drop', '#cr', '#daa', '#hide', '#whisper'
+        ];
 
         for (let node of nodes) {
             if (node.type === 'Separator' || node.type === 'Pipe' || node.type === 'Newline') {
