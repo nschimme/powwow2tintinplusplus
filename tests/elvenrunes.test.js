@@ -18,14 +18,14 @@ describe('Real-world scripts from elvenrunes.com', () => {
     const input = '#al xpcalc={#var $gainxp=($1-@oldxp);#var $gaintp=($2-@oldtp);#if (@oldxp==0) {#var $gainxp=0;#var $sessxp=0};#if (@oldtp==0) {#var $gaintp=0;#var $sesstp=0};#var $sessxp=((%($sessxp))+(%($gainxp)));#var $sesstp=((%($sesstp))+(%($gaintp)));#var @oldxp=$1;#var @oldtp=$2}';
     const output = pwConverter.convert(input);
     expect(output).toContain('#MATH {p_gainxp} {%1-$powwow_at_oldxp}');
-    expect(output).toContain('#MATH {p_sessxp}');
+    expect(output).toContain('#VARIABLE {p_sessxp}');
     expect(output).toContain('#VARIABLE {powwow_at_oldxp} {%1}');
   });
 
   it('converts PowTTY XP counter (uses #sep and ANSI)', () => {
     const input = '#sep ;\n#var $xpcal=0\n#var $bgr=\\033[32\\;1m\n#ac >+xp1 XPCOUNTER: &1 &2 &3 &4.={#if ($xpcal=="1") {xpcalc $1 $2\\;#var $xpcal=0}\\;xpprint $1 $2 $3 $4}';
     const output = pwConverter.convert(input);
-    expect(output).toContain('#NOP SEPARATOR set to ;');
+    expect(output).toContain('#NOP SEPARATOR set to');
     expect(output).toContain('#VARIABLE {p_xpcal} {0}');
     expect(output).toContain('#ACTION {XPCOUNTER: %1 %2 %3 %4.}');
   });

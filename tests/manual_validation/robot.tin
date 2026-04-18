@@ -1,0 +1,137 @@
+#CLASS {converted} {OPEN}
+#NOP --- POWWOW COMPATIBILITY LAYER ---
+#VARIABLE {powwow_at_lines} {24}
+#VARIABLE {powwow_at_mem} {0}
+#VARIABLE {powwow_at_buffer} {0}
+#FORMAT {powwow_start_time} {%T}
+#FUNCTION {powwow_timer} {#FORMAT {now} {%T};#MATH {result} {($now - $powwow_start_time) * 1000}}
+#FUNCTION {powwow_rand} {#MATH {result} {1d%1 - 1}}
+#FUNCTION {powwow_char_length} {#FORMAT {result} {%x} {%1}}
+#FUNCTION {powwow_search} {#FORMAT {result} {%p} {%2} {%1}}
+#FUNCTION {powwow_word_count} {#LIST {p_words} {EXPLODE} { }; #LIST {p_words} {FILTER} {{.+}}; #RETURN &p_words[]}
+#FUNCTION {powwow_word} {#LIST {p_words} {EXPLODE} { }; #LIST {p_words} {FILTER} {{.+}}; #RETURN $p_words[%2]}
+#FUNCTION {powwow_word_slice_to_end} {#LIST {p_words} {EXPLODE} { }; #LIST {p_words} {FILTER} {{.+}}; #LIST {p_slice} {CREATE} {$p_words[%2..-1]}; #LIST {p_slice} {COLLAPSE} { }; #RETURN $p_slice}
+#FUNCTION {powwow_word_slice_from_start} {#LIST {p_words} {EXPLODE} { }; #LIST {p_words} {FILTER} {{.+}}; #LIST {p_slice} {CREATE} {$p_words[1..%2]}; #LIST {p_slice} {COLLAPSE} { }; #RETURN $p_slice}
+#FUNCTION {powwow_first_char_ascii} {#FORMAT {result} {%a} {%1}}
+#FUNCTION {powwow_to_number} {#MATH {result} {%1}}
+#SHOWME {"robot.pow"}
+#MATH {powwow_at_auto_bash} {0}
+#MATH {powwow_at_auto_bless} {0}
+#CLASS {robot} {OPEN}
+#ALIAS {bot+} {assist+; bash+; ride+; bless+}
+#CLASS {robot} {CLOSE}
+#CLASS {robot} {OPEN}
+#ALIAS {bot-} {assist-; bash-; ride-; bless-}
+#CLASS {robot} {CLOSE}
+#CLASS {robot} {OPEN}
+#ALIAS {bless+} {#MATH {powwow_at_auto_bless} {1}}
+#CLASS {robot} {CLOSE}
+#CLASS {robot} {OPEN}
+#ALIAS {bless-} {#MATH {powwow_at_auto_bless} {0}}
+#CLASS {robot} {CLOSE}
+#CLASS {robot} {OPEN}
+#ACTION {^You now follow %1.} {#LINE PRINT; #VARIABLE {p_leader} {%1}}
+#CLASS {robot} {CLOSE}
+#CLASS {robot} {OPEN}
+#ALIAS {assist+} {#MATH {powwow_at_assist_timer} {@powwow_timer{}}; #CLASS {botjoin1} {OPEN}; #CLASS {botjoin2} {OPEN}; #CLASS {botassist0} {OPEN}; #CLASS {botassist1} {OPEN}; #CLASS {botassist2} {OPEN}; #CLASS {botassist3} {OPEN}; #CLASS {botassist4} {OPEN}; #CLASS {botassist5} {OPEN}; #CLASS {botassist6} {OPEN}; #CLASS {botassist7} {OPEN}; #CLASS {botassist8} {OPEN}; #CLASS {botassist9} {OPEN}; #CLASS {botassist10} {OPEN}; #CLASS {botassist11} {OPEN}}
+#CLASS {robot} {CLOSE}
+#CLASS {robot} {OPEN}
+#ALIAS {assist-} {#UNVARIABLE {powwow_at_assist_timer}; #CLASS {botjoin1} {KILL}; #CLASS {botjoin2} {KILL}; #CLASS {botassist0} {KILL}; #CLASS {botassist1} {KILL}; #CLASS {botassist2} {KILL}; #CLASS {botassist3} {KILL}; #CLASS {botassist4} {KILL}; #CLASS {botassist5} {KILL}; #CLASS {botassist6} {KILL}; #CLASS {botassist7} {KILL}; #CLASS {botassist8} {KILL}; #CLASS {botassist9} {KILL}; #CLASS {botassist10} {KILL}; #CLASS {botassist11} {KILL}}
+#CLASS {robot} {CLOSE}
+#CLASS {robot} {OPEN}
+#ACTION {^%1 joins %2\’%3fight.} {#LINE PRINT; #MATH {powwow_at_m40} {0}; #MATH {powwow_dollar_m41} {(@powwow_word{%1;1})}; botjoinsub1; #IF {$powwow_at_m40 != 0} {botjoinsub2}; #ELSE {#MATH {powwow_at_m40} {0}; #MATH {powwow_dollar_m41} {(@powwow_word{%2;1})}; botjoinsub1; #IF {$powwow_at_m40 != 0} {botjoinsub2}}}
+#CLASS {robot} {CLOSE}
+#CLASS {robot} {OPEN}
+#ACTION {^You assist %1} {#LINE PRINT; #MATH {powwow_at_assist_timer} {@powwow_timer{}}}
+#CLASS {robot} {CLOSE}
+#CLASS {robot} {OPEN}
+#ACTION {^Your victim has disappeared!} {#LINE PRINT; #MATH {powwow_at_assist_timer} {@powwow_timer{} - 3000}}
+#CLASS {robot} {CLOSE}
+#CLASS {robot} {OPEN}
+#ACTION {^{%1}%2 approaches %3, trying to} {#IF {"%1" == "$p_leader"} {#LINE PRINT; #MATH {powwow_at_assist_timer} {@powwow_timer{} - 3000}; botjoinsub2}}
+#CLASS {robot} {CLOSE}
+#CLASS {robot} {OPEN}
+#ACTION {^{%1}%2 slashes} {#IF {"%1" == "$p_leader"} {#LINE PRINT; botjoinsub2}}
+#CLASS {robot} {CLOSE}
+#CLASS {robot} {OPEN}
+#ACTION {^{%1}%2 cleaves} {#IF {"%1" == "$p_leader"} {#LINE PRINT; botjoinsub2}}
+#CLASS {robot} {CLOSE}
+#CLASS {robot} {OPEN}
+#ACTION {^{%1}%2 smites} {#IF {"%1" == "$p_leader"} {#LINE PRINT; botjoinsub2}}
+#CLASS {robot} {CLOSE}
+#CLASS {robot} {OPEN}
+#ACTION {^{%1}%2 hits} {#IF {"%1" == "$p_leader"} {#LINE PRINT; botjoinsub2}}
+#CLASS {robot} {CLOSE}
+#CLASS {robot} {OPEN}
+#ACTION {^{%1}%2 pounds} {#IF {"%1" == "$p_leader"} {#LINE PRINT; botjoinsub2}}
+#CLASS {robot} {CLOSE}
+#CLASS {robot} {OPEN}
+#ACTION {^{%1}%2 pierces} {#IF {"%1" == "$p_leader"} {#LINE PRINT; botjoinsub2}}
+#CLASS {robot} {CLOSE}
+#CLASS {robot} {OPEN}
+#ACTION {^{%1}%2 stabs} {#IF {"%1" == "$p_leader"} {#LINE PRINT; botjoinsub2}}
+#CLASS {robot} {CLOSE}
+#CLASS {robot} {OPEN}
+#ACTION {^{%1}%2 shoots} {#IF {"%1" == "$p_leader"} {#LINE PRINT; botjoinsub2}}
+#CLASS {robot} {CLOSE}
+#CLASS {robot} {OPEN}
+#ACTION {^{%1}%2, but %3 parries successfully.} {#IF {"%1" == "$p_leader"} {#LINE PRINT; botjoinsub2}}
+#CLASS {robot} {CLOSE}
+#CLASS {robot} {OPEN}
+#ACTION {^%1 swiftly dodges $p_leader%2 attempt to} {#LINE PRINT; botjoinsub2}
+#CLASS {robot} {CLOSE}
+#CLASS {robot} {OPEN}
+#ACTION {^\033[%1m$p_leader%1 ’assist’\033[0m} {#LINE PRINT; botjoinsub2}
+#CLASS {robot} {CLOSE}
+#CLASS {robot} {OPEN}
+#ALIAS {botjoinsub1} {#MATH {powwow_at[1]} {1}; #WHILE {$powwow_at[1]<=(@powwow_word_count{$powwow_dollar_m40})} {#IF {@powwow_word{$powwow_dollar_m40;$powwow_at[1]} == $powwow_dollar_m41} {#MATH {powwow_at_m40} {$powwow_at[1]}}; #MATH {p_result} {$powwow_at[1]++}}}
+#CLASS {robot} {CLOSE}
+#CLASS {robot} {OPEN}
+#ALIAS {botjoinsub2} {#IF {@powwow_char_length{$p_fig} == 0 && (((@powwow_timer{}-$powwow_at_assist_timer)/1000) > 1)} {#MATH {powwow_at_assist_timer} {@powwow_timer{}}; "assist"; botbashsub}}
+#CLASS {robot} {CLOSE}
+#CLASS {robot} {OPEN}
+#ALIAS {bash+} {#CLASS {botbash1} {OPEN}; #CLASS {botbash2} {OPEN}; #MATH {powwow_at_auto_bash} {1}}
+#CLASS {robot} {CLOSE}
+#CLASS {robot} {OPEN}
+#ALIAS {bash-} {#CLASS {botbash1} {KILL}; #CLASS {botbash2} {KILL}; #MATH {powwow_at_auto_bash} {0}}
+#CLASS {robot} {CLOSE}
+#CLASS {robot} {OPEN}
+#ACTION {^%1 seems to have recovered %2 senses.} {#LINE PRINT; #MATH {powwow_at_m40} {0}; #MATH {powwow_dollar_m41} {(@powwow_word{%1;1})}; botjoinsub1; #IF {$powwow_at_m40 == 0} {"bash"}}
+#CLASS {robot} {CLOSE}
+#CLASS {robot} {OPEN}
+#ACTION {avoids your bash, you topple over and lose your balance.} {#LINE PRINT; "bash"}
+#CLASS {robot} {CLOSE}
+#CLASS {robot} {OPEN}
+#ACTION {You intercept %1 blow.} {#LINE PRINT; #MATH {powwow_at_assist_timer} {@powwow_timer{}}; botbashsub}
+#CLASS {robot} {CLOSE}
+#CLASS {robot} {OPEN}
+#ALIAS {botbashsub} {#IF {$powwow_at_auto_bash == 1} {"bash"}}
+#CLASS {robot} {CLOSE}
+#CLASS {robot} {OPEN}
+#ACTION {Maybe learning how to bash would help?} {#LINE PRINT; bash-}
+#CLASS {robot} {CLOSE}
+#CLASS {robot} {OPEN}
+#ALIAS {reveal+} {#CLASS {botreveal} {OPEN}}
+#CLASS {robot} {CLOSE}
+#CLASS {robot} {OPEN}
+#ALIAS {reveal-} {#CLASS {botreveal} {KILL}}
+#CLASS {robot} {CLOSE}
+#CLASS {robot} {OPEN}
+#ACTION {^{%1}%2 carefully examines the ground around him, looking for tracks...} {#IF {"%1" == "$p_leader"} {#LINE PRINT; "reveal quickly"}}
+#CLASS {robot} {CLOSE}
+#CLASS {robot} {OPEN}
+#ALIAS {ride+} {#CLASS {zblam} {OPEN}}
+#CLASS {robot} {CLOSE}
+#CLASS {robot} {OPEN}
+#ALIAS {ride-} {#CLASS {zblam} {KILL}}
+#CLASS {robot} {CLOSE}
+#CLASS {robot} {OPEN}
+#ACTION {^ZBLAM! %1doesn’t want you riding} {#LINE PRINT; stand; ride}
+#CLASS {robot} {CLOSE}
+#CLASS {robot} {OPEN}
+#ACTION {A citizen mercenary (%1) taps you on the shoulder.} {#LINE PRINT; #BELL}
+#CLASS {robot} {CLOSE}
+#CLASS {robot} {OPEN}
+#ACTION {A citizen mercenary taps you on the shoulder.} {#LINE PRINT; #BELL}
+#CLASS {robot} {CLOSE}
+#CLASS {converted} {CLOSE}

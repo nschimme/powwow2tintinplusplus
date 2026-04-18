@@ -1,0 +1,10 @@
+#var p_leader Pilois
+#action {^$p_leader%1 slashes} {
+    #showme MATCHED [%1]
+}
+#showme {Pilois slashes his enemy.}
+#showme {Pilois and Gandalf slashes his enemy.}
+#showme {PiloisX slashes his enemy.}
+#showme {Gandalf slashes his enemy.}
+#var p_leader Gandalf
+#showme {Gandalf slashes his enemy.}
