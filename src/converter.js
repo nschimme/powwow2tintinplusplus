@@ -7,7 +7,7 @@ import { TinTinGenerator } from './converter/generator.js';
 import { getPowwowHandlers, getJMCHandlers } from './converter/handlers.js';
 import { powwowMethods } from './converter/powwow.js';
 import { jmcMethods } from './converter/jmc.js';
-import { convertVarName, mapAttributes } from './converter/utils.js';
+import { convertVarName, mapAttributes, POWWOW_RESERVED_FUNCS } from './converter/utils.js';
 
 export class TinTinConverter {
     constructor(options = {}) {
@@ -218,9 +218,21 @@ export class TinTinConverter {
                     protectedStrings.push(s1.substring(0, s1.length - 1) + s2.substring(1));
                     return `__STR${protectedStrings.length - 1}__`;
                 });
-                // Remove + between string and variables/colors (NOT numbers)
-                workingStr = workingStr.replace(/(__STR\d+__)\s*\+\s*([@$a-zA-Z_][\w-]*|<[0-9]+>)/g, '$1$2');
-                workingStr = workingStr.replace(/([@$a-zA-Z_][\w-]*|<[0-9]+>)\s*\+\s*(__STR\d+__)/g, '$1$2');
+                // Remove + between string and variables/colors (NOT numbers), and strip quotes
+                workingStr = workingStr.replace(/__STR(\d+)__\s*\+\s*([@$a-zA-Z_][\w-]*|<[0-9]+>)/g, (match, idx, rest) => {
+                    let s = protectedStrings[parseInt(idx)];
+                    if (s.startsWith('"') && s.endsWith('"')) {
+                        protectedStrings[parseInt(idx)] = s.substring(1, s.length - 1);
+                    }
+                    return `__STR${idx}__${rest}`;
+                });
+                workingStr = workingStr.replace(/([@$a-zA-Z_][\w-]*|<[0-9]+>)\s*\+\s*__STR(\d+)__/g, (match, rest, idx) => {
+                    let s = protectedStrings[parseInt(idx)];
+                    if (s.startsWith('"') && s.endsWith('"')) {
+                        protectedStrings[parseInt(idx)] = s.substring(1, s.length - 1);
+                    }
+                    return `${rest}__STR${idx}__`;
+                });
                 // Remove + between color codes and variables (likely string concatenation intent)
                 workingStr = workingStr.replace(/(<[0-9]+>)\s*\+\s*([@$a-zA-Z_][\w-]*)/g, '$1$2');
                 workingStr = workingStr.replace(/([@$a-zA-Z_][\w-]*)\s*\+\s*(<[0-9]+>)/g, '$1$2');
@@ -266,8 +278,7 @@ export class TinTinConverter {
             str = str.replace(/\\?@(-?\d+)/g, (match, num) => `__VAR__${this.convertVarName('@' + num)}`);
             str = str.replace(/\\?@(\w+)/g, (match, name) => {
                 const lowerName = name.toLowerCase();
-                const reservedFuncs = ['timer', 'rand', 'char_length', 'search', 'word_count', 'word', 'word_slice_to_end', 'word_slice_from_start', 'first_char_ascii', 'to_number'];
-                if (reservedFuncs.includes(lowerName)) return `__FUNC__powwow_${lowerName}`;
+                if (POWWOW_RESERVED_FUNCS.includes(lowerName)) return `__FUNC__powwow_${lowerName}`;
                 if (lowerName.startsWith('powwow_')) return `__FUNC__${lowerName}`;
                 if (lowerName === 'echo' || lowerName === 'print') return `__FUNC__powwow_reserved_${lowerName}`;
                 if (name.startsWith('powwow_') || name.startsWith('p_')) return `__VAR__${name}`;
@@ -310,9 +321,6 @@ export class TinTinConverter {
             str = str.replace(/__VAR__/g, '$');
             str = str.replace(/__FUNC__powwow_reserved_/g, '#powwow_reserved_');
             str = str.replace(/__FUNC__/g, '@');
-
-        // Final cleanup for any leftover __VAR__ or __FUNC__ (should not happen but for safety)
-        str = str.replace(/__VAR__/g, '$').replace(/__FUNC__/g, '@');
 
         } else if (this.mode === 'jmc') {
             // JMC uses %0-%9 for parameters and $var for variables

@@ -52,13 +52,13 @@ describe('TinTinConverter - Powwow Mode', () => {
   it('converts complex expressions', () => {
     const input = '#var x=("hello " + $name)';
     const output = converter.convert(input);
-    expect(output).toContain('#VARIABLE {p_x} {hello "$p_name}');
+    expect(output).toContain('#MATH {p_x} {hello $p_name}');
   });
 
   it('protects special characters in Powwow strings', () => {
     const input = '#var x=("%hp+%mana" + $name)';
     const output = converter.convert(input);
-    expect(output).toContain('#VARIABLE {p_x} {%hp+%mana"$p_name}');
+    expect(output).toContain('#MATH {p_x} {%hp+%mana$p_name}');
   });
 
   it('preserves numeric addition in Powwow', () => {

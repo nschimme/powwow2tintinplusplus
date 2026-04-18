@@ -26,6 +26,11 @@ export function mapAttributes(attr) {
     return `<${vt100}${fg}9>`;
 }
 
+export const POWWOW_RESERVED_FUNCS = [
+    'timer', 'rand', 'char_length', 'search', 'word_count', 'word',
+    'word_slice_to_end', 'word_slice_from_start', 'first_char_ascii', 'to_number'
+];
+
 export function convertVarName(name, mode) {
     const prefix = mode === 'jmc' ? 'j_' : 'p_';
 

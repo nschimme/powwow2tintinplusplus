@@ -76,8 +76,11 @@ export function getPowwowHandlers(converter) {
             if (args.startsWith('!')) return { text: `#SCRIPT {${args.substring(1).trim()}}` };
             if (args.startsWith('<')) return { text: `#READ {${args.substring(1).trim()}}` };
             if (args.startsWith('(')) {
-                const expr = args.substring(1, args.lastIndexOf(')')).trim();
-                return { text: `#MATH {p_exe_tmp} {${converter.convertSyntax('(' + expr + ')', options)}}; #$p_exe_tmp` };
+                const lastParen = args.lastIndexOf(')');
+                if (lastParen !== -1) {
+                    const expr = args.substring(1, lastParen).trim();
+                    return { text: `#MATH {p_exe_tmp} {${converter.convertSyntax('(' + expr + ')', options)}}; #$p_exe_tmp` };
+                }
             }
             return { text: converter.processCommands(converter.convertSyntax(args, options), options) };
         }
