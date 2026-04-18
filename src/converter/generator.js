@@ -1,3 +1,5 @@
+import { POWWOW_RESERVED_FUNCS } from './utils.js';
+
 /**
  * TinTin++ Code Generator
  */
@@ -23,16 +25,27 @@ export class TinTinGenerator {
             outputLines.push('#VARIABLE {powwow_at_mem} {0}');
             outputLines.push('#VARIABLE {powwow_at_buffer} {0}');
             outputLines.push('#FORMAT {powwow_start_time} {%T}');
-            outputLines.push('#FUNCTION {powwow_timer} {#FORMAT {now} {%T};#MATH {result} {($now - $powwow_start_time) * 1000}}');
-            outputLines.push('#FUNCTION {powwow_rand} {#MATH {result} {1d%1 - 1}}');
-            outputLines.push('#FUNCTION {powwow_char_length} {#FORMAT {result} {%x} {%1}}');
-            outputLines.push('#FUNCTION {powwow_search} {#FORMAT {result} {%p} {%2} {%1}}');
-            outputLines.push('#FUNCTION {powwow_word_count} {#LIST {p_words} {EXPLODE} { }; #LIST {p_words} {FILTER} {{.+}}; #RETURN &p_words[]}');
-            outputLines.push('#FUNCTION {powwow_word} {#LIST {p_words} {EXPLODE} { }; #LIST {p_words} {FILTER} {{.+}}; #RETURN $p_words[%2]}');
-            outputLines.push('#FUNCTION {powwow_word_slice_to_end} {#LIST {p_words} {EXPLODE} { }; #LIST {p_words} {FILTER} {{.+}}; #LIST {p_slice} {CREATE} {$p_words[%2..-1]}; #LIST {p_slice} {COLLAPSE} { }; #RETURN $p_slice}');
-            outputLines.push('#FUNCTION {powwow_word_slice_from_start} {#LIST {p_words} {EXPLODE} { }; #LIST {p_words} {FILTER} {{.+}}; #LIST {p_slice} {CREATE} {$p_words[1..%2]}; #LIST {p_slice} {COLLAPSE} { }; #RETURN $p_slice}');
-            outputLines.push('#FUNCTION {powwow_first_char_ascii} {#FORMAT {result} {%a} {%1}}');
-            outputLines.push('#FUNCTION {powwow_to_number} {#MATH {result} {%1}}');
+
+            const implementations = {
+                'timer': '#FORMAT {now} {%T};#MATH {result} {($now - $powwow_start_time) * 1000}',
+                'rand': '#MATH {result} {1d%1 - 1}',
+                'char_length': '#FORMAT {result} {%x} {%1}',
+                'search': '#FORMAT {result} {%p} {%2} {%1}',
+                'word_count': '#LIST {p_words} {EXPLODE} { }; #LIST {p_words} {FILTER} {{.+}}; #RETURN &p_words[]',
+                'word': '#LIST {p_words} {EXPLODE} { }; #LIST {p_words} {FILTER} {{.+}}; #RETURN $p_words[%2]',
+                'word_slice_to_end': '#LIST {p_words} {EXPLODE} { }; #LIST {p_words} {FILTER} {{.+}}; #LIST {p_slice} {CREATE} {$p_words[%2..-1]}; #LIST {p_slice} {COLLAPSE} { }; #RETURN $p_slice',
+                'word_slice_from_start': '#LIST {p_words} {EXPLODE} { }; #LIST {p_words} {FILTER} {{.+}}; #LIST {p_slice} {CREATE} {$p_words[1..%2]}; #LIST {p_slice} {COLLAPSE} { }; #RETURN $p_slice',
+                'first_char_ascii': '#FORMAT {result} {%a} {%1}',
+                'to_number': '#MATH {result} {%1}'
+            };
+
+            POWWOW_RESERVED_FUNCS.forEach(func => {
+                if (implementations[func]) {
+                    outputLines.push(`#FUNCTION {powwow_${func}} {${implementations[func]}}`);
+                }
+            });
+            outputLines.push('#ALIAS {powwow_reserved_echo} {#IF {"%1" == ""} {#LINE PRINT} {#ELSE} {#SHOWME {%1}}}');
+            outputLines.push('#ALIAS {powwow_reserved_print} {#IF {"%1" == ""} {#LINE PRINT} {#ELSE} {#SHOWME {%1}}}');
         }
 
         this.indentLevel = 0;
@@ -50,15 +63,26 @@ export class TinTinGenerator {
         let commands = [];
         let currentCommandNodes = [];
 
-        const controlCommands = ['#if', '#else', '#while', '#for', '#at', '#in', '#do'];
-        const assignmentCommands = [
-            '#alias', '#al', '#action', '#ac', '#prompt', '#bind', '#bi', '#hotkey', '#hot', '#math', '#var', '#setvar',
-            '#nop', '#message', '#echo', '#ignore', '#highlight', '#gag', '#sub', '#substitute', '#antisub', '#antisubstitute',
-            '#unsub', '#unsubstitute', '#tolower', '#toupper', '#unalias', '#unali', '#unaction', '#unac', '#unvar',
-            '#showme', '#output', '#bell', '#flash', '#char', '#pathdir', '#wait', '#wt', '#read', '#write', '#log', '#textin', '#systemexec',
-            '#speedwalk', '#hotkey', '#unhotkey', '#multiaction', '#multihighlight', '#presub', '#verbat', '#colon', '#comment', '#script',
-            '#ticksize', '#tickon', '#tickset', '#tickoff', '#drop', '#cr', '#daa', '#hide', '#whisper'
+        const handlers = this.mode === 'jmc' ? this.converter.jmcHandlers : this.converter.powwowHandlers;
+
+        // Core TinTin++ built-in commands that should be recognized as delimiters
+        const ttppBuiltinCommands = [
+            '#alias', '#action', '#variable', '#math', '#showme', '#line', '#echo', '#nop',
+            '#if', '#else', '#while', '#for', '#delay', '#ticker', '#macro', '#class',
+            '#config', '#format', '#list', '#script', '#system', '#read', '#write', '#log',
+            '#send', '#bell', '#end', '#zap', '#kill', '#ignore'
         ];
+
+        // Combine handler-based commands with the built-in list
+        const allCommands = Array.from(
+            new Set(
+                Object.keys(handlers)
+                    .map(k => '#' + k)
+                    .concat(ttppBuiltinCommands)
+            )
+        );
+
+        const controlCommands = ['#if', '#else', '#while', '#for', '#at', '#in', '#do'];
 
         for (let node of nodes) {
             if (node.type === 'Separator' || node.type === 'Pipe' || node.type === 'Newline') {
@@ -83,7 +107,7 @@ export class TinTinGenerator {
                             shouldSplit = true;
                         } else {
                             const firstCmdName = firstCmdNode.value.toLowerCase();
-                            if (!controlCommands.includes(firstCmdName) && !assignmentCommands.includes(firstCmdName)) {
+                            if (!allCommands.includes(firstCmdName)) {
                                 shouldSplit = true;
                             } else if (currentCommandNodes.some(n => n.type === 'BracedBlock')) {
                                 shouldSplit = true;

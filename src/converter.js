@@ -7,7 +7,7 @@ import { TinTinGenerator } from './converter/generator.js';
 import { getPowwowHandlers, getJMCHandlers } from './converter/handlers.js';
 import { powwowMethods } from './converter/powwow.js';
 import { jmcMethods } from './converter/jmc.js';
-import { convertVarName, mapAttributes } from './converter/utils.js';
+import { convertVarName, mapAttributes, POWWOW_RESERVED_FUNCS } from './converter/utils.js';
 
 export class TinTinConverter {
     constructor(options = {}) {
@@ -146,69 +146,108 @@ export class TinTinConverter {
     }
 
     evaluatePowwowExpression(str) {
+        // Protect strings
+        const protectedStrings = [];
+        const STR_PREFIX = '\x01STR';
+        const STR_SUFFIX = '__\x01';
+        let workingStr = str.replace(/"((?:\\.|[^"])*)"/g, (match, content) => {
+            protectedStrings.push(match);
+            return `${STR_PREFIX}${protectedStrings.length - 1}${STR_SUFFIX}`;
+        });
+
         // 1. Attributes
-        str = str.replace(/attr\s*\("([^"]+)"\)/g, (match, attr) => this.mapAttributes(attr));
-        str = str.replace(/attr\s+"([^"]+)"/g, (match, attr) => this.mapAttributes(attr));
-        str = str.replace(/\bnoattr\b/g, '<099>');
+        workingStr = workingStr.replace(/attr\s*\(?\s*\x01STR(\d+)__\x01\s*\)?/g, (match, idx) => {
+            const s = protectedStrings[parseInt(idx)];
+            return this.mapAttributes(s.substring(1, s.length - 1));
+        });
+        workingStr = workingStr.replace(/\bnoattr\b/g, '<099>');
 
         // 2. Keywords
-        str = str.replace(/\btimer\b/g, '@powwow_timer{}');
-        str = str.replace(/\bmap\b/g, '$powwow_at_map');
-        str = str.replace(/\bprompt\b/g, '$powwow_at_prompt');
-        str = str.replace(/\blast_line\b/g, '$powwow_at_last_line');
-        str = str.replace(/\bbuffer\b/g, '$powwow_at_buffer');
-        str = str.replace(/\blines\b/g, '$powwow_at_lines');
-        str = str.replace(/\bmem\b/g, '$powwow_at_mem');
+        workingStr = workingStr.replace(/\btimer\b/g, '@powwow_timer{}');
+        workingStr = workingStr.replace(/\bmap\b/g, '$powwow_at_map');
+        workingStr = workingStr.replace(/\bprompt\b/g, '$powwow_at_prompt');
+        workingStr = workingStr.replace(/\blast_line\b/g, '$powwow_at_last_line');
+        workingStr = workingStr.replace(/\bbuffer\b/g, '$powwow_at_buffer');
+        workingStr = workingStr.replace(/\blines\b/g, '$powwow_at_lines');
+        workingStr = workingStr.replace(/\bmem\b/g, '$powwow_at_mem');
 
         // 3. Operators
-        str = str.replace(/\brand\s+([@$a-zA-Z0-9_%$-]+|%\d+|\d+)/g, '@powwow_rand{$1}');
+        workingStr = workingStr.replace(/\brand\s+([@$a-zA-Z0-9_%$-]+|%\d+|\d+)/g, '@powwow_rand{$1}');
 
         // Handle unary * and %
-        str = str.replace(/\*([@$a-zA-Z0-9_%$-]+|%\d+|\\?\$\d+|\\?@\d+|\([^)]+\))/g, (match, expr) => {
+        workingStr = workingStr.replace(/\*([@$a-zA-Z0-9_-]+|%\d+|\\?\$[0-9]+|\\?@[0-9]+|\([^)]+\))/g, (match, expr) => {
             return `@powwow_first_char_ascii{${expr}}`;
         });
-        str = str.replace(/%([@$a-zA-Z0-9_%$-]+|%\d+|\\?\$\d+|\\?@\d+|\([^)]+\))/g, (match, expr) => {
+        workingStr = workingStr.replace(/%([@$a-zA-Z0-9_-]+|(?<!\w)%\d+|\\?\$[0-9]+|\\?@[0-9]+|\([^)]+\))/g, (match, expr) => {
+            if (expr.startsWith('\x01STR') && expr.endsWith('__\x01')) return match;
             return `(@powwow_to_number{${expr}})`;
         });
 
-        str = str.replace(/([@$][a-zA-Z0-9_%$-]+|%\d+):\?/g, (match, v) => {
+        workingStr = workingStr.replace(/([@$][a-zA-Z0-9_%$-]+|%\d+):\?/g, (match, v) => {
             return `@powwow_word_count{${v}}`;
         });
-        str = str.replace(/:\?([@$][a-zA-Z0-9_%$-]+|%\d+)/g, (match, v) => {
+        workingStr = workingStr.replace(/:\?([@$][a-zA-Z0-9_%$-]+|%\d+)/g, (match, v) => {
             return `@powwow_word_count{${v}}`;
         });
-        str = str.replace(/([@$][a-zA-Z0-9_%$-]+|%\d+)\.\?/g, '@powwow_char_length{$1}');
-        str = str.replace(/\.\?([@$][a-zA-Z0-9_%$-]+|%\d+)/g, '@powwow_char_length{$1}');
-        str = str.replace(/([@$][a-zA-Z0-9_%$-]+|%\d+):([@$a-zA-Z0-9_%$-]+|%\d+)/g, (match, v, i) => {
+        workingStr = workingStr.replace(/([@$][a-zA-Z0-9_%$-]+|%\d+)\.\?/g, '@powwow_char_length{$1}');
+        workingStr = workingStr.replace(/\.\?([@$][a-zA-Z0-9_%$-]+|%\d+)/g, '@powwow_char_length{$1}');
+        workingStr = workingStr.replace(/([@$][a-zA-Z0-9_%$-]+|(?<!\w)%\d+):([@$a-zA-Z0-9_%$-]+|(?<!\w)%\d+)/g, (match, v, i) => {
             return `@powwow_word{${v};${i}}`;
         });
-        str = str.replace(/([@$][a-zA-Z0-9_%$-]+|%\d+)\.([@$a-zA-Z0-9_%$-]+|%\d+)/g, '$1.char[$2]');
-        str = str.replace(/([@$][a-zA-Z0-9_%$-]+|%\d+):>([@$a-zA-Z0-9_%$-]+|%\d+)/g, (match, v, i) => {
+        workingStr = workingStr.replace(/([@$][a-zA-Z0-9_%$-]+|%\d+)\.([@$a-zA-Z0-9_%$-]+|%\d+)/g, '$1.char[$2]');
+        workingStr = workingStr.replace(/([@$][a-zA-Z0-9_%$-]+|%\d+):>([@$a-zA-Z0-9_%$-]+|%\d+)/g, (match, v, i) => {
             return `@powwow_word_slice_to_end{${v};${i}}`;
         });
-        str = str.replace(/([@$][a-zA-Z0-9_%$-]+|%\d+):<([@$a-zA-Z0-9_%$-]+|%\d+)/g, (match, v, i) => {
+        workingStr = workingStr.replace(/([@$][a-zA-Z0-9_%$-]+|%\d+):<([@$a-zA-Z0-9_%$-]+|%\d+)/g, (match, v, i) => {
             return `@powwow_word_slice_from_start{${v};${i}}`;
         });
-        str = str.replace(/([@$][a-zA-Z0-9_%$-]+|%\d+)\.>([@$a-zA-Z0-9_%$-]+|%\d+)/g, '$1.char[$2..-1]');
-        str = str.replace(/([@$][a-zA-Z0-9_%$-]+|%\d+)\.<([@$a-zA-Z0-9_%$-]+|%\d+)/g, '$1.char[1..$2]');
-        str = str.replace(/([@$][a-zA-Z0-9_%$-]+|%\d+)\?([@$a-zA-Z0-9_%$-]+|%\d+|"[^"]*")/g, '@powwow_search{$1;$2}');
+        workingStr = workingStr.replace(/([@$][a-zA-Z0-9_%$-]+|%\d+)\.>([@$a-zA-Z0-9_%$-]+|%\d+)/g, '$1.char[$2..-1]');
+        workingStr = workingStr.replace(/([@$][a-zA-Z0-9_%$-]+|%\d+)\.<([@$a-zA-Z0-9_%$-]+|%\d+)/g, '$1.char[1..$2]');
+        workingStr = workingStr.replace(/([@$][a-zA-Z0-9_%$-]+|%\d+)\?([@$a-zA-Z0-9_%$-]+|%\d+|\x01STR\d+__\x01)/g, (match, v, search) => {
+             return `@powwow_search{${v};${search}}`;
+        });
 
-        // 4. Concatenation
-        if (str.includes('+')) {
+        // 4. Concatenation (only if strings are involved or explicitly requested)
+        if (workingStr.includes('+') && workingStr.includes(STR_PREFIX)) {
             let lastStr;
             do {
-                lastStr = str;
-                str = str.replace(/"([^"]*)"\s*\+\s*"([^"]*)"/g, '"$1$2"');
-                str = str.replace(/"([^"]*)"\s*\+\s*([@$][a-zA-Z0-9_%$-]+)/g, '"$1$2"');
-                str = str.replace(/([@$][a-zA-Z0-9_%$-]+)\s*\+\s*"([^"]*)"/g, '"$1$2"');
-                str = str.replace(/([@$][a-zA-Z0-9_%$-]+)\s*\+\s*([@$][a-zA-Z0-9_%$-]+)/g, '$1$2');
-                str = str.replace(/(<[0-9]+>)\s*\+\s*"([^"]*)"/g, '$1$2');
-                str = str.replace(/"([^"]*)"\s*\+\s*(<[0-9]+>)/g, '$1$2');
-                str = str.replace(/(<[0-9]+>)\s*\+\s*(<[0-9]+>)/g, '$1$2');
-            } while (str !== lastStr);
+                lastStr = workingStr;
+                // Merge two protected strings
+                workingStr = workingStr.replace(/\x01STR(\d+)__\x01\s*\+\s*\x01STR(\d+)__\x01/g, (match, i1, i2) => {
+                    const s1 = protectedStrings[parseInt(i1)];
+                    const s2 = protectedStrings[parseInt(i2)];
+                    protectedStrings.push(s1.substring(0, s1.length - 1) + s2.substring(1));
+                    return `${STR_PREFIX}${protectedStrings.length - 1}${STR_SUFFIX}`;
+                });
+                // Remove + between string and variables/colors (NOT numbers), and strip quotes
+                workingStr = workingStr.replace(/\x01STR(\d+)__\x01\s*\+\s*([@$a-zA-Z_][\w-]*|<[0-9]+>)/g, (match, idx, rest) => {
+                    let s = protectedStrings[parseInt(idx)];
+                    if (s.startsWith('"') && s.endsWith('"')) {
+                        protectedStrings[parseInt(idx)] = s.substring(1, s.length - 1);
+                    }
+                    return `${STR_PREFIX}${idx}${STR_SUFFIX}${rest}`;
+                });
+                workingStr = workingStr.replace(/([@$a-zA-Z_][\w-]*|<[0-9]+>)\s*\+\s*\x01STR(\d+)__\x01/g, (match, rest, idx) => {
+                    let s = protectedStrings[parseInt(idx)];
+                    if (s.startsWith('"') && s.endsWith('"')) {
+                        protectedStrings[parseInt(idx)] = s.substring(1, s.length - 1);
+                    }
+                    return `${rest}${STR_PREFIX}${idx}${STR_SUFFIX}`;
+                });
+                // Remove + between color codes and variables (likely string concatenation intent)
+                workingStr = workingStr.replace(/(<[0-9]+>)\s*\+\s*([@$a-zA-Z_][\w-]*)/g, '$1$2');
+                workingStr = workingStr.replace(/([@$a-zA-Z_][\w-]*)\s*\+\s*(<[0-9]+>)/g, '$1$2');
+            } while (workingStr !== lastStr);
         }
 
-        return str;
+        // Restore strings
+        workingStr = workingStr.replace(/\x01STR(\d+)__\x01/g, (match, idx) => {
+             const s = protectedStrings[parseInt(idx)];
+             // If the string was simplified/merged, it might have + inside now
+             return s;
+        });
+
+        return workingStr;
     }
 
     convertVarName(name) {
@@ -220,8 +259,16 @@ export class TinTinConverter {
 
         if (this.mode === 'powwow') {
             // 1. Delayed parameter substitution: \$1 -> %%1
-            str = str.replace(/\\\$(\d+)/g, (match, n) => '%%' + (parseInt(n) + indexOffset));
-            str = str.replace(/\\&(\d+)/g, (match, n) => '%%' + (parseInt(n) + indexOffset));
+            str = str.replace(/\\\$(\d+)/g, (match, n) => {
+                const val = parseInt(n);
+                if (val === 0) return '%%0';
+                return '%%' + (val + indexOffset);
+            });
+            str = str.replace(/\\&(\d+)/g, (match, n) => {
+                const val = parseInt(n);
+                if (val === 0) return '%%0';
+                return '%%' + (val + indexOffset);
+            });
 
             // 2. Named parameters/variables in ${var} or #{expr}
             str = str.replace(/#{([^}]+)}/g, (match, expr) => {
@@ -229,12 +276,19 @@ export class TinTinConverter {
             });
 
             // 3. Variables:
-            str = str.replace(/\\?@([a-zA-Z_]\w+)/g, (match, name) => {
-                if (['powwow_timer', 'powwow_rand', 'powwow_char_length', 'powwow_search', 'powwow_word_count', 'powwow_word', 'powwow_word_slice_to_end', 'powwow_word_slice_from_start', 'powwow_first_char_ascii', 'powwow_to_number'].includes(name)) return `__FUNC__${name}`;
-                if (name.startsWith('powwow_') || name.startsWith('p_')) return `__VAR__${name}`;
-                return `__VAR__${this.convertVarName('@' + name)}`;
+            const VAR_PLACEHOLDER = '\x01VAR\x01';
+            const FUNC_PLACEHOLDER = '\x01FUNC\x01';
+            const FUNC_RSVD_PLACEHOLDER = '\x01RSVD\x01';
+
+            str = str.replace(/\\?@(-?\d+)/g, (match, num) => `${VAR_PLACEHOLDER}${this.convertVarName('@' + num)}`);
+            str = str.replace(/\\?@(\w+)/g, (match, name) => {
+                const lowerName = name.toLowerCase();
+                if (POWWOW_RESERVED_FUNCS.includes(lowerName)) return `${FUNC_PLACEHOLDER}powwow_${lowerName}`;
+                if (lowerName.startsWith('powwow_')) return `${FUNC_PLACEHOLDER}${lowerName}`;
+                if (lowerName === 'echo' || lowerName === 'print') return `${FUNC_RSVD_PLACEHOLDER}${lowerName}`;
+                if (name.startsWith('powwow_') || name.startsWith('p_')) return `${VAR_PLACEHOLDER}${name}`;
+                return `${VAR_PLACEHOLDER}${this.convertVarName('@' + name)}`;
             });
-            str = str.replace(/\\?@(-?\d+)/g, (match, num) => `__VAR__${this.convertVarName('@' + num)}`);
 
             str = str.replace(/\${([a-zA-Z0-9_%$-]+)}/g, (match, name) => {
                 let res = name;
@@ -247,26 +301,43 @@ export class TinTinConverter {
                 } else {
                    res = this.convertVarName(res, 'powwow');
                 }
-                return `__VAR__${res}`;
+                return `${VAR_PLACEHOLDER}${res}`;
             });
 
-            str = str.replace(/(?<![%])\\?\$([a-zA-Z_]\w+)/g, (match, name) => {
-                if (name.startsWith('powwow_') || name.startsWith('p_')) return `__VAR__${name}`;
-                return `__VAR__${this.convertVarName('$' + name)}`;
+            str = str.replace(/\\?\$([a-zA-Z_]\w+)/g, (match, name) => {
+                if (name.startsWith('powwow_') || name.startsWith('p_')) return `${VAR_PLACEHOLDER}${name}`;
+                return `${VAR_PLACEHOLDER}${this.convertVarName('$' + name)}`;
             });
-            str = str.replace(/(?<![%])\\?\$(-\d+)/g, (match, num) => `__VAR__${this.convertVarName('$' + num)}`);
+            str = str.replace(/\\?\$(-\d+)/g, (match, num) => `${VAR_PLACEHOLDER}${this.convertVarName('$' + num)}`);
 
             // 4. Standard parameters: $N -> %N, &N -> %N
-            str = str.replace(/(?<![\\%])\$(\d+)/g, (match, n) => '%' + (parseInt(n) + indexOffset));
-            str = str.replace(/(?<![\\%])&(\d+)/g, (match, n) => '%' + (parseInt(n) + indexOffset));
+            str = str.replace(/(?<![\\%])\$(\d+)/g, (match, n) => {
+                const val = parseInt(n);
+                if (val === 0) return '%0';
+                return '%' + (val + indexOffset);
+            });
+            str = str.replace(/(?<![\\%])&(\d+)/g, (match, n) => {
+                const val = parseInt(n);
+                if (val === 0) return '%0';
+                return '%' + (val + indexOffset);
+            });
 
             // Replace placeholders back
-            str = str.replace(/__VAR__/g, '$');
-            str = str.replace(/__FUNC__/g, '@');
+            str = str.replace(new RegExp(VAR_PLACEHOLDER, 'g'), '$');
+            str = str.replace(new RegExp(FUNC_RSVD_PLACEHOLDER, 'g'), '#powwow_reserved_');
+            str = str.replace(new RegExp(FUNC_PLACEHOLDER, 'g'), '@');
 
         } else if (this.mode === 'jmc') {
             // JMC uses %0-%9 for parameters and $var for variables
-            // Standard parameters: %N -> %N (no change needed for TT++)
+
+            if (options.isTrigger) {
+                // In triggers: %0 -> %1, %1 -> %2, etc.
+                str = str.replace(/(?<!\\)%(\d)/g, (match, n) => '%' + (parseInt(n) + 1));
+            } else if (options.isAlias) {
+                // In aliases: %0 -> all args (%1 %2 %3 %4 %5 %6 %7 %8 %9)
+                str = str.replace(/(?<!\\)%0/g, '%0');
+                // %1..%9 remain same
+            }
 
             // Variables: $var -> $j_var
             str = str.replace(/(?<![\\%])\$([a-zA-Z_]\w+)/g, (match, name) => {
@@ -342,12 +413,16 @@ export class TinTinConverter {
                             return { text: `#UNVARIABLE {${name}}` };
                         }
                         const convertedVal = this.convertSyntax('(' + val + ')', options);
-                        if (val.startsWith('"') || convertedVal.includes('<')) {
+                        if (val.includes('"') || convertedVal.includes('<') || convertedVal.includes('\x01STR')) {
                             return { text: `#VARIABLE {${name}} {${convertedVal.replace(/^"|"$/g, '')}}` };
                         }
                         return { text: `#MATH {${name}} {${convertedVal}}` };
                     }
-                    return { text: `#MATH {p_result} {${this.convertSyntax('(' + expr + ')', options)}}` };
+                    const resultVal = this.convertSyntax('(' + expr + ')', options);
+                    if (expr.includes('"') || resultVal.includes('<') || resultVal.includes('\x01STR')) {
+                        return { text: `#SHOWME {${resultVal}}` };
+                    }
+                    return { text: `#MATH {p_result} {${resultVal}}` };
                 }
             }
 

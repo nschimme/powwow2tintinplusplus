@@ -23,7 +23,15 @@ describe('Real-world scripts from mume.yllemo.com', () => {
     expect(output).toContain('#CONFIG {SPEEDWALK} {OFF}');
     expect(output).toContain('#CONFIG {VERBATIM} {OFF}');
     expect(output).toContain('#NOP JMC COLON: #colon leave');
-    expect(output).toContain('#NOP JMC NOP: #');
+    expect(output).toContain('#NOP #');
+  });
+
+  it('converts JMC comment and nope to #NOP', () => {
+    const input = '#comment this is a comment\n#nope this is ignored\n#nop this is also ignored';
+    const output = jmcConverter.convert(input);
+    expect(output).toContain('#NOP this is a comment');
+    expect(output).toContain('#NOP this is ignored');
+    expect(output).toContain('#NOP this is also ignored');
   });
 
   it('converts JMC Set 1 aliases and actions', () => {

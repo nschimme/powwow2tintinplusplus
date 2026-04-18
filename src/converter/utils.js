@@ -26,10 +26,15 @@ export function mapAttributes(attr) {
     return `<${vt100}${fg}9>`;
 }
 
+export const POWWOW_RESERVED_FUNCS = [
+    'timer', 'rand', 'char_length', 'search', 'word_count', 'word',
+    'word_slice_to_end', 'word_slice_from_start', 'first_char_ascii', 'to_number'
+];
+
 export function convertVarName(name, mode) {
     const prefix = mode === 'jmc' ? 'j_' : 'p_';
 
-    if (mode === 'jmc' && name.startsWith('$') && !name.match(/^\$\d+$/)) {
+    if (mode === 'jmc' && name.startsWith('$') && !name.match(/^\$(-?\d+)$/)) {
         name = name.substring(1);
     }
 
@@ -46,14 +51,14 @@ export function convertVarName(name, mode) {
         const numMatch = name.match(/^@(-?\d+)$/);
         if (numMatch) {
             const n = numMatch[1];
-            return n.startsWith('-') ? `powwow_at_m${n.substring(1)}` : `powwow_at[${n}]`;
+            return n.startsWith('-') ? `powwow_at_m${n.substring(1)}` : `powwow_at_${n}`;
         }
         return `powwow_at_${name.substring(1)}`;
     } else if (name.startsWith('$')) {
         const numMatch = name.match(/^\$(-?\d+)$/);
         if (numMatch) {
             const n = numMatch[1];
-            return n.startsWith('-') ? `${mode === 'jmc' ? 'jmc' : 'powwow'}_dollar_m${n.substring(1)}` : `${mode === 'jmc' ? 'jmc' : 'powwow'}_dollar[${n}]`;
+            return n.startsWith('-') ? `${mode === 'jmc' ? 'jmc' : 'powwow'}_dollar_m${n.substring(1)}` : `${mode === 'jmc' ? 'jmc' : 'powwow'}_dollar_${n}`;
         }
         return `${prefix}${name.substring(1)}`;
     }

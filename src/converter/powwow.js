@@ -88,7 +88,12 @@ export const powwowMethods = {
         parts.forEach(part => {
             const m = part.match(/^([&$])(\d+)$/);
             if (m) {
-                ttPattern += '%' + (parseInt(m[2]) + (leadingVar ? 1 : 0));
+                const val = parseInt(m[2]);
+                if (val === 0) {
+                    ttPattern += '%0';
+                } else {
+                    ttPattern += '%' + (val + (leadingVar ? 1 : 0));
+                }
             } else {
                 ttPattern += this.convertSyntax(part, newOptions);
             }
@@ -135,8 +140,10 @@ export const powwowMethods = {
 
         if (val.startsWith('(')) {
             let evaled = this.convertSyntax(val, options);
-            if (evaled.includes('"') || evaled.includes('<')) {
-                return { text: `#VARIABLE {${name}} {${evaled.replace(/^"|"$/g, '')}}` };
+            // If it's a display string or color-coded, use #VARIABLE
+            // \x01STR indicates it contained a protected literal string
+            if (val.includes('"') || evaled.includes('<') || evaled.includes('\x01STR')) {
+                return { text: `#VARIABLE {${name}} {${evaled}}` };
             }
             return { text: `#MATH {${name}} {${evaled}}` };
         }

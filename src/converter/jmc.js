@@ -8,13 +8,16 @@ export const jmcMethods = {
             const name = parts[0].trim().replace(/^{|}$/g, '');
             let cmds = '';
             let group = '';
-            if (parts[1].startsWith('{')) {
-                cmds = parts[1].replace(/^{|}$/g, '');
+            const cmdsToken = parts[1];
+            if (cmdsToken.startsWith('{')) {
+                cmds = cmdsToken.replace(/^{|}$/g, '');
                 group = parts[2] ? parts[2].trim().replace(/^{|}$/g, '') : '';
             } else {
-                if (parts.length === 3) {
-                    cmds = parts[1];
-                    group = parts[2].replace(/^{|}$/g, '');
+                // For unbraced commands, everything until the last part might be the command,
+                // unless the last part looks like a group (often bracketed or single word)
+                if (parts.length > 2 && (parts[parts.length - 1].startsWith('{') || parts.length === 3)) {
+                    cmds = parts.slice(1, parts.length - 1).join(' ');
+                    group = parts[parts.length - 1].replace(/^{|}$/g, '');
                 } else {
                     cmds = parts.slice(1).join(' ');
                 }
@@ -57,7 +60,8 @@ export const jmcMethods = {
             }
             let out = '';
             if (group) out += `#CLASS {${group}} {OPEN}\n`;
-            out += `#ACTION {${this.convertSyntax(pattern, options)}} {${this.processCommands(cmds, options)}}`;
+            const actionOptions = { ...options, isTrigger: true };
+            out += `#ACTION {${this.convertSyntax(pattern, actionOptions)}} {${this.processCommands(cmds, actionOptions)}}`;
             if (priority) out += ` {${priority}}`;
             if (group) out += `\n#CLASS {${group}} {CLOSE}`;
             return { text: out };
@@ -138,7 +142,8 @@ export const jmcMethods = {
             }
             let out = '';
             if (group) out += `#CLASS {${group}} {OPEN}\n`;
-            out += `#HIGHLIGHT {${this.convertSyntax(pattern, options)}} {${color}}`;
+            const hlOptions = { ...options, isTrigger: true };
+            out += `#HIGHLIGHT {${this.convertSyntax(pattern, hlOptions)}} {${color}}`;
             if (group) out += `\n#CLASS {${group}} {CLOSE}`;
             return { text: out };
         }
@@ -200,7 +205,7 @@ export const jmcMethods = {
 
     convertGagJMC(args, options) {
         const pattern = args.trim().replace(/^{|}$/g, '');
-        return { text: `#GAG {${this.convertSyntax(pattern, options)}}` };
+        return { text: `#GAG {${this.convertSyntax(pattern, { ...options, isTrigger: true })}}` };
     },
 
     convertSubstituteJMC(args, options) {
@@ -208,7 +213,8 @@ export const jmcMethods = {
         if (parts.length >= 2) {
             const pattern = parts[0].trim().replace(/^{|}$/g, '');
             const replacement = parts[1].trim().replace(/^{|}$/g, '');
-            return { text: `#SUBSTITUTE {${this.convertSyntax(pattern, options)}} {${this.convertSyntax(replacement, options)}}` };
+            const subOptions = { ...options, isTrigger: true };
+            return { text: `#SUBSTITUTE {${this.convertSyntax(pattern, subOptions)}} {${this.convertSyntax(replacement, subOptions)}}` };
         }
         return { text: `#NOP UNCONVERTED JMC SUBSTITUTE: #substitute ${args}` };
     }
