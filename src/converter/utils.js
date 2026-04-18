@@ -29,7 +29,7 @@ export function mapAttributes(attr) {
 export function convertVarName(name, mode) {
     const prefix = mode === 'jmc' ? 'j_' : 'p_';
 
-    if (mode === 'jmc' && name.startsWith('$') && !name.match(/^\$\d+$/)) {
+    if (mode === 'jmc' && name.startsWith('$') && !name.match(/^\$(-?\d+)$/)) {
         name = name.substring(1);
     }
 

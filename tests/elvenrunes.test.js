@@ -50,22 +50,38 @@ describe('Real-world scripts from elvenrunes.com', () => {
     ].join('\n');
     const output = jmcConverter.convert(input);
     expect(output).toContain('#ACTION {^The day has begun.} {#VARIABLE {j_sunrise} {1}}');
-    expect(output).toContain('#IF {$j_sunrise == 1} {say It is daytime} {#ELSE} {say It is nighttime}');
+    expect(output).toContain('#ALIAS {check_sunrise} {#IF {$j_sunrise == 1} {say It is daytime} {#ELSE} {say It is nighttime}}');
   });
 
   it('converts Jahara\'s Direction Marker for PowTTY', () => {
     const input = [
       '#al mark=#mark $1=yellow',
-      '#al unmark=#reset marks'
+      '#al unmark=#reset marks',
+      '#al markall=#mark $0=bold red',
+      '#al multi=#mark $1 $2=GREEN'
     ].join('\n');
     const output = pwConverter.convert(input);
-    expect(output).toContain('#HIGHLIGHT {%1} {yellow}');
-    expect(output).toContain('#KILL HIGHLIGHTS {*}*');
+    expect(output).toContain('#ALIAS {mark} {#HIGHLIGHT {%1} {yellow}}');
+    expect(output).toContain('#ALIAS {unmark} {#KILL HIGHLIGHTS {*}*}');
+    expect(output).toContain('#ALIAS {markall} {#HIGHLIGHT {%0} {bold red}}');
+    expect(output).toContain('#ALIAS {multi} {#HIGHLIGHT {%1 %2} {GREEN}}');
   });
 
-  it('converts basic secure send commands', () => {
-    const input = '#daa secret_pass';
+  it('converts secure send #daa with complex payloads', () => {
+    const input = '#daa this is {top}% secret with spaces';
     const output = jmcConverter.convert(input);
-    expect(output).toContain('#SEND {secret_pass}; #LINE GAG');
+    expect(output).toContain('#SEND {this is {top}% secret with spaces}; #LINE GAG; #NOP DAA/HIDE/WHISPER (Secure send)');
+  });
+
+  it('converts secure send #hide commands', () => {
+    const input = '#hide quietly whisper {through} the%shadows';
+    const output = jmcConverter.convert(input);
+    expect(output).toContain('#SEND {quietly whisper {through} the%shadows}; #LINE GAG; #NOP DAA/HIDE/WHISPER (Secure send)');
+  });
+
+  it('converts secure send #whisper commands', () => {
+    const input = '#whisper target multi word {payload} 100%hidden';
+    const output = jmcConverter.convert(input);
+    expect(output).toContain('#SEND {target multi word {payload} 100%hidden}; #LINE GAG; #NOP DAA/HIDE/WHISPER (Secure send)');
   });
 });

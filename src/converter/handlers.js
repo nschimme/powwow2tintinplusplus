@@ -228,7 +228,8 @@ export function getJMCHandlers(converter) {
         'unact': 'unaction',
         'wt': 'wait',
         'hot': 'hotkey',
-        'verbat': 'verbatim'
+        'verbat': 'verbatim',
+        'nop': 'nope'
     };
 
     for (const [alias, target] of Object.entries(aliases)) {

@@ -178,7 +178,7 @@ export class TinTinConverter {
             return `@powwow_first_char_ascii{${expr}}`;
         });
         workingStr = workingStr.replace(/%([@$a-zA-Z0-9_-]+|(?<!\w)%\d+|\\?\$[0-9]+|\\?@[0-9]+|\([^)]+\))/g, (match, expr) => {
-            if (expr.startsWith('STR') && expr.endsWith('__')) return match;
+            if (expr.startsWith('__STR') && expr.endsWith('__')) return match;
             return `(@powwow_to_number{${expr}})`;
         });
 
