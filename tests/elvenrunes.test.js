@@ -41,4 +41,31 @@ describe('Real-world scripts from elvenrunes.com', () => {
     const output = jmcConverter.convert(input);
     expect(output).toContain('#ALIAS {%0 hits, %1 mana, and %2 moves.} {#ALIAS {report} {emote has %0 hps, %1 mana, and %2 moves.}}');
   });
+
+  it('converts Torq\'s Sunrise Script for JMC', () => {
+    const input = [
+      '#action {^The day has begun.} {#var sunrise 1}',
+      '#action {^The sun rises in the east.} {#var sunrise 1}',
+      '#alias {check_sunrise} {#if {$sunrise == 1} {say It is daytime} {say It is nighttime}}'
+    ].join('\n');
+    const output = jmcConverter.convert(input);
+    expect(output).toContain('#ACTION {^The day has begun.} {#VARIABLE {j_sunrise} {1}}');
+    expect(output).toContain('#IF {$j_sunrise == 1} {say It is daytime} {#ELSE} {say It is nighttime}');
+  });
+
+  it('converts Jahara\'s Direction Marker for PowTTY', () => {
+    const input = [
+      '#al mark=#mark $1=yellow',
+      '#al unmark=#reset marks'
+    ].join('\n');
+    const output = pwConverter.convert(input);
+    expect(output).toContain('#HIGHLIGHT {%1} {yellow}');
+    expect(output).toContain('#KILL HIGHLIGHTS {*}*');
+  });
+
+  it('converts basic secure send commands', () => {
+    const input = '#daa secret_pass';
+    const output = jmcConverter.convert(input);
+    expect(output).toContain('#SEND {secret_pass}; #LINE GAG');
+  });
 });

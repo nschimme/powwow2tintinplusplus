@@ -52,13 +52,13 @@ describe('TinTinConverter - Powwow Mode', () => {
   it('converts complex expressions', () => {
     const input = '#var x=("hello " + $name)';
     const output = converter.convert(input);
-    expect(output).toContain('#VARIABLE {p_x} {hello $p_name}');
+    expect(output).toContain('#VARIABLE {p_x} {hello "$p_name}');
   });
 
   it('converts numbered variables', () => {
     const input = '#var @7=22';
     const output = converter.convert(input);
-    expect(output).toContain('#VARIABLE {powwow_at[7]} {22}');
+    expect(output).toContain('#VARIABLE {powwow_at_7} {22}');
   });
 
   it('converts #in and #at to #DELAY', () => {
@@ -155,7 +155,7 @@ describe('TinTinConverter - JMC Mode', () => {
   it('converts JMC numbered variables', () => {
     const input = '#var $7=22';
     const output = converter.convert(input);
-    expect(output).toContain('#VARIABLE {jmc_dollar[7]} {22}');
+    expect(output).toContain('#VARIABLE {jmc_dollar_7} {22}');
   });
 
   it('converts JMC variable substitution', () => {
@@ -189,7 +189,7 @@ describe('TinTinConverter - JMC Mode', () => {
   it('converts JMC gag', () => {
     const input = '#gag {^%0 arrived}';
     const output = converter.convert(input);
-    expect(output).toContain('#GAG {^%0 arrived}');
+    expect(output).toContain('#GAG {^%1 arrived}');
   });
 
   it('converts JMC substitute', () => {

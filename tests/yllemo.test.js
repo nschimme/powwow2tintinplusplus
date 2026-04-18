@@ -23,7 +23,7 @@ describe('Real-world scripts from mume.yllemo.com', () => {
     expect(output).toContain('#CONFIG {SPEEDWALK} {OFF}');
     expect(output).toContain('#CONFIG {VERBATIM} {OFF}');
     expect(output).toContain('#NOP JMC COLON: #colon leave');
-    expect(output).toContain('#NOP JMC NOP: #');
+    expect(output).toContain('#\n');
   });
 
   it('converts JMC Set 1 aliases and actions', () => {

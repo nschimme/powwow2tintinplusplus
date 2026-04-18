@@ -88,7 +88,12 @@ export const powwowMethods = {
         parts.forEach(part => {
             const m = part.match(/^([&$])(\d+)$/);
             if (m) {
-                ttPattern += '%' + (parseInt(m[2]) + (leadingVar ? 1 : 0));
+                const val = parseInt(m[2]);
+                if (val === 0) {
+                    ttPattern += '%0';
+                } else {
+                    ttPattern += '%' + (val + (leadingVar ? 1 : 0));
+                }
             } else {
                 ttPattern += this.convertSyntax(part, newOptions);
             }

@@ -33,6 +33,8 @@ export class TinTinGenerator {
             outputLines.push('#FUNCTION {powwow_word_slice_from_start} {#LIST {p_words} {EXPLODE} { }; #LIST {p_words} {FILTER} {{.+}}; #LIST {p_slice} {CREATE} {$p_words[1..%2]}; #LIST {p_slice} {COLLAPSE} { }; #RETURN $p_slice}');
             outputLines.push('#FUNCTION {powwow_first_char_ascii} {#FORMAT {result} {%a} {%1}}');
             outputLines.push('#FUNCTION {powwow_to_number} {#MATH {result} {%1}}');
+            outputLines.push('#ALIAS {powwow_reserved_echo} {#IF {"%1" == ""} {#LINE PRINT} {#ELSE} {#SHOWME {%1}}}');
+            outputLines.push('#ALIAS {powwow_reserved_print} {#IF {"%1" == ""} {#LINE PRINT} {#ELSE} {#SHOWME {%1}}}');
         }
 
         this.indentLevel = 0;
@@ -50,15 +52,10 @@ export class TinTinGenerator {
         let commands = [];
         let currentCommandNodes = [];
 
+        const handlers = this.mode === 'jmc' ? this.converter.jmcHandlers : this.converter.powwowHandlers;
+        const allCommands = Object.keys(handlers).map(k => '#' + k);
+
         const controlCommands = ['#if', '#else', '#while', '#for', '#at', '#in', '#do'];
-        const assignmentCommands = [
-            '#alias', '#al', '#action', '#ac', '#prompt', '#bind', '#bi', '#hotkey', '#hot', '#math', '#var', '#setvar',
-            '#nop', '#message', '#echo', '#ignore', '#highlight', '#gag', '#sub', '#substitute', '#antisub', '#antisubstitute',
-            '#unsub', '#unsubstitute', '#tolower', '#toupper', '#unalias', '#unali', '#unaction', '#unac', '#unvar',
-            '#showme', '#output', '#bell', '#flash', '#char', '#pathdir', '#wait', '#wt', '#read', '#write', '#log', '#textin', '#systemexec',
-            '#speedwalk', '#hotkey', '#unhotkey', '#multiaction', '#multihighlight', '#presub', '#verbat', '#colon', '#comment', '#script',
-            '#ticksize', '#tickon', '#tickset', '#tickoff', '#drop', '#cr', '#daa', '#hide', '#whisper'
-        ];
 
         for (let node of nodes) {
             if (node.type === 'Separator' || node.type === 'Pipe' || node.type === 'Newline') {
@@ -83,7 +80,7 @@ export class TinTinGenerator {
                             shouldSplit = true;
                         } else {
                             const firstCmdName = firstCmdNode.value.toLowerCase();
-                            if (!controlCommands.includes(firstCmdName) && !assignmentCommands.includes(firstCmdName)) {
+                            if (!allCommands.includes(firstCmdName)) {
                                 shouldSplit = true;
                             } else if (currentCommandNodes.some(n => n.type === 'BracedBlock')) {
                                 shouldSplit = true;
