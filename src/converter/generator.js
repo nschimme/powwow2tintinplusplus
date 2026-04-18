@@ -64,7 +64,23 @@ export class TinTinGenerator {
         let currentCommandNodes = [];
 
         const handlers = this.mode === 'jmc' ? this.converter.jmcHandlers : this.converter.powwowHandlers;
-        const allCommands = Object.keys(handlers).map(k => '#' + k);
+
+        // Core TinTin++ built-in commands that should be recognized as delimiters
+        const ttppBuiltinCommands = [
+            '#alias', '#action', '#variable', '#math', '#showme', '#line', '#echo', '#nop',
+            '#if', '#else', '#while', '#for', '#delay', '#ticker', '#macro', '#class',
+            '#config', '#format', '#list', '#script', '#system', '#read', '#write', '#log',
+            '#send', '#bell', '#end', '#zap', '#kill', '#ignore'
+        ];
+
+        // Combine handler-based commands with the built-in list
+        const allCommands = Array.from(
+            new Set(
+                Object.keys(handlers)
+                    .map(k => '#' + k)
+                    .concat(ttppBuiltinCommands)
+            )
+        );
 
         const controlCommands = ['#if', '#else', '#while', '#for', '#at', '#in', '#do'];
 

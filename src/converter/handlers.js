@@ -122,16 +122,8 @@ export function getJMCHandlers(converter) {
         'unalias': (args, options) => ({ text: `#UNALIAS {${converter.convertSyntax(converter.cleanJMCArgs(args), options)}}` }),
         'unaction': (args, options) => ({ text: `#UNACT {${converter.convertSyntax(converter.cleanJMCArgs(args), options)}}` }),
         'unvar': (args, options) => ({ text: `#UNVAR {${converter.convertVarName(converter.cleanJMCArgs(args))}}` }),
-        'showme': (args, options) => {
-            const cleaned = converter.cleanJMCArgs(args);
-            if (!cleaned) return { text: `#LINE PRINT` };
-            return { text: `#SHOWME {${converter.convertSyntax(cleaned, options)}}` };
-        },
-        'output': (args, options) => {
-            const cleaned = converter.cleanJMCArgs(args);
-            if (!cleaned) return { text: `#LINE PRINT` };
-            return { text: `#SHOWME {${converter.convertSyntax(cleaned, options)}}` };
-        },
+        'showme': (args, options) => convertDisplayJMC(converter, args, options),
+        'output': (args, options) => convertDisplayJMC(converter, args, options),
         'bell': () => ({ text: `#BELL` }),
         'break': () => ({ text: `#BREAK` }),
         'kickall': () => ({ text: `#KILL ALL` }),
@@ -141,12 +133,10 @@ export function getJMCHandlers(converter) {
         'pathdir': (args, options) => ({ text: `#PATHDIR {${converter.cleanJMCArgs(args)}}` }),
         'wait': (args, options) => ({ text: `#DELAY {${converter.cleanJMCArgs(args)}}` }),
         'echo': (args, options) => {
-            const cleaned = converter.cleanJMCArgs(args);
-            if (!cleaned) return { text: `#LINE PRINT` };
-            const lower = cleaned.toLowerCase();
-            if (lower === 'on') return { text: `#CONFIG {VERBOSE} {ON}` };
-            if (lower === 'off') return { text: `#CONFIG {VERBOSE} {OFF}` };
-            return { text: `#SHOWME {${converter.convertSyntax(cleaned, options)}}` };
+            const cleaned = converter.cleanJMCArgs(args).toLowerCase();
+            if (cleaned === 'on') return { text: `#CONFIG {VERBOSE} {ON}` };
+            if (cleaned === 'off') return { text: `#CONFIG {VERBOSE} {OFF}` };
+            return convertDisplayJMC(converter, args, options);
         },
         'quit': () => ({ text: `#END` }),
         'zap': () => ({ text: `#ZAP` }),
@@ -211,9 +201,9 @@ export function getJMCHandlers(converter) {
         'tickoff': () => ({ text: `#UNTICKER {jmc_tick}` }),
         'drop': (args, options) => ({ text: args ? `#NOP UNCONVERTED DROP: #drop ${args}` : `#LINE GAG` }),
         'cr': () => ({ text: `#SEND {\n}` }),
-        'daa': (args, options) => ({ text: `#SEND {${args}}; #LINE GAG; #NOP DAA/HIDE/WHISPER (Secure send)` }),
-        'hide': (args, options) => ({ text: `#SEND {${args}}; #LINE GAG; #NOP DAA/HIDE/WHISPER (Secure send)` }),
-        'whisper': (args, options) => ({ text: `#SEND {${args}}; #LINE GAG; #NOP DAA/HIDE/WHISPER (Secure send)` }),
+        'daa': (args, options) => convertSecureSendJMC(args),
+        'hide': (args, options) => convertSecureSendJMC(args),
+        'whisper': (args, options) => convertSecureSendJMC(args),
         'ignore': (args, options) => ({ text: args ? `#IGNORE {${converter.convertSyntax(converter.cleanJMCArgs(args), options)}}` : `#IGNORE` })
     };
 
@@ -240,4 +230,14 @@ export function getJMCHandlers(converter) {
     }
 
     return handlers;
+}
+
+function convertDisplayJMC(converter, args, options) {
+    const cleaned = converter.cleanJMCArgs(args);
+    if (!cleaned) return { text: `#LINE PRINT` };
+    return { text: `#SHOWME {${converter.convertSyntax(cleaned, options)}}` };
+}
+
+function convertSecureSendJMC(args) {
+    return { text: `#SEND {${args}}; #LINE GAG; #NOP DAA/HIDE/WHISPER (Secure send)` };
 }

@@ -140,8 +140,10 @@ export const powwowMethods = {
 
         if (val.startsWith('(')) {
             let evaled = this.convertSyntax(val, options);
-            if (evaled.includes('"') || evaled.includes('<')) {
-                return { text: `#VARIABLE {${name}} {${evaled.replace(/^"|"$/g, '')}}` };
+            // If it's a display string or color-coded, use #VARIABLE
+            // \x01STR indicates it contained a protected literal string
+            if (val.includes('"') || evaled.includes('<') || evaled.includes('\x01STR')) {
+                return { text: `#VARIABLE {${name}} {${evaled}}` };
             }
             return { text: `#MATH {${name}} {${evaled}}` };
         }

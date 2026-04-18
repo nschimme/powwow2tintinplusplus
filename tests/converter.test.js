@@ -52,13 +52,13 @@ describe('TinTinConverter - Powwow Mode', () => {
   it('converts complex expressions', () => {
     const input = '#var x=("hello " + $name)';
     const output = converter.convert(input);
-    expect(output).toContain('#MATH {p_x} {hello $p_name}');
+    expect(output).toContain('#VARIABLE {p_x} {hello $p_name}');
   });
 
   it('protects special characters in Powwow strings', () => {
     const input = '#var x=("%hp+%mana" + $name)';
     const output = converter.convert(input);
-    expect(output).toContain('#MATH {p_x} {%hp+%mana$p_name}');
+    expect(output).toContain('#VARIABLE {p_x} {%hp+%mana$p_name}');
   });
 
   it('preserves numeric addition in Powwow', () => {
@@ -224,6 +224,40 @@ describe('TinTinConverter - JMC Mode', () => {
     const aliasOutput = converter.convert(aliasInput, { mode: 'jmc' });
     expect(aliasOutput).toContain('say %0');
     expect(aliasOutput).toContain('#SHOW {%1 %9}');
+  });
+
+  it('handles JMC #log modes and no-argument behavior', () => {
+    const overwriteInput = '#log session.log overwrite';
+    const overwriteOutput = converter.convert(overwriteInput, { mode: 'jmc' });
+    expect(overwriteOutput).toContain('#LOG {OVERWRITE} {session.log}');
+
+    const appendInput = '#log session.log append';
+    const appendOutput = converter.convert(appendInput, { mode: 'jmc' });
+    expect(appendOutput).toContain('#LOG {APPEND} {session.log}');
+
+    const offInput = '#log';
+    const offOutput = converter.convert(offInput, { mode: 'jmc' });
+    expect(offOutput).toContain('#LOG OFF');
+  });
+
+  it('maps empty JMC #showme/#output/#echo to #LINE PRINT', () => {
+    const showmeInput = '#showme {}';
+    const showmeOutput = converter.convert(showmeInput, { mode: 'jmc' });
+    expect(showmeOutput).toContain('#LINE PRINT');
+
+    const outputInput = '#output {}';
+    const outputOutput = converter.convert(outputInput, { mode: 'jmc' });
+    expect(outputOutput).toContain('#LINE PRINT');
+
+    const echoInput = '#echo {}';
+    const echoOutput = converter.convert(echoInput, { mode: 'jmc' });
+    expect(echoOutput).toContain('#LINE PRINT');
+  });
+
+  it('maps JMC #tick display to #NOP with #TICK', () => {
+    const input = '#tick';
+    const output = converter.convert(input, { mode: 'jmc' });
+    expect(output).toContain('#NOP JMC TICK (Display remaining time): #TICK');
   });
 
   it('converts JMC substitute', () => {
