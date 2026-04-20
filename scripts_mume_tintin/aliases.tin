@@ -1,0 +1,463 @@
+#CLASS {converted} {OPEN}
+#NOP --- POWWOW COMPATIBILITY LAYER ---
+#VARIABLE {powwow_at_lines} {24}
+#VARIABLE {powwow_at_mem} {0}
+#VARIABLE {powwow_at_buffer} {0}
+#FORMAT {powwow_start_time} {%T}
+#FUNCTION {powwow_timer} {#FORMAT {now} {%T};#MATH {result} {($now - $powwow_start_time) * 1000}}
+#FUNCTION {powwow_rand} {#MATH {result} {1d%1 - 1}}
+#FUNCTION {powwow_char_length} {#FORMAT {result} {%x} {%1}}
+#FUNCTION {powwow_search} {#FORMAT {result} {%p} {%2} {%1}}
+#FUNCTION {powwow_word_count} {#LIST {p_words} {EXPLODE} { }; #LIST {p_words} {FILTER} {{.+}}; #RETURN &p_words[]}
+#FUNCTION {powwow_word} {#LIST {p_words} {EXPLODE} { }; #LIST {p_words} {FILTER} {{.+}}; #RETURN $p_words[%2]}
+#FUNCTION {powwow_word_slice_to_end} {#LIST {p_words} {EXPLODE} { }; #LIST {p_words} {FILTER} {{.+}}; #LIST {p_slice} {CREATE} {$p_words[%2..-1]}; #LIST {p_slice} {COLLAPSE} { }; #RETURN $p_slice}
+#FUNCTION {powwow_word_slice_from_start} {#LIST {p_words} {EXPLODE} { }; #LIST {p_words} {FILTER} {{.+}}; #LIST {p_slice} {CREATE} {$p_words[1..%2]}; #LIST {p_slice} {COLLAPSE} { }; #RETURN $p_slice}
+#FUNCTION {powwow_first_char_ascii} {#FORMAT {result} {%a} {%1}}
+#FUNCTION {powwow_to_number} {#MATH {result} {%1}}
+#ALIAS {powwow_reserved_echo} {#IF {"%1" == ""} {#LINE PRINT} {#ELSE} {#SHOWME {%1}}}
+#ALIAS {powwow_reserved_print} {#IF {"%1" == ""} {#LINE PRINT} {#ELSE} {#SHOWME {%1}}}
+#ALIAS {aule} {'by the might of Aule I command thee to open'}
+#NOP /  Moods
+#ALIAS {csq} {cha spell q}
+#ALIAS {csf} {cha spell f}
+#ALIAS {csn} {cha spell n}
+#ALIAS {csc} {cha spell c}
+#ALIAS {cst} {cha spell t}
+#ALIAS {cma} {cha moo agg}
+#ALIAS {cmb} {cha moo brave}
+#ALIAS {cmn} {cha moo normal}
+#ALIAS {cmp} {cha moo prudent}
+#ALIAS {cmw} {cha moo wimpy}
+#ALIAS {can} {cha alert n}
+#ALIAS {cac} {cha alert c}
+#ALIAS {caa} {cha alert a}
+#ALIAS {cav} {cha alert v}
+#ALIAS {cap} {cha alert p}
+#NOP /  General
+#ALIAS {voidoff} {#CLASS {void} {OPEN}}
+#ALIAS {voidon} {#CLASS {void} {KILL}}
+#ALIAS {w0} {cha wimp 0}
+#ALIAS {w1} {cha wimp 10}
+#ALIAS {w2} {cha wimp 20}
+#ALIAS {w3} {cha wimp 30}
+#ALIAS {w5} {cha wimp 50}
+#ALIAS {w8} {cha wimp 80}
+#ALIAS {w10} {cha wimp 100}
+#ALIAS {w15} {cha wimp 150}
+#ALIAS {w20} {cha wimp 200}
+#ALIAS {wl} {weather local}
+#ALIAS {x} {exa %1}
+#ALIAS {xc} {#IF {@powwow_first_char_ascii{%0}} {exam %0.corpse}}
+#ELSE {exam corpse}
+#ALIAS {xs} {#IF {@powwow_first_char_ascii{%0}} {exam %0.skeleton}}
+#ELSE {exam skeleton}
+#ALIAS {ee} {scout east}
+#ALIAS {dd} {scout down}
+#ALIAS {ww} {scout west}
+#ALIAS {uu} {scout up}
+#ALIAS {nn} {scout north}
+#ALIAS {ss} {scout south}
+#ACTION {^You are awakened by} {stand}
+#ALIAS {ws} {wake; stand}
+#ALIAS {wa} {ws}
+#ALIAS {da} {drop all.%1}
+#ALIAS {dam} {eat meat; eat meat; drop all.meat}
+#ALIAS {ban} {bandage %1}
+#ALIAS {bcx} {butcher %1.corpse}
+#ALIAS {bc} {gb knife; #IF {@powwow_first_char_ascii{%1}} {butcher %1.corpse}; #ELSE {butcher corpse}; pb knife}
+#ALIAS {bca} {gb knife; butcher 1.corpse; butcher 2.corpse; butcher 3.corpse; butcher 4.corpse; butcher 5.corpse; pb knife}
+#ALIAS {Xbcaa} {gb knife; #MATH {p_result} {$math_eval{0} = 1}; #WHILE {$math_eval{0} < 10} {#MATH {p_exe_tmp} {bcx @powwow_to_number{$math_eval{0}}}; #$p_exe_tmp; #MATH {p_result} {$math_eval{0}}}; pb knife}
+#ALIAS {bcaa} {gb knife; #MATH {p_result} {$math_eval{0} = 1}; #WHILE {$math_eval{0} < 10} {bcx $powwow_at_0; #MATH {p_result} {$math_eval{0}}}; pb knife}
+#ALIAS {bdg} {bca; dam; g2a}
+#ALIAS {pipe} {gb pipe; wield pipe; rest; smoke; stand; wm; pb pipe}
+#CLASS {server1} {OPEN}
+#ACTION {^###} {#SHOWME {$p_BKBLUE$p_YELLOW     ---+++$0 ###+++---$p_NORM}}
+#CLASS {server1} {CLOSE}
+#ALIAS {dw} {drink water}
+#ALIAS {ds} {drink flagon}
+#ALIAS {pws} {pour water flagon}
+#NOP / Uses food/water stashed in satchel/saddlebag on mount
+#ALIAS {pwg} {utm; gta goblet; pour water 1.goblet; pour water 1.goblet; pta goblet; gm}
+#ALIAS {dg} {utm; gt goblet; drink goblet; pt goblet; gm}
+#ALIAS {pwf} {utm; gt flagon; pour water flagon; pt flagon; gm}
+#ALIAS {df} {utm; gt flagon; drink flagon; pt flagon; gm}
+#ALIAS {pwc} {gb goblet; pour water goblet; pb goblet}
+#ALIAS {dc} {gb goblet; drink goblet; pb goblet}
+#ALIAS {eb} {utm; gt bannock; eat bannock; gm}
+#NOP / For use with small elven bag
+#ALIAS {eeb} {gb small; #IF {$powwow_at_stunpouches} {g lembas 2.small}; #ELSE {g lembas small}; eat lembas; pb small}
+#ALIAS {deb} {gb small; #IF {$powwow_at_stunpouches} {g cup 2.small; drink cup; put cup 2.small}; #ELSE {g cup small; drink cup; put cup small}; pb small}
+#ALIAS {ga} {get all.%1}
+#ALIAS {gaa} {get all.%1 from all}
+#ALIAS {ga1} {get %1 from all}
+#ALIAS {gac} {get all.%1 from all.corpse}
+#ALIAS {gas} {gf all.skeleton}
+#ALIAS {gf} {get all from %1}
+#ALIAS {gfa} {gf 1.rack; gf 2.rack; gf 3.rack; gf 4.rack; gf 5.rack; gf 1.peg; gf 2.peg; gf 3.peg}
+#NOP /  'gak' is get all key, including from pouches
+#ALIAS {gak} {ga key; gac key; gac pouch; get all.key from all.pouch; da pouch; pkey all.key}
+#NOP /  'gmac' is get all.metal all.corpse, except a bit broader - possibly too broad still (stweapon for instance are usually low in value)
+#ALIAS {gmac} {gac chain; gac metal; gac scale; gac cweapon; gac pweapon; gac tweapon; gac sweapon; gac stweapon}
+#ALIAS {r} {get all.arrow; get all.arrow all.corpse; put all.arrow quiver}
+#NOP /  Aliases for killing and charmies
+#NOP /  mta <target> sets your target, cta <target> sets charmies'. ta <target> puts you both on the same. You can set target when not in the room, eg. 3.bear
+#NOP /  Some (`, oka, b, spells etc) will automatically use target if set (ta <target> or mta <target>), unless you specify something else
+#ALIAS {Xb} {#IF {@powwow_first_char_ascii{%1}} {bash %1}; #ELSE {bash $p_mtarget}}
+#ALIAS {Xbd} {#IF {@powwow_first_char_ascii{%1}} {bash dis %1}; #ELSE {bash dis $p_mtarget}}
+#ALIAS {b} {bash %1}
+#ALIAS {bd} {bash dis %1}
+#ALIAS {`} {#IF {@powwow_first_char_ascii{%1}} {shoot %1}; #ELSE {shoot $p_mtarget}}
+#ALIAS {k} {{ #if (*%1) kill %1; #else #send ("kill "+$p_mtarget) }}
+#ALIAS {B} {{ #if (*%1) backstab %1; #else #send ("backstab "+$p_mtarget) }}
+#ALIAS {F} {flush quick}
+#ALIAS {R} {rescue %1}
+#ALIAS {p} {protect %1}
+#ALIAS {ka} {{ #if (*%1) kill %1; #else #send ("kill "+$p_mtarget) }; ofa}
+#ALIAS {ob} {order bashera bash %0}
+#ALIAS {of} {order followers %0}
+#ALIAS {off} {order followers flee}
+#ALIAS {ff} {off; flee}
+#ALIAS {ofa} {order followers assist; #IF {$powwow_at_folautobash} {ob}}
+#ALIAS {ofb} {order followers bash}
+#ALIAS {ofk} {order followers kill %0}
+#ALIAS {ofat} {#MATH {p_exe_tmp} {of assist $p_tank}; #$p_exe_tmp; #IF {$powwow_at_folautobash} {ob}}
+#ALIAS {ofp} {#IF {@powwow_first_char_ascii{%1}} {order followers protect %1}; #ELSE {order followers protect $p_name}}
+#ALIAS {ofr} {#IF {@powwow_first_char_ascii{%1}} {order followers rescue %1}; #ELSE {order followers rescue $p_name}}
+#ALIAS {oka} {{ #if (*%1) order tanka kill %1; #else #send ("order tanka kill "+$p_ctarget) }; assist; ofat}
+#ALIAS {revoka} {{ #if (*%1) {rev %1; order tanka kill %1}; #else #ex ("rev "+$p_ctarget+"; order tanka kill "+$p_ctarget) }; assist; ofat}
+#ALIAS {revotk} {{ #if (*%1) {rev %1; order tanka kill %1}; #else #ex ("rev "+$p_ctarget+";order tanka kill "+$p_ctarget) }}
+#ALIAS {ock} {{ #if (*%1) { order tanka kill %1}; #else {#send ("order tanka kill "+$p_ctarget)}; ofat }}
+#ALIAS {revock} {{ #if (*%1) {rev %1; order tanka kill %1}; #else { #send ("rev "+$p_ctarget+";order tanka kill "+$p_ctarget)}; ofat }}
+#ALIAS {ot} {order tanka %0}
+#ALIAS {otk} {{ #if (*%1) order tanka kill %1; #else #send ("order tanka kill "+$p_ctarget) }}
+#ALIAS {otsl} {ot sleep; order tanka act waiting for its mistress}
+#ALIAS {ota} {order tanka assist %0}
+#ALIAS {otr} {order tanka resc %0}
+#ALIAS {op} {order parrya %0}
+#ALIAS {opk} {order parrya kill %0}
+#ALIAS {opa} {order parrya assist %0}
+#ALIAS {opr} {order parrya resc}
+#ALIAS {opb} {order parryb %0}
+#ALIAS {opbk} {order parryb kill %0}
+#ALIAS {opba} {order parryb assist %0}
+#ALIAS {opc} {order parryc %0}
+#ALIAS {opck} {order parryc kill %0}
+#ALIAS {opca} {order parryc assist %0}
+#ALIAS {opd} {order parryd %0}
+#ALIAS {opdk} {order parryd kill %0}
+#ALIAS {opda} {order parryd assist %0}
+#ALIAS {opka} {order parrya kill 1.$p_ctarget; order parryb kill 2.$p_ctarget; order parryc kill 3.$p_ctarget; order parryd kill 4.$p_ctarget}
+#ALIAS {otka} {order tanka kill 1.$p_ctarget; order tankb kill 2.$p_ctarget; order tankc kill 3.$p_ctarget; order tankd kill 4.$p_ctarget}
+#ALIAS {ofsl} {of sleep; order followers act , waiting for its mistress}
+#ALIAS {ofsln} {of sleep; order followers act , waiting for $p_name}
+#ALIAS {ofwa} {of wake; of stand}
+#ALIAS {aa} {assist; ofa}
+#ALIAS {fa} {tell familiar %0}
+#ALIAS {fal} {tell familiar leave; fwatchoff}
+#ALIAS {F} {tell familiar %0}
+#ALIAS {L} {tell familiar look %0}
+#ALIAS {N} {tell familiar n; L}
+#ALIAS {E} {tell familiar e; L}
+#ALIAS {S} {tell familiar s; L}
+#ALIAS {W} {tell familiar w; L}
+#ALIAS {U} {tell familiar u; L}
+#ALIAS {D} {tell familiar d; L}
+#VARIABLE {p_abc} {abcdefghijklmnopqrstuvwxyz}
+#VARIABLE {p_tank} {mother}
+#ALIAS {tank} {_newcharmie tank %1}
+#ALIAS {parry} {_newcharmie parry %1}
+#ALIAS {basher} {_newcharmie basher %1; #VARIABLE {powwow_at_folautobash} {1}}
+#ALIAS {_newcharmie} {#MATH {p_result} {$powwow_at_%1s += 1}; #VARIABLE {p_new$1} {$1$p_abc.char[$powwow_at_%1s]}; label $2 $p_new%1; group $p_new%1; #MATH {p_exe_tmp} {message $2 ($p_new%1) is now a $1.}; #$p_exe_tmp; #MATH {p_exe_tmp} {_charmietimer $p_new%1}; #$p_exe_tmp}
+#ALIAS {swapt} {order tanka protect self; label tanka tankx; label tankb tanka; label tankx tankb; order tanka protect $p_name}
+#NOP / TODO: Make based on what we actually have
+#ALIAS {grf} {gr tanka; gr parrya; gr parryb}
+#NOP /  All target - make us all aim at the same
+#ALIAS {ta} {mta %1; cta %1}
+#NOP /  My target - what I'm aiming at
+#VARIABLE {p_mtarget} {}
+#ALIAS {mta} {#VARIABLE {p_mtarget} {%1}; #IF {$1 == } {#VARIABLE {p_mtarget} {}; #SHOWME {$p_BLUE   My target cleared.$p_NORM}}; #ELSE {#SHOWME {$p_BLUE   My target  --> $p_BOLD$p_mtarget$p_NORM}}}
+#NOP /  Charmie target - what we're sicking the charmies on
+#VARIABLE {p_ctarget} {}
+#ALIAS {cta} {#VARIABLE {p_ctarget} {%1}; #IF {$1 == } {#VARIABLE {p_mtarget} {}; #SHOWME {$p_BLUE   Charmies' target cleared.$p_NORM}}; #ELSE {#SHOWME {$p_BLUE   Charmies' target  --> $p_BOLD$p_ctarget$p_NORM}}}
+#ALIAS {xt} {exa $p_mtarget}
+#NOP /  Repeatable actions on same-named targets
+#NOP /   - For example, 'ta statue' then 'setq vbt' before entering room. On entering type 1<enter>, 2<enter> etc for 'cast thoro 'blindness' 1.statue, then 2. etc
+#VARIABLE {p_qspell} {vb}
+#VARIABLE {p_nspell} {vd}
+#ALIAS {setq} {#VARIABLE {p_qspell} {%1}; 1}
+#ALIAS {setn} {#VARIABLE {p_nspell} {%1}; 2}
+#VARIABLE {p_qact} {$p_qspell}
+#ALIAS {1} {#VARIABLE {p_qact} {$p_qspell}; #MATH {p_exe_tmp} {message Quick-action now BLIND ($p_qspell)}; #$p_exe_tmp}
+#ALIAS {2} {#VARIABLE {p_qact} {$p_nspell}; #MATH {p_exe_tmp} {message Quick-action now NUKE ($p_nspell)}; #$p_exe_tmp}
+#ALIAS {3} {#VARIABLE {p_qact} {ock}; #MATH {p_exe_tmp} {message Quick-action now CHAMIE ATTACK (ock)}; #$p_exe_tmp}
+#ALIAS {4} {#VARIABLE {p_qact} {kill}; #MATH {p_exe_tmp} {message Quick-action now KILL}; #$p_exe_tmp}
+#ALIAS {5} {-}
+#ALIAS {6} {[}
+#ALIAS {7} {]}
+#ALIAS {0} {#VARIABLE {p_qact} {cht}; #MATH {p_exe_tmp} {message Quick-action now CHARM}; #$p_exe_tmp}
+#ALIAS {-} {#VARIABLE {p_qact} {kill}; #MATH {p_exe_tmp} {message Quick-action now PK-KILL (charmie attack + nuke)}; #$p_exe_tmp}
+#ALIAS {]} {#VARIABLE {p_qact} {bash dis}; #MATH {p_exe_tmp} {message Quick-action now BASH-DISENGAGE}; #$p_exe_tmp}
+#ALIAS {[} {#VARIABLE {p_qact} {bash}; #MATH {p_exe_tmp} {message Quick-action now BASH}; #$p_exe_tmp}
+#NOP ORIGINAL BIND LABEL: f1
+#MACRO {^[OP} {#MATH {p_exe_tmp} {$p_qact 1.$p_mtarget}; #$p_exe_tmp}
+#NOP ORIGINAL BIND LABEL: f2
+#MACRO {^[OQ} {#MATH {p_exe_tmp} {$p_qact 2.$p_mtarget}; #$p_exe_tmp}
+#NOP ORIGINAL BIND LABEL: f3
+#MACRO {^[OR} {#MATH {p_exe_tmp} {$p_qact 3.$p_mtarget}; #$p_exe_tmp}
+#NOP ORIGINAL BIND LABEL: f4
+#MACRO {^[OS} {#MATH {p_exe_tmp} {$p_qact 4.$p_mtarget}; #$p_exe_tmp}
+#NOP ORIGINAL BIND LABEL: f5
+#MACRO {^[[15~} {#MATH {p_exe_tmp} {$p_qact 5.$p_mtarget}; #$p_exe_tmp}
+#NOP ORIGINAL BIND LABEL: f6
+#MACRO {^[[17~} {#MATH {p_exe_tmp} {$p_qact 6.$p_mtarget}; #$p_exe_tmp}
+#NOP ORIGINAL BIND LABEL: f7
+#MACRO {^[[18~} {#MATH {p_exe_tmp} {$p_qact 7.$p_mtarget}; #$p_exe_tmp}
+#NOP ORIGINAL BIND LABEL: f8
+#MACRO {^[[19~} {#MATH {p_exe_tmp} {$p_qact 8.$p_mtarget}; #$p_exe_tmp}
+#NOP ORIGINAL BIND LABEL: f9
+#MACRO {^[[20~} {#MATH {p_exe_tmp} {$p_qact 9.$p_mtarget}; #$p_exe_tmp}
+#NOP / Qick PK targettting
+#ALIAS {tb} {ta *bear*}
+#ALIAS {td} {ta *dwarf*}
+#ALIAS {te} {ta *elf*}
+#ALIAS {th} {ta *hobbit*}
+#ALIAS {tm} {ta *man*}
+#ALIAS {to} {ta *orc*}
+#ALIAS {tt} {ta *troll*}
+#NOP /  Some quick aliases for PK. I'm clueless at it so probably make your own!
+#ALIAS {km} {k *man*}
+#ALIAS {ko} {k *orc*}
+#ALIAS {kt} {k *troll*}
+#ALIAS {cm} {ock *man*}
+#ALIAS {co} {ock *orc*}
+#ALIAS {ct} {ock *troll*}
+#ALIAS {qm} {cast fast 'dispel evil' *man*}
+#ALIAS {qo} {cast fast 'dispel evil' *orc*}
+#ALIAS {qt} {cast fast 'dispel evil' *troll*}
+#ALIAS {K} {#IF {$p_ctarget != } {#MATH {p_exe_tmp} {of kill $p_ctarget}; #$p_exe_tmp}; dispel fast %1}
+#NOP /  Mounts - some of Kate's custom setup in here!
+#ALIAS {s1} {saddle mine}
+#ALIAS {s2} {saddle mineb}
+#ALIAS {usal} {unsaddle %1 all}
+#ALIAS {u1} {lead; usal mine; ga; rmine}
+#ALIAS {u2} {usal mineb; ga}
+#ALIAS {u3} {usal minec; ga}
+#ALIAS {us1} {unsaddle mine}
+#ALIAS {us2} {unsaddle mineb}
+#ALIAS {us} {lead; us1; us2}
+#ALIAS {usa} {lead; us1; u1; u2; us2}
+#ALIAS {usaa} {usaa horse; usaa pony; usaa mule}
+#ALIAS {unsaall} {#MATH {p_result} {$powwow_at_0 = 1}; #WHILE {$powwow_at_0 <= 9} {#MATH {p_exe_tmp} {usal \@0.$1}; #$p_exe_tmp; #MATH {p_result} {$powwow_at_0}}}
+#ALIAS {rmine} {ride mine}
+#ALIAS {sr} {stand; ride mine}
+#ALIAS {r1} {#ALIAS {sr} {stand; ride mine}; #ALIAS {rmine} {ride mine}; sr}
+#ALIAS {r2} {#ALIAS {sr} {stand; ride mineb}; #ALIAS {rmine} {ride mineb}; sr}
+#ALIAS {r3} {#ALIAS {sr} {stand; ride minec}; #ALIAS {rmine} {ride minec}; sr}
+#ALIAS {mr} {stand; ride mine; say ride}
+#ALIAS {st} {stand}
+#ALIAS {grm} {gr mine; gr mineb}
+#ALIAS {g1} {give %1 mine}
+#ALIAS {g1a} {give all.%1 mine}
+#ALIAS {g1d} {give saddlebag mine}
+#ALIAS {g1s} {give largesack mine}
+#ALIAS {g1t} {give satchel mine}
+#ALIAS {g1r} {give rope mine}
+#ALIAS {g1x} {give box mine}
+#ALIAS {g1b} {give backpack mine}
+#ALIAS {g1w} {give web mine}
+#ALIAS {g2} {give %1 mineb}
+#ALIAS {g2a} {give all.%1 mineb}
+#ALIAS {g2d} {give saddlebag mineb}
+#ALIAS {g2s} {give largesack mineb}
+#ALIAS {g2t} {give satchel mineb}
+#ALIAS {g2r} {give rope mineb}
+#ALIAS {g2x} {give box mineb}
+#ALIAS {g2b} {give backpack mineb}
+#ALIAS {g2w} {give web mineb}
+#ALIAS {gd1} {u1s; drop saddlebag; g1a; get saddlebag}
+#ALIAS {gd2} {u2; drop saddlebag; g2a; get saddlebag}
+#ALIAS {gs1} {u1s; drop all.largesack; g1a; get all.largesack}
+#ALIAS {gs2} {u2; drop all.largesack; drop web; g2a; get web; get all.largesack}
+#ALIAS {gt1} {u1s; drop satchel; g1a; get satchel}
+#ALIAS {gt2} {u2; drop satchel; g2a; get satchel}
+#ALIAS {gw1} {u1s; drop web; g1a; get web}
+#ALIAS {gw2} {u2; drop web; g2a; get web}
+#ALIAS {gb1} {u1s; drop backpack; g1a; get backpack}
+#ALIAS {gb2} {u2; drop backpack; g2a; get backpack}
+#CLASS {sadbaggag} {OPEN}
+#ACTION {It is a saddlebag.} {#LINE GAG}
+#CLASS {sadbaggag} {CLOSE}
+#ALIAS {ld} {look in saddlebag; con saddlebag}
+#ALIAS {gd} {get %1 saddlebag}
+#ALIAS {gda} {get all.%1 saddlebag}
+#ALIAS {pd} {put %1 saddlebag}
+#ALIAS {pda} {put all.%1 saddlebag}
+#ALIAS {makecontaineraliases} {makesatch; makebp; makebpb; makepouch; makestash}
+#CLASS {satchelag} {OPEN}
+#ACTION {It is a leather satchel.} {#LINE GAG}
+#CLASS {satchelag} {CLOSE}
+#ALIAS {makesatch} {#IF {$p_backpack == silvan} {#VARIABLE {p_satch} {2}}; #ELSE {#VARIABLE {p_satch} {1}}; #MATH {p_result} {$powwow_at_0 = 1}; #WHILE {$powwow_at_0 <= 7} {#MATH {p_exe_tmp} {makesatch\@0}; #$p_exe_tmp; #MATH {p_result} {$powwow_at_0}}}
+#ALIAS {makesatch1} {#MATH {p_exe_tmp} {#alias lt={look in $p_satch.satchel; con $p_satch.satchel}}; #$p_exe_tmp}
+#ALIAS {makesatch2} {#MATH {p_exe_tmp} {#alias gt=get \$1 $p_satch.satchel}; #$p_exe_tmp}
+#ALIAS {makesatch3} {#MATH {p_exe_tmp} {#alias gta=get all.\$1 $p_satch.satchel}; #$p_exe_tmp}
+#ALIAS {makesatch4} {#MATH {p_exe_tmp} {#alias pt=put \$1 $p_satch.satchel}; #$p_exe_tmp}
+#ALIAS {makesatch5} {#MATH {p_exe_tmp} {#alias pta=put all.\$1 $p_satch.satchel}; #$p_exe_tmp}
+#ALIAS {makesatch6} {#MATH {p_exe_tmp} {#alias gst={get all.largesack $p_satch.satchel}}; #$p_exe_tmp}
+#ALIAS {makesatch7} {#MATH {p_exe_tmp} {#alias pst={put all.largesack $p_satch.satchel}}; #$p_exe_tmp}
+#VARIABLE {p_backpack} {silvan}
+#CLASS {backpackgag} {OPEN}
+#ACTION {It is a leather backpack.} {#LINE GAG}
+#CLASS {backpackgag} {CLOSE}
+#CLASS {silvansatgag} {OPEN}
+#ACTION {It is a silvan satchel.} {#LINE GAG}
+#CLASS {silvansatgag} {CLOSE}
+#ALIAS {makebp} {#MATH {p_result} {$powwow_at_0 = 1}; #WHILE {$powwow_at_0 <= 7} {#MATH {p_exe_tmp} {makebp\@0}; #$p_exe_tmp; #MATH {p_result} {$powwow_at_0}}}
+#ALIAS {makebp1} {#MATH {p_exe_tmp} {#alias lb={look in $p_backpack; con $p_backpack}}; #$p_exe_tmp}
+#ALIAS {makebp2} {#MATH {p_exe_tmp} {#alias gb=get \$1 $p_backpack}; #$p_exe_tmp}
+#ALIAS {makebp3} {#MATH {p_exe_tmp} {#alias gba=get all.\$1 $p_backpack}; #$p_exe_tmp}
+#ALIAS {makebp4} {#MATH {p_exe_tmp} {#alias pb=put \$1 $p_backpack}; #$p_exe_tmp}
+#ALIAS {makebp5} {#MATH {p_exe_tmp} {#alias pba=put all.\$1 $p_backpack}; #$p_exe_tmp}
+#ALIAS {makebp6} {#MATH {p_exe_tmp} {#alias opbp=open $p_backpack}; #$p_exe_tmp}
+#ALIAS {makebp7} {#MATH {p_exe_tmp} {#alias clbp=close $p_backpack}; #$p_exe_tmp}
+#ALIAS {makebpb} {#IF {$p_backpack == backpack} {#VARIABLE {p_bpb} {2}}; #ELSE {#VARIABLE {p_bpb} {1}}; #MATH {p_result} {$powwow_at_0 = 1}; #WHILE {$powwow_at_0 <= 7} {#MATH {p_exe_tmp} {makebpb\@0}; #$p_exe_tmp; #MATH {p_result} {$powwow_at_0}}}
+#ALIAS {makebpb1} {#MATH {p_exe_tmp} {#alias lbb={look in $p_bpb.backpack; con $p_bpb.backpack}}; #$p_exe_tmp}
+#ALIAS {makebpb2} {#MATH {p_exe_tmp} {#alias gbb=get \$1 $p_bpb.backpack}; #$p_exe_tmp}
+#ALIAS {makebpb3} {#MATH {p_exe_tmp} {#alias gbba=get all.\$1 $p_bpb.backpack}; #$p_exe_tmp}
+#ALIAS {makebpb4} {#MATH {p_exe_tmp} {#alias pbb=put \$1 $p_bpb.backpack}; #$p_exe_tmp}
+#ALIAS {makebpb5} {#MATH {p_exe_tmp} {#alias pbba=put all.\$1 $p_bpb.backpack}; #$p_exe_tmp}
+#ALIAS {makebpb6} {#MATH {p_exe_tmp} {#alias opbpb=open $p_bpb.backpack}; #$p_exe_tmp}
+#ALIAS {makebpb7} {#MATH {p_exe_tmp} {#alias clbpb=close $p_bpb.backpack}; #$p_exe_tmp}
+#VARIABLE {p_petalpouch} {sable}
+#CLASS {sablegag} {OPEN}
+#ACTION {It is a sable pouch.} {#LINE GAG}
+#CLASS {sablegag} {CLOSE}
+#ALIAS {makepouch} {#MATH {p_result} {$powwow_at_0 = 1}; #WHILE {$powwow_at_0 <= 7} {#MATH {p_exe_tmp} {makepouch\@0}; #$p_exe_tmp; #MATH {p_result} {$powwow_at_0}}}
+#ALIAS {makepouch1} {#MATH {p_exe_tmp} {#alias lp={look in $p_petalpouch;  con $p_petalpouch}}; #$p_exe_tmp}
+#ALIAS {makepouch2} {#MATH {p_exe_tmp} {#alias pp=put \$1 $p_petalpouch}; #$p_exe_tmp}
+#ALIAS {makepouch3} {#MATH {p_exe_tmp} {#alias ppa=put all.\$1 $p_petalpouch}; #$p_exe_tmp}
+#ALIAS {makepouch4} {#MATH {p_exe_tmp} {#alias gp=get \$1 $p_petalpouch}; #$p_exe_tmp}
+#ALIAS {makepouch5} {#MATH {p_exe_tmp} {#alias gpa=get all.\$1 $p_petalpouch}; #$p_exe_tmp}
+#ALIAS {makepouch6} {#MATH {p_exe_tmp} {#alias opp=open $p_petalpouch}; #$p_exe_tmp}
+#ALIAS {makepouch7} {#MATH {p_exe_tmp} {#alias clp=close $p_petalpouch}; #$p_exe_tmp}
+#ALIAS {lpb} {look in 2.pouch; con 2.pouch}
+#ALIAS {ppb} {put %1 2.pouch}
+#ALIAS {ppba} {put all.%1 2.pouch}
+#ALIAS {gpb} {get %1 2.pouch}
+#ALIAS {gpba} {get all.%1 2.pouch}
+#ALIAS {oppb} {open 2.pouch}
+#ALIAS {clpb} {close 2.pouch}
+#ALIAS {lpc} {look in 3.pouch; con 3.pouch}
+#ALIAS {ppc} {put %1 3.pouch}
+#ALIAS {ppca} {put all.%1 3.pouch}
+#ALIAS {gpc} {get %1 3.pouch}
+#ALIAS {gpca} {get all.%1 3.pouch}
+#ALIAS {oppc} {open 3.pouch}
+#ALIAS {clpc} {close 3.pouch}
+#CLASS {webgag} {OPEN}
+#ACTION {It is a web.} {#LINE GAG}
+#CLASS {webgag} {CLOSE}
+#ALIAS {lw} {look in web; con web}
+#ALIAS {pw} {put %1 web}
+#ALIAS {pwa} {put all.%1 web}
+#ALIAS {gw} {get %1 web}
+#ALIAS {gwa} {get all.%1 web}
+#ALIAS {gsw} {get all.largesack web}
+#ALIAS {psw} {put all.largesack web}
+#NOP /  Still working on this - multi-sack management. 'lsa' will look in an weigh all sacks, useful for herbloot storage IMHO
+#VARIABLE {p_SACKLET_0} {a}
+#VARIABLE {p_SACKLET_1} {b}
+#VARIABLE {p_SACKLET_2} {c}
+#VARIABLE {p_sacknum} {0}
+#SHOWME { [$p_SACKLET_$sacknum]}
+#CLASS {sackid} {OPEN}
+#ACTION {^sack (%1)} {#IF {$p_sacknum == 0} {#LINE PRINT}; #ELSE {#SHOWME {}; #SHOWME {$p_ULINEContents of $p_sacknum.sack ($1)$p_NORM}}}
+#CLASS {sackid} {CLOSE}
+#CLASS {sackgag} {OPEN}
+#ACTION {It is a large sack.} {#LINE GAG}
+#CLASS {sackgag} {CLOSE}
+#ALIAS {lsa} {ls; lsb; lsc}
+#ALIAS {ls} {#VARIABLE {p_sacknum} {1}; look in 1.largesack; con 1.largesack}
+#ALIAS {ps} {put %1 largesack}
+#ALIAS {psa} {put all.%1 largesack}
+#ALIAS {gs} {get %1 largesack}
+#ALIAS {gsa} {get all.%1 largesack}
+#ALIAS {lsb} {#VARIABLE {p_sacknum} {2}; look in 2.largesack; con 2.largesack}
+#ALIAS {psb} {put %1 2.largesack}
+#ALIAS {psba} {put all.%1 2.largesack}
+#ALIAS {gsb} {get %1 2.largesack}
+#ALIAS {gsba} {get all.%1 2.largesack}
+#ALIAS {lsc} {#VARIABLE {p_sacknum} {3}; look in 3.largesack; con 3.largesack}
+#ALIAS {psc} {put %1 3.largesack}
+#ALIAS {psca} {put all.%1 3.largesack}
+#ALIAS {gsc} {get %1 3.largesack}
+#ALIAS {gsca} {get all.%1 3.largesack}
+#ALIAS {ox} {open box}
+#ALIAS {cx} {close box}
+#ALIAS {lx} {look in box}
+#ALIAS {px} {put %1 box}
+#ALIAS {pxa} {put all.%1 box}
+#ALIAS {gx} {get %1 box}
+#ALIAS {gxa} {get all.%1 box}
+#ALIAS {lj} {look in wallet}
+#ALIAS {pj} {put %1 wallet}
+#ALIAS {pja} {put all.%1 wallet}
+#ALIAS {gj} {get %1 wallet}
+#ALIAS {gja} {get all.%1 wallet}
+#ALIAS {cj} {close wallet}
+#ALIAS {oj} {open wallet}
+#ALIAS {lq} {look in quiver; con quiver}
+#ALIAS {pq} {put %1 quiver}
+#ALIAS {pqa} {put all.%1 quiver}
+#ALIAS {gq} {get %1 quiver}
+#ALIAS {gqa} {get all.%1 quiver}
+#ALIAS {lkey} {look in keyring; con keyring}
+#ALIAS {pkey} {put %1 keyring}
+#ALIAS {pkeya} {pkey all.key}
+#ALIAS {gkey} {get %1 keyring}
+#ALIAS {gkeya} {gkey all.key}
+#ALIAS {gkeyae} {gkey all.key; pkey elven}
+#ALIAS {cad} {gt pan; rem kit; wear pan; cook dough; cook dough; cook dough; cook dough; cook dough; cook dough; cook dough; cook dough; rem pan; wear kit belt; pt pan; psca bannock; pba bannock}
+#ALIAS {cam} {gt pan; gt salt; rem kit; wear pan; cook raw; cook 2.raw; cook 3.raw; cook 4.raw; cook 5.raw; cook 6.raw; cook 7.raw; cook 8.raw; rem pan; wear kit belt; pt pan; pt salt; psa venison; psa smoked}
+#NOP /  Special
+#ALIAS {gai} {get amethyst inset; pb amethyst}
+#ALIAS {pai} {gb amethyst; put amethyst inset}
+#ALIAS {buw} {#IF {!@powwow_first_char_ascii{%1}} {#SHOWME {%1 = oil}}; #MATH {p_exe_tmp} {pour %1 webs}; #$p_exe_tmp; burn webs}
+#ALIAS {tf} {throw flask beast; wm}
+#ALIAS {cup} {gb green; quaff cup; pb cup}
+#ALIAS {rbb} {use quartzite}
+#ALIAS {abdm} {use lambent}
+#NOP / Purple scroll:  Magic, Level 20 cure blindness, sanctuary, and poison, Nosell
+#ALIAS {sbx} {gb purplescroll; recite purplescroll %1}
+#NOP / Vellum scroll:  Bless, Level 25 protection from evil, bless, and breath of briskness
+#NOP / Ivory scroll (rune "O"):  Magic, Level 20 breath of briskness, detect poison, and poison, Nosell
+#ALIAS {sbob} {gb vellumscroll; gb ivoryscroll; recite scroll %1}
+#NOP / Blue scroll:  Magic, Level 20 heal, bless, Nosell
+#NOP / Clear ivory scroll "E": Level 20 heal, sense life, and armour, Nosell
+#NOP / Ebony scroll "E": Heal, burning hands, and earthquake l20
+#ALIAS {sheal} {gb ebonyscroll; gb bluescroll; gb ivoryscroll; recite scroll %1}
+#NOP / Ebony scroll (rune "I"):  Magic, Level 20 magic blast, chill touch, and bless, Nosell
+#ALIAS {blast} {gq ebonyscroll; recite ebonyscroll %1}
+#NOP / Lightning resistance - this relies on spelldown message do re-wield stuff. Assumes already wielding staff!
+#ALIAS {lres} {gb fragile; rem staff; rem buckler; wield fragile; wear staff; recite fragile}
+#NOP / Ivory scroll (rune "M"):  Magic, Level 20 blindness, protection from evil, strength, Nosell
+#NOP / Ebony scroll (rune "M):  blindness+other stuff like other two 'M' scrolls
+#ALIAS {sblind} {gp ivoryscroll; recite ivoryscroll %1}
+#NOP / Deep ebony scroll (rune "N"): Call lightning, curse, and earthquake
+#ALIAS {squake} {gb ebonyscroll; recite ebonyscroll %1}
+#ALIAS {pbs} {use bluestone %1}
+#ALIAS {horn} {gb woodenhorn; use woodenhorn; pb woodenhorn}
+#ALIAS {ork} {gb orkish; qf flask}
+#ALIAS {mir} {gb miruvor; quaff miruvor; pb miruvor}
+#ALIAS {miru} {mir}
+#ALIAS {pouch} {use powder}
+#ALIAS {rock} {gb rock; throw rock %1}
+#ALIAS {candle} {gb candle; wield candle; use candle; wm}
+#ALIAS {cand} {candle}
+#ALIAS {candel} {candle}
+#ALIAS {pc} {put %1 casserole}
+#ALIAS {pwcas} {pour water casserole}
+#ALIAS {bcas} {boil casserole}
+#ALIAS {lcas} {look in casserole}
+#ALIAS {acas} {pc leaves; pc powder; pc vegetable; pc meat; pc fish; pwcas; bcas}
+#SHOWME {$p_GREEN ==== aliases.txt loaded ==== $p_NORM}
+#CLASS {converted} {CLOSE}

@@ -1,0 +1,525 @@
+#CLASS {converted} {OPEN}
+#NOP --- POWWOW COMPATIBILITY LAYER ---
+#VARIABLE {powwow_at_lines} {24}
+#VARIABLE {powwow_at_mem} {0}
+#VARIABLE {powwow_at_buffer} {0}
+#FORMAT {powwow_start_time} {%T}
+#FUNCTION {powwow_timer} {#FORMAT {now} {%T};#MATH {result} {($now - $powwow_start_time) * 1000}}
+#FUNCTION {powwow_rand} {#MATH {result} {1d%1 - 1}}
+#FUNCTION {powwow_char_length} {#FORMAT {result} {%x} {%1}}
+#FUNCTION {powwow_search} {#FORMAT {result} {%p} {%2} {%1}}
+#FUNCTION {powwow_word_count} {#LIST {p_words} {EXPLODE} { }; #LIST {p_words} {FILTER} {{.+}}; #RETURN &p_words[]}
+#FUNCTION {powwow_word} {#LIST {p_words} {EXPLODE} { }; #LIST {p_words} {FILTER} {{.+}}; #RETURN $p_words[%2]}
+#FUNCTION {powwow_word_slice_to_end} {#LIST {p_words} {EXPLODE} { }; #LIST {p_words} {FILTER} {{.+}}; #LIST {p_slice} {CREATE} {$p_words[%2..-1]}; #LIST {p_slice} {COLLAPSE} { }; #RETURN $p_slice}
+#FUNCTION {powwow_word_slice_from_start} {#LIST {p_words} {EXPLODE} { }; #LIST {p_words} {FILTER} {{.+}}; #LIST {p_slice} {CREATE} {$p_words[1..%2]}; #LIST {p_slice} {COLLAPSE} { }; #RETURN $p_slice}
+#FUNCTION {powwow_first_char_ascii} {#FORMAT {result} {%a} {%1}}
+#FUNCTION {powwow_to_number} {#MATH {result} {%1}}
+#ALIAS {powwow_reserved_echo} {#IF {"%1" == ""} {#LINE PRINT} {#ELSE} {#SHOWME {%1}}}
+#ALIAS {powwow_reserved_print} {#IF {"%1" == ""} {#LINE PRINT} {#ELSE} {#SHOWME {%1}}}
+#NOP /  I like to have a bunch of pre-prepared kits, in the satchel on my main mounts. 'lka' looks in them all, then 'wk <1-8>' selects the one you want
+#ALIAS {lk} {#IF {@powwow_first_char_ascii{%0}} {look in %0.kit}}
+#ELSE {look in kit}
+#ALIAS {lka} {gba green; pba cup; rem kit; gda kit; lk 1; lk 2; lk 3; lk 4; lk 5; lk 6; lk 7; lk 8}
+#ALIAS {wk} {wear %1.kit; pb green; pda kit; lk}
+#ALIAS {pk} {put %1 kit}
+#SHOWME { Herb-related aliases }
+#SHOWME {  - 'pf' when at a bush, or 'ga plant' then 'cpa' to crush and auto-stash all }
+#SHOWME {  - assumes you are using same aliases for storage (see aliases.txt)          }
+#ALIAS {pf} {get all from all.plant; get all from all.shrub; stashbush}
+#ALIAS {cp} {#IF {@powwow_first_char_ascii{%0}} {crush %0.plant}; #ELSE {crush plant}; stashcrush}
+#ALIAS {cpa} {#3 crush plant; stashcrush}
+#ALIAS {cpaa} {#8 crush plant; stashcrush}
+#ALIAS {stashherbs} {psa weed; psba red; stashcrush; stashbush}
+#ALIAS {stashcrush} {ppa leaves; ppa petals; ppa powder}
+#ALIAS {stashbush} {ppa leaves; ppa berries; ppa flowers}
+#CLASS {donecp} {OPEN}
+#ACTION {You have} {stashcrush; #CLASS {donecp} {KILL}}
+#CLASS {donecp} {CLOSE}
+#ALIAS {sorth} {_sh lily 3; _sh sage 4; _sh thyme 5; _sh mauve 6; _sh rosemary 4; _sh figwort 3; _sh athelas 3; _sh marjoram 4; _sh tarragon 5; _sh cloves 8; _sh cinnamon 8; _sh poppy 2; _sh coneflower 2; _sh clover 5; _eh splayed; _eh powder; _eh foxtail; _eh foxglove; _eh honeysuckle; _eh violet}
+#ALIAS {sorthh} {_shh honey-wax; _shh rib-bone; _shh moss}
+#ALIAS {_shh} {gpa %1; gba %1; gda %1; #IF {$1 == honey-wax} {psca %1; gsca %1}; #ELSE {psba %1; gsba %1}; pp %1; #IF {$1 == honey-wax} {psca %1}; #ELSE {psba %1}}
+#ALIAS {_sh} {gpa %1; gba %1; psa %1; gsa %1; #%2 pp %1; psa %1}
+#ALIAS {_eh} {gpa %1; gba %1; #IF {$1 == violet} {psba %1}; #ELSE {psa %1}}
+#ALIAS {_crushhon} {#%1 crush honeycomb; pp honey-wax; #IF {%1 > 1} {psca honey-wax; pda honey-wax}}
+#ALIAS {hh} {#IF {$1 == } {_crushhon 3}}
+#ELSE {_crushhon %1}
+#ALIAS {hhh} {_crushhon 8}
+#ALIAS {qf} {quaff %1; hide %1}
+#SHOWME { These assume you've pre-made and stashed them (most of those last a while). Heavy ones in satchel on mount, light ones in backpack }
+#ALIAS {see} {gb phosphorescent; qf phosphorescent}
+#ALIAS {shad} {gb sombre; qf sombre}
+#ALIAS {anti} {gb brown; qf brown}
+#ALIAS {sooth} {utm; gt draught; qf draught; gm}
+#ALIAS {clear} {utm; gt pungent; qf pungent; gm}
+#SHOWME { Mixed kits }
+#CLASS {nomixed} {OPEN}
+#ACTION {A (fragrant-smelling bag|green leather bag|crude herbal kit) contains nothing} {#SHOWME {$0 ($p_GREEN$p_BOLDEMPTY$p_NORM)}}
+#CLASS {nomixed} {CLOSE}
+#CLASS {mixedwalk1} {OPEN}
+#ACTION {A (fragrant-smelling bag|green leather bag|crude herbal kit) contains a cluster of hard, round, black berries, a handful of clover, several cloves and a pinch of pale-green, crushed leaves} {#SHOWME {$0 ($p_BOLD$p_HERBCOLWalking$p_NORM)}}
+#CLASS {mixedwalk1} {CLOSE}
+#CLASS {mixedwalk2} {OPEN}
+#ACTION {A (fragrant-smelling bag|green leather bag|crude herbal kit) contains a pinch of pale-green, crushed leaves, a handful of clover, several cloves and a cluster of hard, round, black berries} {#SHOWME {$0 ($p_BOLD$p_HERBCOLWalking$p_NORM)}}
+#CLASS {mixedwalk2} {CLOSE}
+#CLASS {walkingbrew} {OPEN}
+#ACTION {%1bowl of brew%2} {#SHOWME {("%1bowl of brew ("+$p_BOLD+$p_HERBCOL+"Walking"+$p_NORM+")%2")}}}
+#CLASS {walkingbrew} {CLOSE}
+#CLASS {mixedsooth1} {OPEN}
+#ACTION {A (fragrant-smelling bag|green leather bag|crude herbal kit) contains a handful of blackcurrant berries, a mashed honey-wax mixture, some grey-green leaves, some scented crushed leaves and some white petals} {#SHOWME {$0 ($p_BOLD$p_HERBCOLSoothing-draught$p_NORM)}}
+#CLASS {mixedsooth1} {CLOSE}
+#CLASS {mixedsooth2} {OPEN}
+#ACTION {A (fragrant-smelling bag|green leather bag|crude herbal kit) contains a handful of blackcurrant berries, a mashed honey-wax mixture, some grey-green leaves, some white petals and some scented crushed leaves} {#SHOWME {$0 ($p_BOLD$p_HERBCOLSoothing-draught$p_NORM)}}
+#CLASS {mixedsooth2} {CLOSE}
+#CLASS {soothdraught} {OPEN}
+#ACTION {%1herbal draught%2} {#SHOWME {("%1herbal draught ("+$p_BOLD+$p_HERBCOL+"Soothing-draught"+$p_NORM+")%2")}}}
+#CLASS {soothdraught} {CLOSE}
+#CLASS {mixedshad} {OPEN}
+#ACTION {A (fragrant-smelling bag|green leather bag|crude herbal kit) contains a bag of cinnamon, several needlelike leaves and a rib-bone of a skeleton} {#SHOWME {$0 ($p_BOLD$p_HERBCOLShadows$p_NORM).}}
+#CLASS {mixedshad} {CLOSE}
+#CLASS {shadbottle} {OPEN}
+#ACTION {%1sombre bottle%2} {#SHOWME {("%1sombre bottle ("+$p_BOLD+$p_HERBCOL+"Shadows"+$p_NORM+")%2")}}}
+#CLASS {shadbottle} {CLOSE}
+#CLASS {mixedanti} {OPEN}
+#ACTION {A (fragrant-smelling bag|green leather bag|crude herbal kit) contains two piles of blackberries, some long, slender green leaves, some white petals and some grey petals} {#SHOWME {$0 ($p_BOLD$p_HERBCOLAntidote$p_NORM)}}
+#CLASS {mixedanti} {CLOSE}
+#CLASS {antibottle} {OPEN}
+#ACTION {%1brown bottle%2} {#SHOWME {("%1brown bottle ("+$p_BOLD+$p_HERBCOL+"Antidote"+$p_NORM+")%2")}}}
+#CLASS {antibottle} {CLOSE}
+#CLASS {mixedseeing1} {OPEN}
+#ACTION {A (fragrant-smelling bag|green leather bag|crude herbal kit) contains a bag of cinnamon, a patch of phosphorescent moss and several needlelike leaves} {#SHOWME {$0 ($p_BOLD$p_HERBCOLSeeing$p_NORM).}}
+#CLASS {mixedseeing1} {CLOSE}
+#CLASS {mixedseeing2} {OPEN}
+#ACTION {A (fragrant-smelling bag|green leather bag|crude herbal kit) contains a bag of cinnamon, several needlelike leaves and a patch of phosphorescent moss} {#SHOWME {$0 ($p_BOLD$p_HERBCOLSeeing$p_NORM)}}
+#CLASS {mixedseeing2} {CLOSE}
+#CLASS {seebottle} {OPEN}
+#ACTION {%1phosphorescent bottle%2} {#SHOWME {("%1phosphorescent bottle ("+$p_BOLD+$p_HERBCOL+"Seeing"+$p_NORM+")%2")}}}
+#CLASS {seebottle} {CLOSE}
+#CLASS {mixedclear} {OPEN}
+#ACTION {A (fragrant-smelling bag|green leather bag|crude herbal kit) contains some sweet-smelling dried mauve petals, some grey-green leaves, some scented crushed leaves and a cluster of hard, round, black berries.} {#SHOWME {$0 ($p_BOLD$p_HERBCOLClearthought$p_NORM)}}
+#CLASS {mixedclear} {CLOSE}
+#CLASS {pungbrew} {OPEN}
+#ACTION {%1pungent brew%2} {#SHOWME {("%1pungent brew ("+$p_BOLD+$p_HERBCOL+"Clearthought"+$p_NORM+")%2")}}}
+#CLASS {pungbrew} {CLOSE}
+#CLASS {mixedscaly} {OPEN}
+#ACTION {A (fragrant-smelling bag|green leather bag|crude herbal kit) contains a bright red mushroom, a hemlock plant, a sticky mass of stems, leaves and sap, a foul-smelling root, some orange-red flowers and some white, egg-shaped berries} {#SHOWME {$0 ($p_BOLD$p_HERBCOLDrake-slumber$p_NORM)}}
+#CLASS {mixedscaly} {CLOSE}
+#CLASS {glassflask} {OPEN}
+#ACTION {%1glass flask%2} {#SHOWME {("%1glass flask ("+$p_BOLD+$p_HERBCOL+"Drake-slumber"+$p_NORM+")%2")}}}
+#CLASS {glassflask} {CLOSE}
+#CLASS {mixedbaker1} {OPEN}
+#ACTION {A (fragrant-smelling bag|green leather bag|crude herbal kit) contains three eggs, a mashed honey-wax mixture and a sack of flour} {#SHOWME {$0 ($p_BOLD$p_HERBCOLBaker/bannock$p_NORM)}}
+#CLASS {mixedbaker1} {CLOSE}
+#CLASS {mixedbaker2} {OPEN}
+#ACTION {A (fragrant-smelling bag|green leather bag|crude herbal kit) contains three eggs, a sack of flour and a mashed honey-wax mixture} {#SHOWME {$0 ($p_BOLD$p_HERBCOLBaker/bannock$p_NORM)}}
+#CLASS {mixedbaker2} {CLOSE}
+#CLASS {mixedtrav1} {OPEN}
+#ACTION {A (fragrant-smelling bag|green leather bag|crude herbal kit) contains a handful of narrow leaves, a handful of clover and a man-like root} {#SHOWME {$0 ($p_BOLD$p_HERBCOLTravelling$p_NORM)}}
+#CLASS {mixedtrav1} {CLOSE}
+#CLASS {mugobrew} {OPEN}
+#ACTION {%1mug of brew%2} {#SHOWME {("%1mug of brew ("+$p_BOLD+$p_HERBCOL+"Travelling"+$p_NORM+")%2")}}}
+#CLASS {mugobrew} {CLOSE}
+#CLASS {mixedleaf1} {OPEN}
+#ACTION {A (fragrant-smelling bag|green leather bag|crude herbal kit) contains a purple flower with a fluffy red center, a mashed honey-wax mixture, some grey-green leaves and some scented crushed leaves} {#SHOWME {$0  ($p_BOLD$p_HERBCOLLeaf-Cake$p_NORM)}}
+#CLASS {mixedleaf1} {CLOSE}
+#CLASS {mixedvenom1} {OPEN}
+#ACTION {A (fragrant-smelling bag|green leather bag|crude herbal kit) contains a small fluid-sack, a short, moist tail and some short, black fur} {#SHOWME {$0 ($p_BOLD$p_HERBCOLVenom$p_NORM).}}
+#CLASS {mixedvenom1} {CLOSE}
+#CLASS {venomvial1} {OPEN}
+#ACTION {%1foetid green vial%2} {#SHOWME {("%1foetid green vial ("+$p_BOLD+$p_HERBCOL+"Venom"+$p_NORM+")%2")}}}
+#CLASS {venomvial1} {CLOSE}
+#CLASS {mixedbella1} {OPEN}
+#ACTION {A (fragrant-smelling bag|green leather bag|crude herbal kit) contains a bright red mushroom, some violet berries and a long, sticky bit of flesh} {#SHOWME {$0 ($p_BOLD$p_HERBCOLBelladonna$p_NORM)}}
+#CLASS {mixedbella1} {CLOSE}
+#CLASS {bellavial1} {OPEN}
+#ACTION {%1dark violet vial%2} {#SHOWME {("%1dark violet vial ("+$p_BOLD+$p_HERBCOL+"Belladonna"+$p_NORM+")%2")}}}
+#CLASS {bellavial1} {CLOSE}
+#SHOWME { Herb identification }
+#CLASS {bell2} {OPEN}
+#ACTION {%1violet berries%2} {#SHOWME {("%1violet berries ("+$p_HERBCOL+"Belladonna"+$p_NORM+")%2")}}}
+#CLASS {bell2} {CLOSE}
+#CLASS {bella1} {OPEN}
+#ACTION {%1large shrub covered with dark violet berries%2} {#SHOWME {$1large shrub covered with dark violet berries ($p_HERBCOLBelladonna$p_NORM)$2}}
+#CLASS {bella1} {CLOSE}
+#CLASS {blackc1} {OPEN}
+#ACTION {%1shrub with maple-like leaves%2} {#SHOWME {$1shrub with maple-like leaves ($p_HERBCOLBlackcurrant$p_NORM)$2}}
+#CLASS {blackc1} {CLOSE}
+#CLASS {blackc2} {OPEN}
+#ACTION {%1blackcurrant berries%2} {#SHOWME {$1blackcurrant berries ($p_HERBCOLBlackcurrant$p_NORM)$2}}
+#CLASS {blackc2} {CLOSE}
+#CLASS {cherries} {OPEN}
+#ACTION {%1branches loosely spreading%2} {#SHOWME {$1branches loosely spreading ($p_HERBCOLCherry$p_NORM)$2}}
+#CLASS {cherries} {CLOSE}
+#CLASS {foxtail1} {OPEN}
+#ACTION {%1bushy plant grows here, with tall clusters of yellow flowers%2} {#SHOWME {$1bushy plant grows here, with tall clusters of yellow flowers ($p_HERBCOLFoxtail$p_NORM)$2}}
+#CLASS {foxtail1} {CLOSE}
+#CLASS {foxtail2} {OPEN}
+#ACTION {%1 yellow petals%2} {#SHOWME {$1 yellow petals ($p_HERBCOLFoxtail$p_NORM)$2}}
+#CLASS {foxtail2} {CLOSE}
+#CLASS {ginseng} {OPEN}
+#ACTION {%1man-like root%2} {#SHOWME {$0 ($p_HERBCOLGinseng$p_NORM)}}
+#CLASS {ginseng} {CLOSE}
+#CLASS {ginseng2} {OPEN}
+#ACTION {%1single cluster of flowers atop its narrow stem%2} {#SHOWME {$1single cluster of flowers atop its narrow stem ($p_HERBCOLGinseng$p_NORM)$2}}
+#CLASS {ginseng2} {CLOSE}
+#CLASS {hem1} {OPEN}
+#ACTION {%1tall plant with a perfectly smooth stem%2} {#SHOWME {A tall plant with a perfectly smooth stem ($p_HERBCOLHemlock$p_NORM)$2}}
+#CLASS {hem1} {CLOSE}
+#CLASS {hem2} {OPEN}
+#ACTION {%1hemlock plant%2} {#SHOWME {$1hemlock plant ($p_HERBCOLHemlock$p_NORM)$2}}
+#CLASS {hem2} {CLOSE}
+#CLASS {figwort1} {OPEN}
+#ACTION {%1grey-green plant%2} {#SHOWME {$1grey-green plant ($p_HERBCOLFigwort$p_NORM)$2}}
+#CLASS {figwort1} {CLOSE}
+#CLASS {lily1a} {OPEN}
+#ACTION {%1some white petals%2} {#SHOWME {$1some white petals ($p_HERBCOLWater Lily$p_NORM)$2}}
+#CLASS {lily1a} {CLOSE}
+#CLASS {lily1b} {OPEN}
+#ACTION {%1piles of white petals%2} {#SHOWME {$1piles of white petals ($p_HERBCOLWater Lily$p_NORM)$2}}
+#CLASS {lily1b} {CLOSE}
+#CLASS {lily2} {OPEN}
+#ACTION {%1water%2lily%3} {#SHOWME {$1water$2lily ($p_HERBCOLWater Lily$p_NORM)$3}}
+#CLASS {lily2} {CLOSE}
+#CLASS {lily3} {OPEN}
+#ACTION {%1water lilies%2} {#SHOWME {$1water lilies ($p_HERBCOLWater Lily$p_NORM)$2}}
+#CLASS {lily3} {CLOSE}
+#CLASS {herb15} {OPEN}
+#ACTION {%1woody stemmed plant%2} {#SHOWME {1 woody stemmed plants ($p_HERBCOLTarragon$p_NORM)$2}}
+#CLASS {herb15} {CLOSE}
+#CLASS {herb16} {OPEN}
+#ACTION {%1many-branched shrub%2} {#SHOWME {$1many-branched shrub ($p_HERBCOLThyme$p_NORM)$2}}
+#CLASS {herb16} {CLOSE}
+#CLASS {herb18} {OPEN}
+#ACTION {%1low shrub with bright green, oblong leaves%2} {#SHOWME {$1low shrub with bright green, oblong leaves ($p_HERBCOLBlueberry$p_NORM)$2}}
+#CLASS {herb18} {CLOSE}
+#CLASS {herb19} {OPEN}
+#ACTION {%1woody evergreen plant grows here, with many stems reaching upward%2} {#SHOWME {$1woody evergreen plant grows here, with many stems reaching upward ($p_HERBCOLRosemary$p_NORM)$2}}
+#CLASS {herb19} {CLOSE}
+#CLASS {herb1a} {OPEN}
+#ACTION {%1grey-green leaves and grey flowers%2} {#SHOWME {$1grey-green leaves and grey flowers ($p_HERBCOLFigwort$p_NORM)$2}}
+#CLASS {herb1a} {CLOSE}
+#CLASS {herb2} {OPEN}
+#ACTION {%1grey petals%2} {#SHOWME {$1some grey petals ($p_HERBCOLFigwort$p_NORM)$2}}
+#CLASS {herb2} {CLOSE}
+#CLASS {herb20} {OPEN}
+#ACTION {%1woody, many-stemmed plant%2} {#SHOWME {$1woody, many-stemmed plant ($p_HERBCOLRosemary$p_NORM)$2}}
+#CLASS {herb20} {CLOSE}
+#CLASS {herb21} {OPEN}
+#ACTION {%1needlelike leaves%2} {#SHOWME {$1needlelike leaves ($p_HERBCOLRosemary$p_NORM)$2}}
+#CLASS {herb21} {CLOSE}
+#CLASS {sage1} {OPEN}
+#ACTION {%1waist-high evergreen shrub grows here, with thick, reaching%2} {#SHOWME {$1waist-high evergreen shrub grows here, with thick, reaching$2 ($p_HERBCOLSage$p_NORM)}}
+#CLASS {sage1} {CLOSE}
+#CLASS {sage2} {OPEN}
+#ACTION {%1grey-green leaves%2} {#SHOWME {$1grey-green leaves ($p_HERBCOLSage$p_NORM)$2}}
+#CLASS {sage2} {CLOSE}
+#CLASS {herb3} {OPEN}
+#ACTION {%1small evergreen plant grows here, its woody stems reaching two feet%2} {#SHOWME {$1small evergreen plant grows here, its woody stems reaching two feet ($p_HERBCOLTarragon$p_NORM)$2}}
+#CLASS {herb3} {CLOSE}
+#CLASS {herb30} {OPEN}
+#ACTION {%1short evergreen plant, with slightly bluish needles%2} {#SHOWME {$1short evergreen plant, with slightly bluish needles ($p_HERBCOLJuniper$p_NORM)$2}}
+#CLASS {herb30} {CLOSE}
+#CLASS {juniper2} {OPEN}
+#ACTION {%1cluster%2 hard, round, black berries%3} {#SHOWME {$1cluster$2 hard, round, black berries ($p_HERBCOLJuniper$p_NORM)$3}}
+#CLASS {juniper2} {CLOSE}
+#CLASS {herb4} {OPEN}
+#ACTION {%1grey petals have been scattered about%2} {#SHOWME {$1grey petals have been scattered about ($p_HERBCOLFigwort$p_NORM)$2}}
+#CLASS {herb4} {CLOSE}
+#CLASS {herb5} {OPEN}
+#ACTION {%1of narrow, fragrant leaves%2} {#SHOWME {$1of narrow, fragrant leaves ($p_HERBCOLTarragon$p_NORM)$2}}
+#CLASS {herb5} {CLOSE}
+#CLASS {herb6} {OPEN}
+#ACTION {%1woody, stemmed plant%2} {#SHOWME {$1woody, stemmed plant ($p_HERBCOLTarragon$p_NORM)$2}}
+#CLASS {herb6} {CLOSE}
+#CLASS {Milkweed} {OPEN}
+#ACTION {%1slender plant grows here, with clusters of tiny pink flowers%2} {#SHOWME {$1slender plant grows here, with clusters of tiny pink flowers ($p_HERBCOLMilkweed$p_NORM)$2}}
+#CLASS {Milkweed} {CLOSE}
+#CLASS {herb8} {OPEN}
+#ACTION {%1sticky mass%2} {#SHOWME {$1sticky mass ($p_HERBCOLMilkweed$p_NORM)$2}}
+#CLASS {herb8} {CLOSE}
+#CLASS {herbar1} {OPEN}
+#ACTION {%1grey fluid-sack%2} {#SHOWME {$1grey fluid-sack ($p_HERBCOLArachnia$p_NORM)$2}}
+#CLASS {herbar1} {CLOSE}
+#CLASS {herbath} {OPEN}
+#ACTION {%1long, pointed leaves and flowers at its top%2} {#SHOWME {$1long, pointed leaves and flowers at its top ($p_HERBCOLAthelas$p_NORM)$2}}
+#CLASS {herbath} {CLOSE}
+#CLASS {herbath1} {OPEN}
+#ACTION {%1long, slender green leaves%2} {#SHOWME {$1long, slender green leaves ($p_HERBCOLAthelas$p_NORM)$2}}
+#CLASS {herbath1} {CLOSE}
+#CLASS {herbath2} {OPEN}
+#ACTION {%1small plant%2, with long leaves%3} {#SHOWME {$1small plant$2, with long leaves ($p_HERBCOLAthelas$p_NORM)$3}}
+#CLASS {herbath2} {CLOSE}
+#CLASS {herb17} {OPEN}
+#ACTION {%1large thorny branched shrub%2} {#SHOWME {$1large thorny branched shrub ($p_HERBCOLBlackberry$p_NORM)$2}}
+#CLASS {herb17} {CLOSE}
+#CLASS {herbbb} {OPEN}
+#ACTION {%1 blackberries%2} {#SHOWME {$1 blackberries ($p_HERBCOLBlackberries$p_NORM)$2}}
+#CLASS {herbbb} {CLOSE}
+#CLASS {card1} {OPEN}
+#ACTION {%1purple bloom and wide leaves%2} {#SHOWME {$1purple bloom and wide leaves ($p_HERBCOLCardamon$p_NORM)$2}}
+#CLASS {card1} {CLOSE}
+#CLASS {card2} {OPEN}
+#ACTION {%1short flowe%2, with%3purple bloom%4} {#SHOWME {$1short flowe$2, with$3purple bloom$4 ($p_HERBCOLCardamon$p_NORM)}}
+#CLASS {card2} {CLOSE}
+#CLASS {card3} {OPEN}
+#ACTION {%1grey-brown powder%2} {#SHOWME {$1grey-brown powder ($p_HERBCOLCardamon$p_NORM)$2}}
+#CLASS {card3} {CLOSE}
+#CLASS {herbsal1} {OPEN}
+#ACTION {%1short, moist tail%2} {#SHOWME {$1short, moist tail ($p_HERBCOLSalamander$p_NORM)$2}}
+#CLASS {herbsal1} {CLOSE}
+#CLASS {herbthi1} {OPEN}
+#ACTION {%1white-stemmed plants, with blue flower heads%2} {#SHOWME {$1white-stemmed plants, with blue flower heads ($p_HERBCOLThistle$p_NORM)$2}}
+#CLASS {herbthi1} {CLOSE}
+#CLASS {herbthi2} {OPEN}
+#ACTION {%1prickly plant with blue flower heads%2} {#SHOWME {$1prickly plant with blue flower heads ($p_HERBCOLThistle$p_NORM)$2}}
+#CLASS {herbthi2} {CLOSE}
+#CLASS {herbve1} {OPEN}
+#ACTION {%1small fluid-sack%2} {#SHOWME {$1small fluid-sack ($p_HERBCOLVenom$p_NORM)$2}}
+#CLASS {herbve1} {CLOSE}
+#CLASS {honeysuckle} {OPEN}
+#ACTION {%1 fragile flowers%2} {#SHOWME {$1 fragile flowers ($p_HERBCOLHoneysuckle$p_NORM)$2}}
+#CLASS {honeysuckle} {CLOSE}
+#CLASS {honeysuckle1} {OPEN}
+#ACTION {%1shrub grows here, filling the air with a heavy scent%2} {#SHOWME {$1shrub grows here, filling the air with a heavy scent ($p_HERBCOLHoneysuckle$p_NORM)$2}}
+#CLASS {honeysuckle1} {CLOSE}
+#CLASS {ink1} {OPEN}
+#ACTION {%1holly bush with dark green leaves%2} {#SHOWME {$1holly bush with dark green leaves ($p_HERBCOLInkberry$p_NORM)$2}}
+#CLASS {ink1} {CLOSE}
+#CLASS {tarra7} {OPEN}
+#ACTION {%1of narrow leaves%2} {#SHOWME {$1of narrow leaves ($p_HERBCOLTarragon$p_NORM)$2}}
+#CLASS {tarra7} {CLOSE}
+#CLASS {thyme3} {OPEN}
+#ACTION {%1scented crushed leaves%2} {#SHOWME {$1scented crushed leaves ($p_HERBCOLThyme$p_NORM)$2}}
+#CLASS {thyme3} {CLOSE}
+#CLASS {thyme4} {OPEN}
+#ACTION {%1crushed leaves gives off a pleasant scent%2} {#SHOWME {$1crushed leaves gives off a pleasant scent ($p_HERBCOLThyme$p_NORM)$2}}
+#CLASS {thyme4} {CLOSE}
+#CLASS {vani3} {OPEN}
+#ACTION {%1brown bean%2} {#SHOWME {$1brown bean ($p_HERBCOLVanilla$p_NORM)$2}}
+#CLASS {vani3} {CLOSE}
+#CLASS {valerian1} {OPEN}
+#ACTION {%1foul-smelling root%2} {#SHOWME {$1foul-smelling root ($p_HERBCOLValerian$p_NORM)$2}}
+#CLASS {valerian1} {CLOSE}
+#CLASS {marjoram1} {OPEN}
+#ACTION {%1thin, hairy plant%2} {#SHOWME {$1thin, hairy plant ($p_HERBCOLMarjoram$p_NORM)$2}}
+#CLASS {marjoram1} {CLOSE}
+#CLASS {marjoram2} {OPEN}
+#ACTION {%1 pale-green%2crushed leaves%3} {#SHOWME {$1 pale-green$2crushed leaves ($p_HERBCOLMarjoram$p_NORM)$3}}
+#CLASS {marjoram2} {CLOSE}
+#CLASS {poppy1} {OPEN}
+#ACTION {%1orange-red flowers%2} {#SHOWME {$1orange-red flowers ($p_HERBCOLPoppy$p_NORM)$2}}
+#CLASS {poppy1} {CLOSE}
+#CLASS {poppy2} {OPEN}
+#ACTION {%1orange-red blossoms%2} {#SHOWME {$1orange-red flowers ($p_HERBCOLPoppy$p_NORM)$2}}
+#CLASS {poppy2} {CLOSE}
+#CLASS {seeing1} {OPEN}
+#ACTION {%1phosphorescent moss%2} {#SHOWME {$1phosphorescent moss ($p_HERBCOLSeeing Moss$p_NORM)$2}}
+#CLASS {seeing1} {CLOSE}
+#CLASS {seeing2} {OPEN}
+#ACTION {%1patch of moss grows here on a wet, flat stone%2} {#SHOWME {$1patch of moss ($p_HERBCOLSeeing Moss$p_NORM)$2}}
+#CLASS {seeing2} {CLOSE}
+#CLASS {pipeweed} {OPEN}
+#ACTION {%1pipe-weed%2} {#SHOWME {$1pipe-weed ($p_HERBCOLPipe-weed$p_NORM)$2}}
+#CLASS {pipeweed} {CLOSE}
+#CLASS {slenderflow1} {OPEN}
+#ACTION {%1slender flowering plant%2} {#SHOWME {$1slender flowering plant ($p_HERBCOLMilkweed$p_NORM)$2}}
+#CLASS {slenderflow1} {CLOSE}
+#CLASS {corriander1} {OPEN}
+#ACTION {%1 man's-waist high evergreen shrub grows here, with bright green %2} {#SHOWME {$1 man's-waist high evergreen shrub grows here, with bright green $2 ($p_HERBCOLCorriander$p_NORM)}}
+#CLASS {corriander1} {CLOSE}
+#CLASS {corriander2} {OPEN}
+#ACTION {%1bright green shrub%2} {#SHOWME {$1bright green shrub$2 ($p_HERBCOLCorriander$p_NORM)}}
+#CLASS {corriander2} {CLOSE}
+#CLASS {sage3} {OPEN}
+#ACTION {[a-z]([a-z]*) evergreen shrub(s)?} {#SHOWME {$1 ($p_HERBCOLSage$p_NORM)}}
+#CLASS {sage3} {CLOSE}
+#CLASS {splayed1} {OPEN}
+#ACTION {%1splayed leaves%2} {#SHOWME {$1splayed leaves ($p_HERBCOLCorriander$p_NORM)$2}}
+#CLASS {splayed1} {CLOSE}
+#CLASS {clover1} {OPEN}
+#ACTION {%1clover grows%2} {#SHOWME {$1clover grows$2 ($p_HERBCOLClover$p_NORM)}}
+#CLASS {clover1} {CLOSE}
+#CLASS {clover2} {OPEN}
+#ACTION {%1handful%2of clover%3} {#SHOWME {$1handful$2of clover ($p_HERBCOLClover$p_NORM)$3}}
+#CLASS {clover2} {CLOSE}
+#CLASS {cloves1} {OPEN}
+#ACTION {%1small cloves%2} {#SHOWME {$1small cloves$2 ($p_HERBCOLCloves$p_NORM)}}
+#CLASS {cloves1} {CLOSE}
+#CLASS {cloves2} {OPEN}
+#ACTION {%1several cloves%2} {#SHOWME {$1several cloves$2 ($p_HERBCOLCloves$p_NORM)}}
+#CLASS {cloves2} {CLOSE}
+#CLASS {cloves3} {OPEN}
+#ACTION {%1piles of cloves%2} {#SHOWME {$1piles of cloves$2 ($p_HERBCOLCloves$p_NORM)}}
+#CLASS {cloves3} {CLOSE}
+#CLASS {cinnamon1} {OPEN}
+#ACTION {%1bag%2of cinnamon%3} {#SHOWME {$1bag$2of cinnamon$3 ($p_HERBCOLCinnamon$p_NORM)}}
+#CLASS {cinnamon1} {CLOSE}
+#CLASS {slendwhite1} {OPEN}
+#ACTION {%1slender plant%2} {#SHOWME {$1slender plant ($p_HERBCOLFoxglove$p_NORM)$2}}
+#CLASS {slendwhite1} {CLOSE}
+#CLASS {bluishwhite1} {OPEN}
+#ACTION {%1bluish-white petals%2} {#SHOWME {$1bluish-white petals ($p_HERBCOLFoxglove$p_NORM)$2}}
+#CLASS {bluishwhite1} {CLOSE}
+#CLASS {misty1} {OPEN}
+#ACTION {%1misty plant%2} {#SHOWME {$1misty plant ($p_HERBCOLHithlain$p_NORM)$2}}
+#CLASS {misty1} {CLOSE}
+#CLASS {misty2} {OPEN}
+#ACTION {%1tall silvery plant%2mist%3} {#SHOWME {$1tall silvery plant$2mist$3 ($p_HERBCOLHithlain$p_NORM)}}
+#CLASS {misty2} {CLOSE}
+#CLASS {bushy1} {OPEN}
+#ACTION {%1bushy flowering%2} {#SHOWME {$1bushy flowering ($p_HERBCOLFoxtail$p_NORM)$2}}
+#CLASS {bushy1} {CLOSE}
+#CLASS {bulbous1} {OPEN}
+#ACTION {%1bulbous root%2} {#SHOWME {$1bulbous root ($p_HERBCOLComfrey$p_NORM)$2}}
+#CLASS {bulbous1} {CLOSE}
+#CLASS {goose1} {OPEN}
+#ACTION {%1tough green weed%2} {#SHOWME {$1tough green weed ($p_HERBCOLGoosegrass$p_NORM)$2}}
+#CLASS {goose1} {CLOSE}
+#CLASS {goose2} {OPEN}
+#ACTION {%1small and tough weed%2} {#SHOWME {$1small and tough weed ($p_HERBCOLGoosegrass$p_NORM)$2}}
+#CLASS {goose2} {CLOSE}
+#CLASS {mint1} {OPEN}
+#ACTION {%1fresh-scented leaves%2} {#SHOWME {$1fresh-scented leaves ($p_HERBCOLMint$p_NORM)$2}}
+#CLASS {mint1} {CLOSE}
+#CLASS {mint2} {OPEN}
+#ACTION {%1clean fragrance drifts up from a thick clump of leaves%2} {#SHOWME {$1clean fragrance drifts up from a thick clump of leaves ($p_HERBCOLMint$p_NORM)$2}}
+#CLASS {mint2} {CLOSE}
+#CLASS {mauve1} {OPEN}
+#ACTION {%1mauve petals%2} {#SHOWME {$1mauve petals ($p_HERBCOLMauve$p_NORM)$2}}
+#CLASS {mauve1} {CLOSE}
+#CLASS {salt1} {OPEN}
+#ACTION {%1chunk%2of salt%3} {#SHOWME {$1chunk$2of salt ($p_HERBCOLSalt$p_NORM) $3}}
+#CLASS {salt1} {CLOSE}
+#CLASS {pepper1} {OPEN}
+#ACTION {%1sack%2of pepper%3} {#SHOWME {$1sack$2of pepper ($p_HERBCOLPepper$p_NORM) $3}}
+#CLASS {pepper1} {CLOSE}
+#CLASS {orchid1} {OPEN}
+#ACTION {%1orchid of light violet petals%2} {#SHOWME {$1orchid of light violet petals ($p_BOLD$p_DARK$p_CYANOrchid$p_NORM)$2}}
+#CLASS {orchid1} {CLOSE}
+#CLASS {orchid2} {OPEN}
+#ACTION {%1violet orchid%2} {#SHOWME {$1violet orchid ($p_BOLD$p_DARK$p_CYANViolet Orchid$p_NORM)$2}}
+#CLASS {orchid2} {CLOSE}
+#CLASS {coneflower1} {OPEN}
+#ACTION {%1short plant, with lance-shaped leaves%2} {#SHOWME {$1short plant, with lance-shaped leaves ($p_HERBCOLConeflower$p_NORM)$2}}
+#CLASS {coneflower1} {CLOSE}
+#CLASS {coneflower2} {OPEN}
+#ACTION {%1purple flower with a fluffy red center%2} {#SHOWME {$1purple flower with a fluffy red center ($p_HERBCOLConeflower$p_NORM)$2}}
+#CLASS {coneflower2} {CLOSE}
+#CLASS {coneflower3} {OPEN}
+#ACTION {%1purple-red flower%2} {#SHOWME {$1purple-red flower$2 ($p_HERBCOLConeflower$p_NORM)}}
+#CLASS {coneflower3} {CLOSE}
+#CLASS {nettle1} {OPEN}
+#ACTION {%1stinging nettle%2} {#SHOWME {$1stinging nettle$2 ($p_HERBCOLNettle$p_NORM)}}
+#CLASS {nettle1} {CLOSE}
+#CLASS {paprika1} {OPEN}
+#ACTION {%1pungent red powder%2} {#SHOWME {$1pungent red powder$2 ($p_HERBCOLPaprika$p_NORM)}}
+#CLASS {paprika1} {CLOSE}
+#CLASS {baneberry1} {OPEN}
+#ACTION {%1dark green, foul-smelling shrub%2} {#SHOWME {$0 ($p_HERBCOLBaneberry$p_NORM)}}
+#CLASS {baneberry1} {CLOSE}
+#CLASS {bane1} {OPEN}
+#ACTION {%1white, egg-shaped berries%2} {#SHOWME {$1white, egg-shaped berries ($p_HERBCOLBaneberries$p_NORM)$2}}
+#CLASS {bane1} {CLOSE}
+#CLASS {raspberries1} {OPEN}
+#ACTION {%1erect shrub with green pinnate leaves%2} {#SHOWME {$0 ($p_HERBCOLRaspberry$p_NORM)}}
+#CLASS {raspberries1} {CLOSE}
+#CLASS {honey1} {OPEN}
+#ACTION {%1honey-wax mixture%2} {#SHOWME {$1honey-wax mixture$2 ($p_HERBCOLHoney$p_NORM)}}
+#CLASS {honey1} {CLOSE}
+#CLASS {batfur1} {OPEN}
+#ACTION {%1short, black fur%2} {#SHOWME {$1short, black fur ($p_HERBCOLBat Fur$p_NORM)$2}}
+#CLASS {batfur1} {CLOSE}
+#CLASS {tongue1} {OPEN}
+#ACTION {%1long, sticky bi%2 of flesh%3} {#SHOWME {$1long, sticky bi$2 of flesh$3 ($p_HERBCOLFrog Tongue$p_NORM)}}
+#CLASS {tongue1} {CLOSE}
+#CLASS {ribbone1} {OPEN}
+#ACTION {%1rib-bon%2 of%3 skeleto%4} {#SHOWME {$0 ($p_HERBCOLRib-bone$p_NORM)}}
+#CLASS {ribbone1} {CLOSE}
+#NOP / Flowers & misc
+#CLASS {flower1} {OPEN}
+#ACTION {^%1snow-white and palest green%2} {#SHOWME {$1snow-white and palest green ($p_HERBCOLNiphredil$p_NORM)$2}}
+#CLASS {flower1} {CLOSE}
+#CLASS {flower2a} {OPEN}
+#ACTION {^%1golden blooms%2 stars%3} {#SHOWME {$1golden blooms$2 stars ($p_HERBCOLElanor$p_NORM)$3}}
+#CLASS {flower2a} {CLOSE}
+#CLASS {flower2b} {OPEN}
+#ACTION {^%1golden, star-like blooms%2} {#SHOWME {$1golden, star-like blooms ($p_HERBCOLEgbalanor$p_NORM)$2}}
+#CLASS {flower2b} {CLOSE}
+#CLASS {flower3a} {OPEN}
+#ACTION {^%1dense carpet%2blue flowers%3} {#SHOWME {$1dense carpet$2blue flowers ($p_HERBCOLBluebells$p_NORM)$3}}
+#CLASS {flower3a} {CLOSE}
+#CLASS {flower3b} {OPEN}
+#ACTION {^%1pale blue flowers%2} {#SHOWME {$1pale blue flowers ($p_HERBCOLBluebells$p_NORM)$2}}
+#CLASS {flower3b} {CLOSE}
+#CLASS {flower4a} {OPEN}
+#ACTION {^%1white%2star%3forget-me-nots%4} {#SHOWME {$1white$2star$3forget-me-nots ($p_HERBCOLSimbelmyne$p_NORM)$4}}
+#CLASS {flower4a} {CLOSE}
+#CLASS {flower5a} {OPEN}
+#ACTION {^%1bright white flower%2} {#SHOWME {$1bright white flower ($p_HERBCOLAnemone$p_NORM)$2}}
+#CLASS {flower5a} {CLOSE}
+#CLASS {flower6a} {OPEN}
+#ACTION {^%1cluste%2 of yellow flowers%3} {#SHOWME {$1cluste$2 of yellow flowers ($p_HERBCOLButtercups$p_NORM)$3}}
+#CLASS {flower6a} {CLOSE}
+#CLASS {lmoss1} {OPEN}
+#ACTION {^%1star-shaped moss%2} {#SHOWME {$1star-shaped moss ($p_HERBCOLLorien moss$p_NORM)$2}}
+#CLASS {lmoss1} {CLOSE}
+#CLASS {lmoss2} {OPEN}
+#ACTION {^%1silvery moss%2} {#SHOWME {$1silvery moss ($p_HERBCOLLorien moss$p_NORM)$2}}
+#CLASS {lmoss2} {CLOSE}
+#CLASS {mistletoe1} {OPEN}
+#ACTION {^%1waxy leaves and white berries%2} {#SHOWME {$1waxy leaves and white berries ($p_HERBCOLMistletoe$p_NORM)$2}}
+#CLASS {mistletoe1} {CLOSE}
+#CLASS {mistletoe2} {OPEN}
+#ACTION {^%1small vine sprig%2} {#SHOWME {$1small vine sprig ($p_HERBCOLMistletoe$p_NORM)$2}}
+#CLASS {mistletoe2} {CLOSE}
+#CLASS {chanter1} {OPEN}
+#ACTION {^%1orange mushrooms%2} {#SHOWME {$1orange mushrooms ($p_HERBCOLChanterelles$p_NORM)$2}}
+#CLASS {chanter1} {CLOSE}
+#CLASS {heather1} {OPEN}
+#ACTION {%1reddish-brown shrub with purplish-pink flowers%2} {#SHOWME {$0 ($p_HERBCOLHeather$p_NORM)}}
+#CLASS {heather1} {CLOSE}
+#CLASS {heather2} {OPEN}
+#ACTION {%1cluster%2of purplish-pink flowers%3} {#SHOWME {$1cluster$2of purplish-pink flowers ($p_HERBCOLHeather$p_NORM)$3}}
+#CLASS {heather2} {CLOSE}
+ID'd some additional herbs and flowers (Foxglove, Bluebells, Anenome etc).
+Improved matching of bushes as containers.
+#SHOWME { Auto-mixing aliases - you'll need to adjust if you keep herbs in different places to me! (see stashherbs) }
+#ALIAS {autobaker} {getbaker; mixbaker; mk; cad}
+#ALIAS {autodough} {getbaker; mixbaker; mk; sa dough; psca dough}
+#ALIAS {getbaker} {gsc honey-wax; gsc egg; gsc egg; gsc egg; gsc flour; lk}
+#ALIAS {mixbaker} {put honey-wax kit; put egg kit; put egg kit; put egg kit; put flour kit; lk}
+#ALIAS {autoantidote} {getantidote; mixantidote; mk}
+#ALIAS {getantidote} {gp blackberries; gp blackberries; gp lily; gp figwort; gp athelas; lk}
+#ALIAS {mixantidote} {pk blackberries; pk blackberries; pk lily; pk figwort; pk athelas; lk}
+#ALIAS {autoclear} {getclear; mixclear; mk}
+#ALIAS {getclear} {gp juniper; gp mauve; gp sage; gp thyme; lk}
+#ALIAS {mixclear} {put juniper kit; put mauve kit; put sage kit; put thyme kit; lk}
+#ALIAS {autoseeing} {getseeing; mixseeing; mk}
+#ALIAS {getseeing} {gp cinnamon; gp rosemary; gp moss; lk}
+#ALIAS {mixseeing} {put cinnamon kit; put rosemary kit; put moss kit; lk}
+#ALIAS {autoshadows} {getshadows; mixshadows; mk}
+#ALIAS {getshadows} {gp cinnamon; gp rosemary; gp rib-bone; lk}
+#ALIAS {mixshadows} {put cinnamon kit; put rosemary kit; put rib-bone kit; lk}
+#ALIAS {autosoothing} {getsoothing; mixsoothing; mk}
+#ALIAS {getsoothing} {gp honey; gp sage; gp thyme; gp blackcurrant; gp lily; lk}
+#ALIAS {mixsoothing} {put honey kit; put sage kit; put thyme kit; put blackcurrant kit; put lily kit; lk}
+#ALIAS {autowalking} {getwalking; mixwalking; mk}
+#ALIAS {getwalking} {gp marjoram; gp clover; gp cloves; gp juniper; lk}
+#ALIAS {mixwalking} {put marjoram kit; put cloves kit; put clover kit; put juniper kit; lk}
+#ALIAS {getscaly} {gsb mass; gsb hemlock; gsb red; gp valerian; gp poppy; gp baneberry; lk}
+#ALIAS {mixscaly} {put mass kit; put valerian kit; put poppy kit; put hemlock kit; put red kit; put baneberry kit; lk}
+#ALIAS {autotravelling} {gettravelling; mixtravelling; mk}
+#ALIAS {gettravelling} {gp tarragon; gp ginseng; gp clover; lk}
+#ALIAS {mixtravelling} {pk tarragon; pk ginseng; pk clover; lk}
+#ALIAS {autoleafcake} {getleafcake; mixleafcake; mk}
+#ALIAS {getleafcake} {gp honey; gp thyme; gp sage; gp coneflower; lk}
+#ALIAS {mixleafcake} {pk honey; pk thyme; pk sage; pk coneflower; lk}
+#ALIAS {autovenom} {getvenom; mixvenom; mk}
+#ALIAS {getvenom} {gsb tail; gsb bat; gsb small; lk}
+#ALIAS {mixvenom} {pk tail; pk bat; pk small; lk}
+#ALIAS {autobella} {getbella; mixbella; mk}
+#ALIAS {getbella} {gsb tongue; gsb belladonna; gsb red-mushroom; lk}
+#ALIAS {mixbella} {pk  tongue; pk  belladonna; pk  red-mushroom; lk}
+#ALIAS {mk} {rest; mix kit; stand}
+#ALIAS {Xmk} {gb spoon; wield spoon; rest; mix kit; stand; wm; pb spoon}
+#SHOWME {$p_GREEN ==== herbs.txt loaded ==== $p_NORM}
+#CLASS {converted} {CLOSE}

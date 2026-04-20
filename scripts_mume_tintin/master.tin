@@ -1,0 +1,358 @@
+#CLASS {converted} {OPEN}
+#NOP --- POWWOW COMPATIBILITY LAYER ---
+#VARIABLE {powwow_at_lines} {24}
+#VARIABLE {powwow_at_mem} {0}
+#VARIABLE {powwow_at_buffer} {0}
+#FORMAT {powwow_start_time} {%T}
+#FUNCTION {powwow_timer} {#FORMAT {now} {%T};#MATH {result} {($now - $powwow_start_time) * 1000}}
+#FUNCTION {powwow_rand} {#MATH {result} {1d%1 - 1}}
+#FUNCTION {powwow_char_length} {#FORMAT {result} {%x} {%1}}
+#FUNCTION {powwow_search} {#FORMAT {result} {%p} {%2} {%1}}
+#FUNCTION {powwow_word_count} {#LIST {p_words} {EXPLODE} { }; #LIST {p_words} {FILTER} {{.+}}; #RETURN &p_words[]}
+#FUNCTION {powwow_word} {#LIST {p_words} {EXPLODE} { }; #LIST {p_words} {FILTER} {{.+}}; #RETURN $p_words[%2]}
+#FUNCTION {powwow_word_slice_to_end} {#LIST {p_words} {EXPLODE} { }; #LIST {p_words} {FILTER} {{.+}}; #LIST {p_slice} {CREATE} {$p_words[%2..-1]}; #LIST {p_slice} {COLLAPSE} { }; #RETURN $p_slice}
+#FUNCTION {powwow_word_slice_from_start} {#LIST {p_words} {EXPLODE} { }; #LIST {p_words} {FILTER} {{.+}}; #LIST {p_slice} {CREATE} {$p_words[1..%2]}; #LIST {p_slice} {COLLAPSE} { }; #RETURN $p_slice}
+#FUNCTION {powwow_first_char_ascii} {#FORMAT {result} {%a} {%1}}
+#FUNCTION {powwow_to_number} {#MATH {result} {%1}}
+#ALIAS {powwow_reserved_echo} {#IF {"%1" == ""} {#LINE PRINT} {#ELSE} {#SHOWME {%1}}}
+#ALIAS {powwow_reserved_print} {#IF {"%1" == ""} {#LINE PRINT} {#ELSE} {#SHOWME {%1}}}
+#NOP UNSUPPORTED: #savefile-version 1
+#ALIAS
+#NOP /=#(0)'
+#NOP /  ======================================================================================================
+#NOP /  |                                                                                                    |
+#NOP /  |                Master config for powwow/powtty - loads other config files                          |
+#NOP /  |                                                                                                    |
+#NOP /  |      - This still needs to be factored significantly and has a lot of 'Kate custom' stuff in it    |
+#NOP /  |      - Also still quite buggy. Use selectively!                                                    |
+#NOP /  |                                                                                                    |
+#NOP /  ======================================================================================================
+#NOP UNSUPPORTED: #host localhost 4242
+#NOP UNSUPPORTED: #delim normal
+#NOP UNSUPPORTED: #groupdelim @
+#VARIABLE {powwow_at_mem} {10485760}
+#NOP OPTION ignored: #option -info
+#SHOWME {Annoyingly it seems to need explicit path on Mac, so you'll need to change this}
+#VARIABLE {p_cwd} {/Users/khcw/Games/MUME/}
+#ALIAS {reload} {#READ {/Users/khcw/Games/MUME/master.txt}}
+#NOP / Don't save the config file every time
+#NOP UNSUPPORTED: #file =
+#NOP /  Colour definitions
+#VARIABLE {p_NORM} {\033[0m}
+#VARIABLE {p_BOLD} {\033[1m}
+#VARIABLE {p_DARK} {\033[2m}
+#VARIABLE {p_ULINE} {\033[4m}
+#VARIABLE {p_FLASH} {\033[5m}
+#VARIABLE {p_BLACK} {\033[30m}
+#VARIABLE {p_WHITE} {\033[37m}
+#VARIABLE {p_RED} {\033[31m}
+#VARIABLE {p_GREEN} {\033[32m}
+#VARIABLE {p_BLUE} {\033[34m}
+#VARIABLE {p_MAGENTA} {\033[35m}
+#VARIABLE {p_CYAN} {\033[36m}
+#VARIABLE {p_YELLOW} {\033[33m}
+#VARIABLE {p_BKBLACK} {\033[40m}
+#VARIABLE {p_BKWHITE} {\033[47m}
+#VARIABLE {p_BKBLUE} {\033[44m}
+#VARIABLE {p_BKCYAN} {\033[46m}
+#VARIABLE {p_BKGREEN} {\033[42m}
+#VARIABLE {p_BKMAGENTA} {\033[45m}
+#VARIABLE {p_BKRED} {\033[41m}
+#VARIABLE {p_BKYELLOW} {\033[43m}
+#SHOWME { Colour customisations - these can be set to whatever you like }
+#VARIABLE {p_EXITSCOL} {$p_BLUE}
+#VARIABLE {p_ITEMCOL} {$p_CYAN}
+#VARIABLE {p_HERBCOL} {$p_CYAN}
+#VARIABLE {p_WEATHERCOL} {$p_DARK$p_BOLD$p_CYAN}
+#VARIABLE {p_KEYCOL} {$p_DARK$p_CYAN$p_BOLD}
+#VARIABLE {p_MOBCOL} {$p_YELLOW}
+#VARIABLE {p_ENEMYCOL} {$p_BOLD$p_RED}
+#VARIABLE {p_LABELCOL} {$p_GREEN}
+#VARIABLE {p_STATUSCOL} {$p_BKYELLOW$p_BLACK}
+#VARIABLE {p_ARRIVESCOL} {$p_MAGENTA}
+#VARIABLE {p_LEAVESCOL} {$p_GREEN}
+#VARIABLE {p_BASHCOL} {$p_BLUE}
+#VARIABLE {p_MAGICCOL} {$p_MAGENTA}
+#VARIABLE {p_TELLCOL} {$p_GREEN}
+#NOP /  Need to override MUME's colours for some of the pattern matching. This was before I worked out how to get regexps working, so apologies for crudeness!
+cha col look bold underline green
+#NOP / This will get overridden for (unnamed) mobs
+cha col say blue on green
+#NOP / To also catch custom say-emotes
+cha col emote blue on green
+#NOP / This needs to come before highlighting - put into a file?
+#ALIAS {drinkon} {#CLASS {autodrink1} {OPEN}; #CLASS {autodrink2} {OPEN}; #CLASS {autodrink3} {OPEN}; #CLASS {autodrink4} {OPEN}; #NOP UNCONVERTED ACTION ARGS: +autodrink5 message Autodrink ON}
+#ALIAS {drinkoff} {#CLASS {autodrink1} {KILL}; #CLASS {autodrink2} {KILL}; #CLASS {autodrink3} {KILL}; #CLASS {autodrink4} {KILL}; #CLASS {autodrink5} {KILL}; message Autodrink OFF}
+#CLASS {autodrink1} {OPEN}
+#ACTION {clear spring babbles} {drink water}
+#CLASS {autodrink1} {CLOSE}
+#CLASS {autodrink2} {OPEN}
+#ACTION {^A %1fountain} {drink water}
+#CLASS {autodrink2} {CLOSE}
+#CLASS {autodrink3} {OPEN}
+#ACTION {inviting you to take a refreshing} {drink water}
+#CLASS {autodrink3} {CLOSE}
+#CLASS {autodrink4} {OPEN}
+#ACTION {sparkling clear water} {drink water}
+#CLASS {autodrink4} {CLOSE}
+#CLASS {autodrink5} {OPEN}
+#ACTION {^A %1stone well} {drink water}
+#CLASS {autodrink5} {CLOSE}
+#NOP / Notifications
+#ALIAS {notify} {#SHOWME {$p_BLUE  %0$p_NORM}}
+#ALIAS {message} {#SHOWME {}; #SHOWME {$p_BOLD$p_BLUE   --> %0 <--$p_NORM}; #SHOWME {}}
+#ALIAS {warning} {#SHOWME {}; #SHOWME {$p_BOLD$p_RED   --> %0 <--$p_NORM}; #SHOWME {}}
+#ALIAS {system} {#SHOWME {}; #SHOWME {$p_BKYELLOW$p_BOLD$p_BLUE   --> %0 <--$p_NORM}; #SHOWME {}}
+#NOP /  Load in sub-files
+#NOP /  this didn't work: #exe ("<"+$cwd+"aliases.txt") etc ")
+#READ {/Users/khcw/Games/MUME/aliases.txt}
+#READ {/Users/khcw/Games/MUME/magic.txt}
+#READ {/Users/khcw/Games/MUME/herbs.txt}
+#READ {/Users/khcw/Games/MUME/autotravel.txt}
+#READ {/Users/khcw/Games/MUME/autodoor.txt}
+#READ {/Users/khcw/Games/MUME/keys.txt}
+#READ {/Users/khcw/Games/MUME/whathere.txt}
+#READ {/Users/khcw/Games/MUME/wardrobe.txt}
+#READ {/Users/khcw/Games/MUME/private.txt}
+#NOP /  Some custom emotes
+#ALIAS {.} {emote %0.}
+#ALIAS {nodh} {emote nods happily.}
+#ALIAS {wrink} {emote wrinkles her nose in distaste.}
+#ALIAS {rubglee} {emote rubs her hands together gleefully.}
+#ALIAS {shud} {emote shudders, a chill running down her spine.}
+#ALIAS {mumb} {emote mumbles, '%0', in her sleep.}
+#NOP / Helpful AFKness
+#VARIABLE {p_afkact} {staring off into the distance (afk)}
+#VARIABLE {p_Xafkact} {striking a pose (afk)}
+#VARIABLE {powwow_at_afk} {0}
+#ALIAS {setqt} {#ALIAS {qt} {tell %1 %%0}; #TAB {%1}}
+#ALIAS {qt} {tell XXXX %0}
+#CLASS {afk} {OPEN}
+#ACTION {m([^ ]+) tells you .+} {#IF {!$powwow_at_autoreplied_%2} {tell $2 I'm either AFK or otherwise distracted. Please leave a message and I'll get back to you. :); #VARIABLE {powwow_at_autoreplied_$2} {1}}; setqt %2}
+#CLASS {afk} {CLOSE}
+#ALIAS {back} {asoff; #CLASS {afk} {KILL}; #CLASS {tell1} {OPEN}; cha title $p_chartitle; act; emote livens up a bit, smiles, and says 'Back!'; #VARIABLE {powwow_at_afk} {0}}
+#ALIAS {afk} {#CLASS {afk} {OPEN}; #CLASS {tell1} {KILL}; #IF {$0 != } {cha title %0}; #ELSE {cha title is distracted, please leave a massage}; act $p_afkact; #VARIABLE {powwow_at_afk} {1}}
+#VARIABLE {p_lfgtitle} { - LFG for XP/smobs/Moria!}
+#ALIAS {lfg} {cha title $p_lfgtitle; #VARIABLE {p_title} {$p_lfgtitle}}
+#ALIAS {lfgoff} {cha title $p_chartitle; #VARIABLE {p_title} {$p_chartitle}}
+#NOP /  Communications - come first to avoid confusion when people past stuff into narrates
+#CLASS {tellfix1} {OPEN}
+#ACTION {inner voice} {}
+#CLASS {tellfix1} {CLOSE}
+#CLASS {namedtell} {OPEN}
+#ACTION {^(.*)?(Angdil|Barliman|Ecthelion|Erienal|Sarion|Erestor|Ciryariel|Daegil|Galadriel|Curundil|Sauron) tells you (.+)\.} {#SHOWME {$p_MOBCOL $3 $p_NORMtells you $p_GREEN$4$p_NORM}}
+#CLASS {namedtell} {CLOSE}
+#CLASS {specialtellM1} {OPEN}
+#ACTION {%1 Morgoth tells you %2} {#SHOWME {$1$p_MOBCOL  Morgoth $p_NORMtells you $p_GREEN$2$p_NORM}}
+#CLASS {specialtellM1} {CLOSE}
+#CLASS {mobsay1} {OPEN}
+#ACTION {m(The|An|A) ([a-zA-Z ,\'\-]+) (tells you|says|asks you|whispers to you) (.+)} {#SHOWME {$2 $p_MOBCOL$3$p_NORM $4 $p_GREEN$5$p_NORM}}
+#CLASS {mobsay1} {CLOSE}
+#CLASS {mobsay2} {OPEN}
+#ACTION {m([a-zA-Z ,\'\-]+) the ([a-zA-Z -']+) (tells you|says|asks you|whispers to you) (.+)} {#SHOWME {$p_MOBCOL$2 the $3$p_NORM $4 $p_GREEN$5$p_NORM}}
+#CLASS {mobsay2} {CLOSE}
+#CLASS {tell1} {OPEN}
+#ACTION {m%1 tells you %2} {#SHOWME {   $p_BOLD$p_BKBLUE  $1$p_NORM$p_BKBLUE tells you $p_BOLD$p_GREEN$2$p_NORM}; setqt %1}
+#CLASS {tell1} {CLOSE}
+#CLASS {tell2} {OPEN}
+#ACTION {The voice of %1 whispers to you %2} {#SHOWME {   $p_BOLD$p_BKBLUE  The voice of $p_ULINE$1$p_NORM$p_BKBLUE$p_BOLD whispers to you $p_BOLD$p_GREEN$2$p_NORM}; setqt %1}
+#CLASS {tell2} {CLOSE}
+#CLASS {tellg} {OPEN}
+#ACTION {m%1 tells the group %2} {#SHOWME {   $p_BOLD$p_ULINE$p_BKBLUE  $1$p_NORM$p_ULINE$p_BKBLUE tells the group $p_BOLD$p_GREEN$2$p_NORM}}
+#CLASS {tellg} {CLOSE}
+#CLASS {narsty} {OPEN}
+#ACTION {^^%1 narrates %2 swearword %3} {#SHOWME {$p_BKBLUE$p_GREEN  $1$p_NORM$p_BKBLUE narrates $p_NORM$p_BKBLUE$p_YELLOW$2 flowers $3$p_NORM}}
+#CLASS {narsty} {CLOSE}
+#CLASS {nar1} {OPEN}
+#ACTION {m%1 narrates %2} {#SHOWME {$p_BKBLUE$p_GREEN  $1$p_NORM$p_BKBLUE narrates $p_NORM$p_BKBLUE$p_YELLOW$2$p_NORM}}
+#CLASS {nar1} {CLOSE}
+#CLASS {sing1} {OPEN}
+#ACTION {m%1 sings %2} {#SHOWME {$p_BKBLUE$p_GREEN  $1$p_NORM$p_BKBLUE sings $p_NORM$p_BKBLUE$p_YELLOW$2$p_NORM}}
+#CLASS {sing1} {CLOSE}
+#CLASS {beep1} {OPEN}
+#ACTION {^([\w+]) beeps you\!} {#SHOWME {        $p_BKRED$p_CYAN*******************************$p_NORM}; #SHOWME {        $p_BKRED$p_CYAN*       !! BEEPS YOU !!       *$p_NORM}; #SHOWME {        $p_BKRED$p_CYAN*******************************$p_NORM}}
+#CLASS {beep1} {CLOSE}
+#ALIAS {gratzon} {#CLASS {autogratz1} {OPEN}; #CLASS {autogratz2} {OPEN}; #CLASS {autogratz3} {OPEN}; #CLASS {autogratz4} {OPEN}}
+#ALIAS {gratzoff} {#CLASS {autogratz1} {KILL}; #CLASS {autogratz2} {KILL}; #CLASS {autogratz3} {KILL}; #CLASS {autogratz4} {KILL}}
+#CLASS {autogratz1} {OPEN}
+#ACTION {m([A-Z][a-z]+)[^\s+] narrates 'level(\!|\.)?'} {nar Wow, yeah, well done, um... whatever your name was! [automated felicitations brought to you by GrumpyGratz (tm)]}
+#CLASS {autogratz1} {CLOSE}
+#CLASS {autogratz2} {OPEN}
+#ACTION {m([A-Z][a-z]+)[^\s+] narrates 'Level(\!|\.)?'} {nar woo, $2 has another level. *yawn* [automated felicitations brought to you by GrumpyGratz (tm)]}
+#CLASS {autogratz2} {CLOSE}
+#CLASS {autogratz3} {OPEN}
+#ACTION {m([A-Z][a-z]+)[^\s+] narrates 'ding} {nar Go on, rub it in you little squirt, $2. Some of us have to work for our levels you know! [automated felicitations brought to you by GrumpyGratz (tm)]}
+#CLASS {autogratz3} {CLOSE}
+#CLASS {autogratz4} {OPEN}
+#ACTION {m([A-Z][a-z]+)[^\s+] narrates 'Ding} {nar Ding off $2 or I'll dong you! [automated felicitations brought to you by GrumpyGratz (tm)]}
+#CLASS {autogratz4} {CLOSE}
+#ALIAS {beltupdate} {nar Belts change: BSB now +3 DB (was +2 DB); Gleaming now +2 DB (was 0 DB), +3 move regen (was +5); Golden now -10 spellsave (was +1 DB), +3 move regen (was +2); NEW: Fell hide belt +3 HP regen, +3 move regen}
+#CLASS {beltsupdate2} {OPEN}
+#ACTION {narrates '.*(golden|gleaming|bsb)?.*belt} {beltupdate}
+#CLASS {beltsupdate2} {CLOSE}
+#CLASS {cwhet1} {OPEN}
+#ACTION {very tired of mending} {whet}
+#CLASS {cwhet1} {CLOSE}
+#CLASS {cwhet2} {OPEN}
+#ACTION {You lose your concentration} {whet}
+#CLASS {cwhet2} {CLOSE}
+#CLASS {dwhet1} {OPEN}
+#ACTION {^You have successfully mended} {stand; rem whetstone; wear kit; pt whetstone; gm; #CLASS {cwhet1} {KILL}; #CLASS {cwhet2} {KILL}; #CLASS {dwhet1} {KILL}; #CLASS {dwhet2} {KILL}}
+#CLASS {dwhet1} {CLOSE}
+#CLASS {dwhet2} {OPEN}
+#ACTION {^You stop mending} {stand; rem whetstone; wear kit; pt whetstone; gm; #CLASS {cwhet1} {KILL}; #CLASS {cwhet2} {KILL}; #CLASS {dwhet1} {KILL}; #CLASS {dwhet2} {KILL}}
+#CLASS {dwhet2} {CLOSE}
+#ALIAS {awhet} {utm; gt whetstone; rem kit; wear whetstone; whet; #CLASS {cwhet1} {OPEN}; #CLASS {cwhet2} {OPEN}; #CLASS {dwhet1} {OPEN}; #CLASS {dwhet2} {OPEN}}
+#ALIAS {checkdate} {#IF {$p_checkmonth == Foreyule} {#VARIABLE {powwow_at_dawn} {7}; #VARIABLE {powwow_at_night} {7}}; #IF {$p_checkmonth == Astron} {#VARIABLE {powwow_at_dawn} {7}; #VARIABLE {powwow_at_night} {7}}; #IF {$p_checkmonth == Thrimidge} {#VARIABLE {powwow_at_dawn} {7}; #VARIABLE {powwow_at_night} {8}}; #IF {$p_checkmonth == Forelithe} {#VARIABLE {powwow_at_dawn} {6}; #VARIABLE {powwow_at_night} {8}}; #IF {$p_checkmonth == Afterlithe} {#VARIABLE {powwow_at_dawn} {5}; #VARIABLE {powwow_at_night} {9}}; #IF {$p_checkmonth == Wedmath} {#VARIABLE {powwow_at_dawn} {4}; #VARIABLE {powwow_at_night} {10}}; #IF {$p_checkmonth == Halimath} {#VARIABLE {powwow_at_dawn} {5}; #VARIABLE {powwow_at_night} {9}}; #IF {$p_checkmonth == Winterfilth} {#VARIABLE {powwow_at_dawn} {6}; #VARIABLE {powwow_at_night} {8}}; #IF {$p_checkmonth == Blotmath} {#VARIABLE {powwow_at_dawn} {7}; #VARIABLE {powwow_at_night} {8}}; #IF {$p_checkmonth == Afteryule} {#VARIABLE {powwow_at_dawn} {8}; #VARIABLE {powwow_at_night} {6}}; #IF {$p_checkmonth == Solmath} {#VARIABLE {powwow_at_dawn} {9}; #VARIABLE {powwow_at_night} {5}}; #IF {$p_checkmonth == Rethe} {#VARIABLE {powwow_at_dawn} {8}; #VARIABLE {powwow_at_night} {6}}; printdate}
+#ALIAS {kadd} {#VARIABLE {powwow_dollar_m10} {$powwow_dollar_m10 %1}; #SHOWME {%% <039>New portlocation: <119>$1<099>}; #VARIABLE {p_key_$1} {$p_latestkey}}
+#ALIAS {kadd0} {#MATH {powwow_at_m10} {0}; #MATH {powwow_dollar_m11} {%1}; kremsub1; #IF {$powwow_at_m10 != 0} {#SHOWME {%% <039>Location <119>$powwow_dollar_m11<099><039> exist. Replacing it<099>}; krem %1; kadd %1}; #ELSE {kadd %1}}
+#ALIAS {kclean} {#VARIABLE {powwow_dollar_m10} {}; #SHOWME {%% <039>Portlist cleaned. No destiations now.<099>}}
+#ALIAS {key} {#SHOWME {Key $1 = $p_lkey_$}}
+#ALIAS {kremsub1} {#MATH {p_result} {$powwow_at_1 = 1}; #WHILE {$powwow_at_1 <= (@powwow_word_count{$powwow_dollar_m10})} {#IF {@powwow_word{$powwow_dollar_m10;$powwow_at_1} == $powwow_dollar_m11} {#MATH {powwow_at_m10} {$powwow_at_1}}; #MATH {p_result} {$powwow_at_1}}}
+#ALIAS {kremsub2} {#VARIABLE {powwow_dollar_m12} {}; #MATH {p_result} {$powwow_at_1 = 1}; #WHILE {$powwow_at_1 <= (@powwow_word_count{$powwow_dollar_m10})} {#IF {@powwow_word{$powwow_dollar_m10;$powwow_at_1} != $powwow_dollar_m11} {#VARIABLE {powwow_dollar_m12} {$powwow_dollar_m12 (@powwow_word{$powwow_dollar_m10;$powwow_at_1})}}; #MATH {p_result} {$powwow_at_1}}}
+#ALIAS {leadoff} {#CLASS {lead} {KILL}; #SHOWME {autolead: OFF}}
+#ALIAS {leadon} {#CLASS {lead} {OPEN}; #SHOWME {autolead: ON}}
+#ALIAS {lm} {lead mine; lead mineb}
+#ALIAS {loe} {close exit; lock exit}
+#ALIAS {log} {#IF {$0 != } {#NOP UNSUPPORTED: #capture $0; #SHOWME {#Beginning Capture("%1")}}; #IF {$0 == } {#SHOWME {#Ending Capture}; #NOP UNSUPPORTED: #capture}}
+#ALIAS {lootoff} {#CLASS {loot} {KILL}; #CLASS {lootm} {KILL}; message Auto-loot: OFF}
+#ALIAS {looton} {#CLASS {loot} {OPEN}; #CLASS {lootm} {KILL}; message Auto-loot: CASH}
+#ALIAS {lootmirk} {#CLASS {loot} {KILL}; #CLASS {lootm} {OPEN}; message Auto-loot: FETISH+WRISTBAND}
+#CLASS {loot} {OPEN}
+#ACTION {is dead!} {get all.coins all.corpse}
+#CLASS {loot} {CLOSE}
+#CLASS {lootm} {OPEN}
+#ACTION {is dead!} {get all.fetish all.corpse; get all.wristband all.corpse}
+#CLASS {lootm} {CLOSE}
+#ALIAS {mapoff} {#MACRO {KP8} {n}; #MACRO {KP6} {e}; #MACRO {KP4} {w}; #MACRO {KP2} {s}; #MACRO {KP9} {u}; #MACRO {KP3} {d}}
+#ALIAS {mapon} {#MACRO {KP8} {_mapnorth}; #MACRO {KP6} {_mapeast}; #MACRO {KP4} {_mapwest}; #MACRO {KP2} {_mapsouth}; #MACRO {KP9} {_mapup}; #MACRO {KP3} {_mapdown}}
+#ALIAS {merc} {give 10 celeb mercenary; gr mercenary; label mercenary merc$1; #ALIAS {ofa} {say assist}; #ALIAS {sr} {mr}}
+#ALIAS {pm} {give 10 celeb merca; give 10 celeb mercb; give 10 celeb mercc}
+#ALIAS {oma} {ask merc assist}
+#ALIAS {picks} {#SHOWME {A couple lockpicks have a small bump near the tip.}; #SHOWME {Two of the lockpicks have shallow notches on them.}; #SHOWME {The lockpicks are extremely well tempered.}; #SHOWME {Several of the picks have long, smooth grooves along their length.}; #SHOWME {There is a strange lockpick, with a sharp protrusion on one side, in the set.}; #SHOWME {The lockpicks feel oddly light in your hand.}; #SHOWME {The edges of most picks have been carefully sharpened.}}
+#ALIAS {printdate} {#SHOWME {}; #IF {$powwow_at_checktime < $powwow_at_dawn} {#SHOWME {It is currently \033[34mNIGHT\033[0m, $p_realtime    [$p_checkmonth, Dawn: @powwow_to_number{$powwow_at_dawn}am, Night: @powwow_to_number{$powwow_at_night}pm]}; #MATH {powwow_at_timeleft} {($powwow_at_dawn-@checktime)}; #VARIABLE {p_timeofday} {DAWN}; #SHOWME {Time left until $p_timeofday is @powwow_to_number{$powwow_at_timeleft} tick\(s\)}}; #IF {$powwow_at_checktime >= ($powwow_at_night + 12)} {#SHOWME {It is currently \033[34mNIGHT\033[0m, $p_realtime    [$p_checkmonth, Dawn: @powwow_to_number{$powwow_at_dawn}am, Night: @powwow_to_number{$powwow_at_night}pm]}; #MATH {powwow_at_timeleft} {(24 + $powwow_at_dawn - $powwow_at_checktime)}; #VARIABLE {p_timeofday} {DAWN}; #SHOWME {Time left until $p_timeofday is @powwow_to_number{$powwow_at_timeleft} tick\(s\)}}; #IF {$powwow_at_checktime == $powwow_at_dawn} {#SHOWME {It is currently \033[31mDAWN\033[0m, $p_realtime    [$p_checkmonth, Dawn: @powwow_to_number{$powwow_at_dawn}am, Night: @powwow_to_number{$powwow_at_night}pm]}; #VARIABLE {powwow_at_timeleft} {1}; #VARIABLE {p_timeofday} {DAY}; #SHOWME {Time left until $p_timeofday is @powwow_to_number{$powwow_at_timeleft} tick\(s\)}}; #IF {$powwow_at_checktime > $powwow_at_dawn} {#SHOWME {It is currently \033[33mDAY\033[0m, $p_realtime      [$p_checkmonth, Dawn: @powwow_to_number{$powwow_at_dawn}am, Night: @powwow_to_number{$powwow_at_night}pm]}; #MATH {powwow_at_timeleft} {($powwow_at_night + 12 - $powwow_at_checktime)}; #VARIABLE {p_timeofday} {NIGHT}; #SHOWME {Time left until $p_timeofday is @powwow_to_number{$powwow_at_timeleft} tick\(s\)}}; #IF {$powwow_at_checktime > $powwow_at_dawn} {#SHOWME {It is currently \033[33mDAY\033[0m, $p_realtime      [$p_checkmonth, Dawn: @powwow_to_number{$powwow_at_dawn}am, Night: @powwow_to_number{$powwow_at_night}pm]}; #MATH {powwow_at_timeleft} {($powwow_at_night + 12 - $powwow_at_checktime)}; #VARIABLE {p_timeofday} {NIGHT}; #SHOWME {Time left until $p_timeofday is @powwow_to_number{$powwow_at_timeleft} tick\(s\)}}; #SHOWME {}}
+#ALIAS {rq} {reveal q}
+#ALIAS {rr} {reveal root; pp root}
+#ALIAS {sa} {sell all.%1}
+#ALIAS {sd} {of reveal tho; seek rivendell}
+#ALIAS {skey} {#VARIABLE {p_lkey_${1}} {$p_latest_key}}
+#ALIAS {sl} {snuff lantern}
+#ALIAS {ll} {light lantern}
+#ALIAS {so} {say open}
+#ALIAS {sq} {search q}
+#ALIAS {trt} {track $p_target}
+#ALIAS {ttoff} {#CLASS {tell} {KILL}}
+#ALIAS {tton} {#CLASS {tell} {OPEN}}
+#ALIAS {xp} {info XPCOUNTER: %x %t %X %T.}
+#ALIAS {xpcalc} {#VARIABLE {p_gainxp} {$p_1-@oldxp}; #VARIABLE {p_gaintp} {$p_2-@oldtp}; #IF {$powwow_at_oldxp == 0} {#VARIABLE {p_gainxp} {0}; #VARIABLE {p_sessxp} {0}}; #IF {$powwow_at_oldtp == 0} {#VARIABLE {p_gaintp} {0}; #VARIABLE {p_sesstp} {0}}; #MATH {p_sessxp} {(@powwow_to_number{$p_sessxp}) + (@powwow_to_number{$p_gainxp})}; #MATH {p_sesstp} {(@powwow_to_number{$p_sesstp}) + (@powwow_to_number{$p_gaintp})}; #VARIABLE {powwow_at_oldxp} {%1}; #VARIABLE {powwow_at_oldtp} {%2}}
+#ALIAS {xpprint} {#SHOWME {\015\012$p_bgr-->$p_noattr \033[1m\033[36m Gained \033[0m  xp: $p_bwh($p_gainxp)$p_noattr\015\011\011\011\011tp: $p_bwh($p_gaintp)$p_noattr}}
+#ALIAS {xprep} {say This Session:  $p_sessxp XP   $p_sesstp TP}
+#ALIAS {xpreset} {#VARIABLE {p_sessxp} {0}; #VARIABLE {powwow_at_oldxp} {0}; #VARIABLE {p_gaintp} {0}; #VARIABLE {p_sesstp} {0}}
+xpreset
+#CLASS {shatter} {OPEN}
+#ACTION {^%1 shatter %2} {#SHOWME {%1$p_BOLD SHATTER %2$p_NORM}}
+#CLASS {shatter} {CLOSE}
+#CLASS {shatters} {OPEN}
+#ACTION {^%1 shatters %2} {#SHOWME {%1$p_BOLD SHATTERS %2$p_NORM}}
+#CLASS {shatters} {CLOSE}
+#CLASS {repp} {OPEN}
+#ACTION {^reports:} {emote %0'; #LINE GAG}
+#CLASS {repp} {CLOSE}
+#CLASS {xp0} {OPEN}
+#ACTION {Welcome to the land of Middle Earth} {xpreset; tpreset; xp; #VARIABLE {p_xpcal} {1}}
+#CLASS {xp0} {CLOSE}
+#CLASS {xp1} {OPEN}
+#ACTION {XPCOUNTER: %1 %2 %3 %4} {#IF {$p_xpcal == 1} {{xpcalc %1 %2\;#var $p_xpcal=0}\;xpprint %1 %2 %3 %4}; #LINE GAG}
+#CLASS {xp1} {CLOSE}
+#CLASS {xp2} {OPEN}
+#ACTION {^You receive your share of experience} {xp; #VARIABLE {p_xpcal} {1}}
+#CLASS {xp2} {CLOSE}
+#CLASS {xp3} {OPEN}
+#ACTION {^You feel more experienced} {xp; #VARIABLE {p_xpcal} {1}}
+#CLASS {xp3} {CLOSE}
+#SHOWME {There is an option for this (cha col exits) but it didn't seem to do anything}
+#CLASS {exits_highlight1} {OPEN}
+#ACTION {^Exits: %1} {#SHOWME {Exits: $p_BLUE$1$p_NORM}}
+#CLASS {exits_highlight1} {CLOSE}
+#CLASS {exits_highlight2} {OPEN}
+#ACTION {^Exits/emulated: %1} {#SHOWME {Exits/emulated: $p_BLUE$1$p_NORM}}
+#CLASS {exits_highlight2} {CLOSE}
+#HIGHLIGHT {You shiver and feel a watchful eye on you... Someone is searching you!} {white on red}
+#CLASS {Xnight1} {OPEN}
+#ACTION {The night has begun} {#SHOWME {The $p_BOLD$p_BLUENight$p_NORM has begun!}; ll}
+#CLASS {Xnight1} {CLOSE}
+#CLASS {Xday1} {OPEN}
+#ACTION {The day has begun} {#SHOWME {The $p_BOLD$p_YELLOWDay$p_NORM has begun!}; sl}
+#CLASS {Xday1} {CLOSE}
+#CLASS {night1} {OPEN}
+#ACTION {The night has begun} {#SHOWME {The $p_BOLD$p_BLUENight$p_NORM has begun!}}
+#CLASS {night1} {CLOSE}
+#CLASS {day1} {OPEN}
+#ACTION {The day has begun} {#SHOWME {The $p_BOLD$p_YELLOWDay$p_NORM has begun!}}
+#CLASS {day1} {CLOSE}
+#CLASS {dark1} {OPEN}
+#ACTION {It is pitch black...} {ll}
+#CLASS {dark1} {CLOSE}
+#CLASS {panic} {OPEN}
+#ACTION {PANIC! You can't quit the fight!} {#SHOWME {$p_BOLD         $0$p_NORM}}
+#CLASS {panic} {CLOSE}
+#CLASS {29} {OPEN}
+#ACTION {%1 panics, and attempts to flee} {#SHOWME {%1 IS TRYING TO ESCAPE!}}
+#CLASS {29} {CLOSE}
+#CLASS {tracking} {OPEN}
+#ACTION {%1 is standing here searching for tracks} {#SHOWME {%1 is STANDING here --> T R A C K I N G <--.}}
+#CLASS {tracking} {CLOSE}
+#CLASS {track} {OPEN}
+#ACTION {%1 carefully examines the ground around him, looking for tracks.} {#SHOWME {%1 starts to --> T R A C K <--.}}
+#CLASS {track} {CLOSE}
+#CLASS {repo} {OPEN}
+#ACTION {\033[32m%1\033[0m/\033[32m%2\033[0m hits, \033[32m%3\033[0m/\033[32m%4\033[0m mana, and \033[32m%5\033[0m/\033[32m%6\033[0m moves} {#VARIABLE {powwow_at_hps} {%1}; #VARIABLE {powwow_at_max_hps} {%2}; #VARIABLE {powwow_at_mana} {%3}; #VARIABLE {powwow_at_max_mana} {%4}; #VARIABLE {powwow_at_moves} {%5}; #VARIABLE {powwow_at_max_moves} {%6}; #ALIAS {rep} {emote reports:  %1/%2 hits    %3/%4 mana   %5/%6 moves}}
+#CLASS {repo} {CLOSE}
+#ALIAS {reptnl} {info REPTNL: %X %T %l.}
+#ALIAS {tnl} {emote needs ???? xp and ?? tp to next level.}
+#CLASS {tnl} {OPEN}
+#ACTION {^Needed: \033[32m%1\033[0m xp, \033[32m%2\033[0m tp} {#ALIAS {tnl} {emote needs %1 xp and %2 tp to next level.}}
+#CLASS {tnl} {CLOSE}
+#CLASS {inactive1} {OPEN}
+#ACTION {WARNING: inactivity timeout in one minute.} {sc}
+#CLASS {inactive1} {CLOSE}
+#CLASS {inactive2} {OPEN}
+#ACTION {WARNING: inactivity timeout in 30 seconds} {sx}
+#CLASS {inactive2} {CLOSE}
+#CLASS {inactive3} {OPEN}
+#ACTION {WARNING: inactivity timeout in 10 seconds} {time}
+#CLASS {inactive3} {CLOSE}
+#CLASS {BlockResist} {OPEN}
+#ACTION {^Your power blocking the %1 resisted a breaking attempt!} {#SHOWME {<069>Your power blocking the <039>>> $1 <<<069> resisted a breaking attempt!<099>$p_NORM}}
+#CLASS {BlockResist} {CLOSE}
+#CLASS {quakeme} {OPEN}
+#ACTION {^%1 makes the earth tremble and shiver} {#SHOWME {$p_BOLD$p_MOBCOL$1$p_NORM$p_BOLD makes the earth tremble and shiver ($p_RED$p_ULINEquakes YOU!$p_NORM$p_BOLD}}
+#CLASS {quakeme} {CLOSE}
+#CLASS {exit} {OPEN}
+#ACTION {%1 - The glare of the sun burns your eyes} {#SHOWME {\033[41m ** %1 ** - The glare of the sun burns your eyes.\033[0m}}
+#CLASS {exit} {CLOSE}
+#CLASS {timeam} {OPEN}
+#ACTION {%1am on %2, the %3 of %4, Year %5 of the Third Age.} {#VARIABLE {p_realtime} {%1am}; #VARIABLE {p_checkmonth} {%4}; #IF {%1 == 12} {#MATH {powwow_at_checktime} {(@powwow_to_number{%1 + 12})}}; #ELSE {#VARIABLE {powwow_at_checktime} {%1}}; checkdate}
+#CLASS {timeam} {CLOSE}
+#CLASS {timepm} {OPEN}
+#ACTION {%1pm on %2, the %3 of %4, Year %5 of the Third Age.} {#VARIABLE {p_realtime} {%1pm}; #VARIABLE {p_checkmonth} {%4}; #IF {%1 == 12} {#VARIABLE {powwow_at_checktime} {%1}}; #ELSE {#MATH {powwow_at_checktime} {(@powwow_to_number{%1 + 12})}}; checkdate}
+#CLASS {timepm} {CLOSE}
+#CLASS {group} {OPEN}
+#ACTION {%1 raises %2 hand} {group %1 add; gadd %1; #LINE GAG}
+#CLASS {group} {CLOSE}
+#CLASS {cast} {OPEN}
+#ACTION {%1 begins some strange incantations.} {#SHOWME {$1 $p_BOLD$p_BLUE--> STARTS CASTING <--$p_NORM}}
+#CLASS {cast} {CLOSE}
+#CLASS {casting} {OPEN}
+#ACTION {%1 is standing here trying to concentrate} {#SHOWME {%1 is STANDING here \033[1m\033[31m--> C A S T I N G <--\033[0m}}
+#CLASS {casting} {CLOSE}
+#CLASS {ememycast} {OPEN}
+#ACTION {*%1* begins some strange incantations.} {#SHOWME {$p_BOLD$p_RED*$1* $p_BKCYAN--> STARTS CASTING <--$p_NORM}}
+#CLASS {ememycast} {CLOSE}
+#CLASS {evilgroup} {OPEN}
+#ACTION {^You feel the evil influence} {warning Evil person in group!}
+#CLASS {evilgroup} {CLOSE}
+#CLASS {failedrescue} {OPEN}
+#ACTION {^You fail the rescue} {#SHOWME {$p_BOLD$p_YELLOWYou FAIL THE RESCUE$p_NORM}; #CLASS {login} {OPEN}; #ACTION {^By what name do you wish to be known?} {Pandemonia}; #CLASS {login} {CLOSE}; #VARIABLE {powwow_at_firstload} {1}; #IF {$powwow_at_firstload == 0} {loadchar}; #NOP / Random guff; alias currentstats info Current stats:  Str:%(%S%) Int:%(%i%) Wis:%(%w%) Dex:%(%d%) Con:%(%o%) Wil:%(%I%) Per:%(%p%).; #ALIAS {stats} {currentstats; #TICKER {infobdelay} {info %b} {0.50}}; #VARIABLE {p_autodoor} {gate}; #VARIABLE {p_checkmonth} {Foreyule}; #VARIABLE {p_emount} {}; #VARIABLE {p_gaintp} {0}; #VARIABLE {p_gainxp} {0}; #VARIABLE {p_hps} {0}; #VARIABLE {p_hpsM} {0}; #VARIABLE {p_leader} {0}; #VARIABLE {p_mana} {0}; #VARIABLE {p_manaM} {0}; #VARIABLE {p_mount} {m}; #VARIABLE {p_move} {154}; #VARIABLE {p_moveM} {154}; #VARIABLE {p_nummer} {1}; #VARIABLE {p_realtime} {6am}; #VARIABLE {p_sesstp} {0}; #VARIABLE {p_sessxp} {0}; #VARIABLE {p_stored_quakes} {0\015}; #VARIABLE {p_tank} {mother}; #VARIABLE {p_target} {}; #VARIABLE {p_timeofday} {DAWN}; #VARIABLE {p_twodoor} {exit}; #VARIABLE {p_xpcal} {0}; #NOP ORIGINAL BIND LABEL: C-n; #MACRO {^N} {&next-line}; #NOP ORIGINAL BIND LABEL: C-p; #MACRO {^P} {&prev-line}; #NOP OPTION ignored: #option +autoclear -autoprint -compact -debug +echo -exit -history; #NOP OPTION ignored: #option -info -keyecho -reprint -sendsize -speedwalk -words -wrap; #IF {$powwow_at_firstload} {#NOP UNSUPPORTED: #connect main localhost 4242; #VARIABLE {powwow_at_firstload} {0}}}
+#CLASS {failedrescue} {CLOSE}
+#CLASS {converted} {CLOSE}

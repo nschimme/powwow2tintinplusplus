@@ -1,0 +1,154 @@
+#CLASS {converted} {OPEN}
+#NOP --- POWWOW COMPATIBILITY LAYER ---
+#VARIABLE {powwow_at_lines} {24}
+#VARIABLE {powwow_at_mem} {0}
+#VARIABLE {powwow_at_buffer} {0}
+#FORMAT {powwow_start_time} {%T}
+#FUNCTION {powwow_timer} {#FORMAT {now} {%T};#MATH {result} {($now - $powwow_start_time) * 1000}}
+#FUNCTION {powwow_rand} {#MATH {result} {1d%1 - 1}}
+#FUNCTION {powwow_char_length} {#FORMAT {result} {%x} {%1}}
+#FUNCTION {powwow_search} {#FORMAT {result} {%p} {%2} {%1}}
+#FUNCTION {powwow_word_count} {#LIST {p_words} {EXPLODE} { }; #LIST {p_words} {FILTER} {{.+}}; #RETURN &p_words[]}
+#FUNCTION {powwow_word} {#LIST {p_words} {EXPLODE} { }; #LIST {p_words} {FILTER} {{.+}}; #RETURN $p_words[%2]}
+#FUNCTION {powwow_word_slice_to_end} {#LIST {p_words} {EXPLODE} { }; #LIST {p_words} {FILTER} {{.+}}; #LIST {p_slice} {CREATE} {$p_words[%2..-1]}; #LIST {p_slice} {COLLAPSE} { }; #RETURN $p_slice}
+#FUNCTION {powwow_word_slice_from_start} {#LIST {p_words} {EXPLODE} { }; #LIST {p_words} {FILTER} {{.+}}; #LIST {p_slice} {CREATE} {$p_words[1..%2]}; #LIST {p_slice} {COLLAPSE} { }; #RETURN $p_slice}
+#FUNCTION {powwow_first_char_ascii} {#FORMAT {result} {%a} {%1}}
+#FUNCTION {powwow_to_number} {#MATH {result} {%1}}
+#ALIAS {powwow_reserved_echo} {#IF {"%1" == ""} {#LINE PRINT} {#ELSE} {#SHOWME {%1}}}
+#ALIAS {powwow_reserved_print} {#IF {"%1" == ""} {#LINE PRINT} {#ELSE} {#SHOWME {%1}}}
+#SHOWME {======================================================================================================}
+#SHOWME {| This file three main parts: casting aliases, auto-casting actions and spell translation.           |}
+#SHOWME {| The translations seem to be partly broken, so working on that. Auto-spell is working well though!  |}
+#SHOWME {| If a caster, just type 'as' and this will automatically cast whatever has dropped (sx to recheck)  |}
+#SHOWME {|  - See master.txt for examples of how to tell it which spells your character doesn't have          |}
+#SHOWME {======================================================================================================}
+#ALIAS {sx} {#VARIABLE {p_armour} {0}; #VARIABLE {p_shield} {0}; #VARIABLE {p_shroud} {0}; #VARIABLE {p_bless} {0}; #VARIABLE {p_str} {0}; #VARIABLE {p_pfe} {0}; #VARIABLE {p_sensel} {0}; #VARIABLE {p_detmagic} {0}; #VARIABLE {p_detevil} {0}; #VARIABLE {p_detinvis} {0}; #VARIABLE {p_sanc} {0}; stat}
+#ALIAS {mf} {cast 'create food'}
+#ALIAS {mm} {mf; eat mushroom}
+#ALIAS {mw} {cast 'create water' %1}
+#ALIAS {mwg} {gb goblet; mw goblet; pb goblet}
+#ALIAS {mws} {mw flagon}
+#CLASS {hungry1} {OPEN}
+#ACTION {^You begin to feel hungry} {#SHOWME {$p_RED$p_DARK$0$p_NORM}}
+#CLASS {hungry1} {CLOSE}
+#CLASS {hungry2} {OPEN}
+#ACTION {^You are hungry} {#SHOWME {$p_REDYou are $p_ULINEhungry$p_NORM.}}
+#CLASS {hungry2} {CLOSE}
+#CLASS {thirsty1} {OPEN}
+#ACTION {^You being to feel thirsty} {#SHOWME {$p_RED$p_DARK$0$p_NORM}}
+#CLASS {thirsty1} {CLOSE}
+#CLASS {thirsty2} {OPEN}
+#ACTION {^You are thirsty} {#SHOWME {$p_REDYou are $p_ULINEthirsty$p_NORM.}}
+#CLASS {thirsty2} {CLOSE}
+#CLASS {autofeed} {OPEN}
+#ACTION {^You are hungry} {precast; mm; postcast}
+#CLASS {autofeed} {CLOSE}
+#CLASS {autodrink} {OPEN}
+#ACTION {^You are thirsty} {precast; dw; mw; deb; postcast}
+#CLASS {autodrink} {CLOSE}
+#CLASS {void} {OPEN}
+#ACTION {You have been idle, and are pulled into a void} {precast; st; l; postcast; #LINE GAG}
+#CLASS {void} {CLOSE}
+#CLASS {autocure} {OPEN}
+#ACTION {You bleed from open wounds} {precast; cc; postcast}
+#CLASS {autocure} {CLOSE}
+#ALIAS {stc} {cast 'store' charm}
+#ALIAS {store} {cast 'store' %0}
+#ALIAS {stq} {cast 'store' earthquake}
+#ALIAS {precast} {stand}
+#ALIAS {postcast} {rest}
+#ALIAS {restful} {#ALIAS {precast} {stand}; #ALIAS {postcast} {rest; #IF {$powwow_at_afk} {act $p_afkact}}; rest}
+#ALIAS {sleepy} {#ALIAS {precast} {wa}; #ALIAS {postcast} {sleep}; lead; sleep}
+#ALIAS {bsle} {lead; gs2; u1; us1; rem fur; rem cloak; rem mantle; gd blanket; wear blanket; i; sle; act wrapped up cozily in her blanket}
+#ALIAS {bwa} {act; wake; stand; rem blanket; pd blanket; wear cloak; wear fur; wear mantle; s1; gm}
+#VARIABLE {powwow_at_afkcast} {0}
+#ALIAS {_afkcaston} {#VARIABLE {powwow_at_afkcast} {1}; cha linkdrop 120; #CLASS {hungry2} {KILL}; #CLASS {thirsty2} {KILL}; #CLASS {autofeed} {OPEN}; #CLASS {autodrink} {OPEN}; #CLASS {void} {OPEN}; autorebuffon; #CLASS {autocure} {OPEN}; #CLASS {recharmuncharmed} {OPEN}; message Away-%1 auto spell/recharm/drink/water/void: ON}
+#ALIAS {aron} {as; restful; _afkcaston rest}
+#ALIAS {ason} {as; sleepy; _afkcaston sleep}
+#ALIAS {asoff} {ws; #VARIABLE {powwow_at_afkcast} {0}; cha linkdrop 120; #CLASS {hungry2} {OPEN}; #CLASS {thirsty2} {OPEN}; #CLASS {autofeed} {KILL}; #CLASS {autodrink} {KILL}; #CLASS {void} {KILL}; autorebuffoff; #CLASS {autocure} {KILL}; #CLASS {recharmuncharmed} {KILL}; sx; message Away-sleep/rest auto spell/recharm/drink/water/void: OFF}
+#ALIAS {aroff} {asoff}
+#ALIAS {blanky} {bsle; ason}
+#ALIAS {unblanky} {bwa; asoff}
+#ALIAS {autorebuffoff} {#CLASS {ashield} {KILL}; #CLASS {asanc} {KILL}; #CLASS {aarm} {KILL}; #CLASS {ashroud1} {KILL}; #CLASS {abless} {KILL}; #CLASS {asensel} {KILL}; #CLASS {astr} {KILL}; #CLASS {apfe} {KILL}; #CLASS {adetmagic} {KILL}; #CLASS {adetevil} {KILL}; #CLASS {adetinvis} {KILL}; #CLASS {abob} {KILL}; #CLASS {dshield} {OPEN}; #CLASS {dsanc} {OPEN}; #CLASS {darm} {OPEN}; #CLASS {dshroud1} {OPEN}; #CLASS {dbless} {OPEN}; #CLASS {dsensel} {OPEN}; #CLASS {dstr} {OPEN}; #CLASS {dpfe} {OPEN}; #CLASS {ddetmagic} {OPEN}; #CLASS {ddetevil} {OPEN}; #CLASS {ddetinvis} {OPEN}; #CLASS {dbob} {OPEN}}
+#ALIAS {autorebuffon} {#CLASS {ashield} {OPEN}; #CLASS {asanc} {OPEN}; #CLASS {aarm} {OPEN}; #CLASS {ashroud1} {OPEN}; #CLASS {abless} {OPEN}; #CLASS {asensel} {OPEN}; #CLASS {astr} {OPEN}; #CLASS {apfe} {OPEN}; #CLASS {adetmagic} {OPEN}; #CLASS {adetevil} {OPEN}; #CLASS {adetinvis} {OPEN}; #CLASS {abob} {OPEN}; #CLASS {dshield} {KILL}; #CLASS {dsanc} {KILL}; #CLASS {darm} {KILL}; #CLASS {dshroud1} {KILL}; #CLASS {dbless} {KILL}; #CLASS {dsensel} {KILL}; #CLASS {dstr} {KILL}; #CLASS {dpfe} {KILL}; #CLASS {ddetmagic} {KILL}; #CLASS {ddetevil} {KILL}; #CLASS {ddetinvis} {KILL}; #CLASS {dbob} {KILL}}
+#CLASS {mestartcast1} {OPEN}
+#ACTION {You start to concentrate} {#SHOWME {$p_DARK$0$p_NORM}}
+#CLASS {mestartcast1} {CLOSE}
+#CLASS {mestartcast2} {OPEN}
+#ACTION {You muster all of your concentration} {#SHOWME {$p_DARK$0$p_NORM}}
+#CLASS {mestartcast2} {CLOSE}
+#CLASS {mebackfire} {OPEN}
+#ACTION {^Your spell backfired%1} {#SHOWME {$p_REDYour spell $p_BKRED$p_WHITEbackfired$p_NORM$p_RED$1$p_NORM}}
+#CLASS {mebackfire} {CLOSE}
+#NOP / Spell Timers and auto-recast
+#VARIABLE {p_SPELLUP_COL} {$p_GREEN}
+#VARIABLE {p_SPELLDOWN_COL} {$p_BOLD$p_RED}
+#VARIABLE {p_sn_armour} {armour}
+#VARIABLE {p_sn_shield} {shield}
+#VARIABLE {p_sn_shroud} {shroud}
+#VARIABLE {p_sn_sanc} {sanctuary}
+#VARIABLE {p_sn_bless} {bless}
+#VARIABLE {p_sn_str} {strength}
+#VARIABLE {p_sn_pfe} {protection from evil}
+#VARIABLE {p_sn_sensel} {sense life}
+#VARIABLE {p_sn_detmagic} {detect magic}
+#VARIABLE {p_sn_detevil} {detect evil}
+#VARIABLE {p_sn_detinvis} {detect invisibility}
+#VARIABLE {p_sn_nvis} {night vision}
+#VARIABLE {p_sn_bob} {breath of briskness}
+#VARIABLE {p_sn_ork} {orkisk draught}
+#VARIABLE {p_sn_refresh} {refreshment}
+#VARIABLE {p_sn_antid} {antidote}
+#VARIABLE {p_sn_blind} {blindness}
+#VARIABLE {p_sn_seeing} {seeing}
+#VARIABLE {p_sn_shadow} {shadow world}
+#VARIABLE {p_sn_lref} {lightning reflection}
+#VARIABLE {p_sn_lethargy} {lethargy}
+#VARIABLE {p_sn_diso} {disorientation}
+#VARIABLE {p_sn_tired} {tiredness}
+#VARIABLE {p_sn_hagard} {hagardness}
+#ALIAS {spelltimer_on} {#SHOWME {<149>$powwow_at_last_line<099>}}
+#ALIAS {spell_up} {#MATH {powwow_at_spelltimer_$1} {@powwow_timer{}}; #SHOWME {$powwow_at_last_line$p_DARK ($p_sn_%1 $p_NORM$p_SPELLUP_COLUP$p_NORM$p_DARK)$p_NORM}; #VARIABLE {p_$1} {1}}
+#ALIAS {malus_up} {#MATH {powwow_at_spelltimer_$1} {@powwow_timer{}}; #SHOWME {$powwow_at_last_line$p_DARK ($p_sn_%1 $p_NORM$p_SPELLDOWN_COLUP$p_NORM$p_DARK)$p_NORM}; #VARIABLE {p_$1} {1}}
+#NOP / If lastshortest < 0.5 lastlongest we're likely dealing with a spell such as shroud/armour, therefore use longest not shortest for colouring
+#NOP / " #if (!@spelltimer_$1) #(@spelltimer_$1=timer);" fixes stupidly long spelltimes after a reload -- doesnt work, shortest too short then on first login!
+#ALIAS {spelltimer} {#VARIABLE {p_$1} {1}; #MATH {powwow_at_spelltimer} {$powwow_at_spelltimer_%1}; #MATH {powwow_at_spell_ms} {(@powwow_timer{} - $powwow_at_spelltimer)}; _mstomins $powwow_at_spell_ms; #VARIABLE {p_timercol} {}; #IF {$powwow_at_lastlongest_ms_%1} {#VARIABLE {p_timercol} {$p_YELLOW}}; #IF {$powwow_at_lastlongest_ms_%1} {#VARIABLE {p_timercol} {$p_RED}}; #SHOWME {$powwow_at_last_line$p_DARK ($p_timercol$p_mins$p_NORM$p_DARK / $p_lastshortest_%1-$p_lastlongest_%1)$p_NORM}; #UNVARIABLE {powwow_at_spelltimer}; #UNVARIABLE {powwow_at_spell_ms}; #UNVARIABLE {p_timercol}}
+#NOP / #alias spelltimer={#var $$1=1; #if (!@spelltimer_$1) #(@spelltimer_$1=timer); #(@spelltimer=@spelltimer_$1); #(@spell_ms=(timer-@spelltimer)); _mstomins @spell_ms; #var $timercol=(""); #if ( @lastshortest_ms_$1>(@lastlongest_ms_$1*2/4) ) #var @lastmax_ms=@lastshortest_ms_$1; #else   #var @lastmax_ms=@lastlongest_ms_$1; #if ( @lastlongest_ms_$1 && @spell_ms>(@lastmax_ms*8/10) ) #var $timercol=($YELLOW); #if ( @lastlongest_ms_$1 && @spell_ms>(@lastmax_ms*9/10) ) #var $timercol=($RED); #print ($last_line+$DARK+" ("+$timercol+$mins+$NORM+$DARK+" / "+$lastshortest_$1+"-"+$lastlongest_$1+")"+$NORM); #var @spelltimer=;#var @spell_ms=;#var $timercol=;#var @lastmax_ms=}
+#NOP / To avoid confusion from spells dropping when you first login, only activate after a minute
+#VARIABLE {powwow_at_ignorespelldown} {1}
+#TICKER {ignorespelldown} {#MATH {powwow_at_ignorespelldown} {0}} {60 * 1000}
+#ALIAS {spell_down} {#IF {$powwow_at_ignorespelldown} {#SHOWME {$powwow_at_last_line}}}
+#ELSE {#VARIABLE {p_$1} {0}; #MATH {powwow_at_spelltimer} {$powwow_at_spelltimer_%1}; #MATH {powwow_at_spell_ms} {(@powwow_timer{} - $powwow_at_spelltimer)}; _mstomins $powwow_at_spell_ms; #SHOWME {$powwow_at_last_line$p_DARK ($p_sn_%1 $p_NORM$p_SPELLDOWN_COLdown$p_NORM$p_DARK, lasted $p_mins, previous $p_lasttime_%1)$p_NORM}; #MATH {p_lasttime_$1} {$p_mins}; #IF {!$powwow_at_lastshortest_ms_%1 || ($powwow_at_spell_ms < $powwow_at_lastshortest_ms_%1)} {#MATH {powwow_at_lastshortest_ms_$1} {$powwow_at_spell_ms}; #MATH {p_lastshortest_$1} {$p_mins}}; #IF {!$powwow_at_lastlongest_ms_%1 || ($powwow_at_spell_ms > $powwow_at_lastlongest_ms_%1)} {#MATH {powwow_at_lastlongest_ms_$1} {$powwow_at_spell_ms}; #MATH {p_lastlongest_$1} {$p_mins}}; #UNVARIABLE {powwow_at_spelltimer}; #UNVARIABLE {powwow_at_spell_ms}}
+#NOP / Convert $1 in milliseconds to a string of minutes:seconds ($mins)
+#VARIABLE {p_mins} {}
+#ALIAS {_mstomins} {#MATH {powwow_at_secs} {%1 / 1000}; #IF {$powwow_at_secs < 10} {#VARIABLE {p_mins} {@powwow_to_number{%1 / 1000 / 60}:0@powwow_to_number{$powwow_at_secs}}}; #ELSE {#VARIABLE {p_mins} {@powwow_to_number{%1 / 1000 / 60}:@powwow_to_number{$powwow_at_secs}}}; #UNVARIABLE {powwow_at_secs}}
+#ALIAS {malus_down} {#VARIABLE {p_$1} {0}; #MATH {powwow_at_spelltimer} {$powwow_at_spelltimer_%1}; #MATH {powwow_at_spelltimer_sec} {(@powwow_timer{} - $powwow_at_spelltimer) / 1000}; #IF {$powwow_at_spelltimer_sec < 10} {#VARIABLE {p_sptime} {@powwow_to_number{(@powwow_timer{} - $powwow_at_spelltimer) / 1000 / 60}:0@powwow_to_number{$powwow_at_spelltimer_sec}}}; #ELSE {#VARIABLE {p_sptime} {@powwow_to_number{(@powwow_timer{} - $powwow_at_spelltimer) / 1000 / 60}:@powwow_to_number{$powwow_at_spelltimer_sec}}}; #SHOWME {$powwow_at_last_line$p_DARK ($p_sn_%1 $p_NORM$p_SPELLUP_COLdown$p_NORM$p_DARK, lasted $p_sptime, previous $p_lasttime_%1)$p_NORM}; #VARIABLE {p_lasttime_$1} {$p_sptime}; #UNVARIABLE {powwow_at_spelltimer}; #UNVARIABLE {powwow_at_spelltimer_sec}}
+#NOP / #action >+setblesstimer1 You begin to feel the light of Aman shine upon you.={spelltimer_on;blesson}
+#NOP / #action >+setblesstimer2 You feel a renewed light shine upon you.={spelltimer_on;blesson}
+#NOP / #action >-showblesstimer ^- bless={spelltimer @spelltimer_bless}
+#NOP / #action >-blessdown The light of Aman fades away from you.={spelltimer_off @spelltimer_bless;blessoff}
+#NOP / #alias blesson={#(@spelltimer_bless=timer);#ac +setblesstimer2;#ac +showblesstimer;#ac +blessdown}
+#NOP / #alias blessoff={#var @spelltimer_bless=;#ac -setblesstimer2;#ac -showblesstimer;#ac -blessdown}
+#ALIAS {_charmietimer} {time; #MATH {p_exe_tmp} {message Charmie timer started for $1}; #$p_exe_tmp; #MATH {p_exe_tmp} {#in charmiedespawn$1 (60*60*1000) {warning $1 will de-charm soon (1 hour passed)}}; #$p_exe_tmp}
+#CLASS {nrecharmsuccess1} {OPEN}
+#ACTION {^A [a-zA-Z ,\\-]+ \\((tank[a-z]|parry[a-z]|basher[a-z])\\) starts following you.} {#SHOWME {$p_MAGENTA$0$p_NORM}; group %2; _charmietimer %2}
+#CLASS {nrecharmsuccess1} {CLOSE}
+#CLASS {nrecharmsuccess2} {OPEN}
+#ACTION {Your control on [a-zA-Z ,\\-]+ \\((tank[a-z]|parry[a-z]|basher[a-z])\\) is renewed!} {#SHOWME {$p_MAGENTA$0$p_NORM}; _charmietimer %2}
+#CLASS {nrecharmsuccess2} {CLOSE}
+#CLASS {recharmfail} {OPEN}
+#ACTION {^Nothing seems to happen.} {#MATH {p_exe_tmp} {cht $p_recharming}; #$p_exe_tmp}
+#CLASS {recharmfail} {CLOSE}
+#CLASS {recharmsuccess1} {OPEN}
+#ACTION {^A %1 (%2) starts following you.} {#SHOWME {$p_MAGENTA$0$p_NORM}; group %2; #3 order %2 sle; _recharmsuccess}
+#CLASS {recharmsuccess1} {CLOSE}
+#CLASS {recharmsuccess2} {OPEN}
+#ACTION {Your control on %1 (%2) is renewed!} {#SHOWME {$p_MAGENTA$0$p_NORM}; _recharmsuccess}
+#CLASS {recharmsuccess2} {CLOSE}
+#CLASS {recharmsuccess3} {OPEN}
+#ACTION {Nobody here by that name.} {#SHOWME {$p_MAGENTA$0$p_NORM}; _recharmsuccess}
+#CLASS {recharmsuccess3} {CLOSE}
+#ALIAS {_abc_to_num} {#VARIABLE {powwow_at_abc_to_num} {0}; #MATH {p_result} {$powwow_at_0 = 1}; #WHILE {$powwow_at_0 <= 10} {#IF {$p_abc.char[$powwow_at_0] == $1} {#MATH {powwow_at_abc_to_num} {$powwow_at_0}}; #MATH {p_result} {$powwow_at_0}}}
+#ALIAS {_nextcharm} {#VARIABLE {p_recharming} {$1}; #SHOWME {  Charming $p_ULINE$1$p_NORM next}}
+#ALIAS {_calcnextcharm} {#IF {$p_recharming.char[1..4] == tank} {_abc_to_num $p_recharming.5; #IF {$p_abc_to_num > $p_tanks} {$p_recharming="parrya"}}; #ELSE {#MATH {p_exe_tmp} {_nextcharm tank+}; #$p_exe_tmp}; #CLASS {blind1b} {OPEN}; #ACTION {%1 seems to be blinded!} {#SHOWME {$1 seems to be $p_BOLD$p_GREENBLINDED!$p_NORM}}; #CLASS {blind1b} {CLOSE}; #CLASS {blind3a} {OPEN}; #ACTION {^Your victim is already blind.} {#SHOWME {Your victim is $p_BOLD$p_GREENalready BLIND.$p_NORM}; $p_emote}; #CLASS {blind3a} {CLOSE}}
+#CLASS {converted} {CLOSE}

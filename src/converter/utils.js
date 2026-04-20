@@ -3,7 +3,8 @@
  */
 
 export function mapAttributes(attr) {
-    const parts = attr.toLowerCase().split(/\s+/);
+    const cleanAttr = attr.replace(/^["']|["']$/g, '');
+    const parts = cleanAttr.toLowerCase().split(/\s+/);
     let vt100 = '0';
     if (parts.includes('bold')) vt100 = '1';
     if (parts.includes('blink')) vt100 = '5';
@@ -38,13 +39,25 @@ export function convertVarName(name, mode) {
         name = name.substring(1);
     }
 
-    const specialPowwow = ['timer', 'map', 'prompt', 'last_line', 'buffer', 'lines', 'mem'];
-    if (mode === 'powwow' && specialPowwow.includes(name)) {
-        return `powwow_at_${name}`;
+    const specialPowwow = [
+        'timer', 'map', 'prompt', 'last_line', 'buffer', 'lines', 'mem'
+    ];
+    const colorVars = [
+        'NORM', 'BOLD', 'DARK', 'ULINE', 'FLASH',
+        'BLACK', 'WHITE', 'RED', 'GREEN', 'BLUE', 'MAGENTA', 'CYAN', 'YELLOW',
+        'BKBLACK', 'BKWHITE', 'BKBLUE', 'BKCYAN', 'BKGREEN', 'BKMAGENTA', 'BKRED', 'BKYELLOW'
+    ];
+    if (mode === 'powwow') {
+        if (specialPowwow.includes(name)) return `powwow_at_${name}`;
+        if (colorVars.includes(name)) return `p_${name}`;
     }
-    if (mode === 'powwow' && (name.startsWith('@') || name.startsWith('$'))) {
+    if (mode === 'powwow' && (name.startsWith('@') || name.startsWith('$') || name.startsWith('&') || name.startsWith('%'))) {
         const inner = name.substring(1);
         if (specialPowwow.includes(inner)) return `powwow_at_${inner}`;
+        // Parameters $0..$9, &0..&9, %0..%9
+        if (name.match(/^[$&%]\d+$/)) {
+            return '%' + inner;
+        }
     }
 
     if (name.startsWith('@')) {

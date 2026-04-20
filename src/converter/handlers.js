@@ -6,6 +6,8 @@ export function getPowwowHandlers(converter) {
     const handlers = {
         'alias': (args, options) => converter.convertAliasPowwow(args, options),
         'action': (args, options) => converter.convertActionPowwow(args, options),
+        'add': (args, options) => ({ text: `#TAB {${converter.convertSyntax(args, options)}}` }),
+        'addstatic': (args, options) => ({ text: `#TAB {${converter.convertSyntax(args, options)}}` }),
         'var': (args, options) => converter.convertVarPowwow(args, options),
         'mark': (args, options) => converter.convertMarkPowwow(args, options),
         'hilite': (args, options) => ({ text: `#HIGHLIGHT {.*} {${args}}` }),
