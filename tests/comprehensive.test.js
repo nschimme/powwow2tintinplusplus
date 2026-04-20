@@ -16,8 +16,8 @@ describe('Comprehensive Script Conversion', () => {
     // Check key variable mappings and intent
     expect(output).toContain('#MATH {powwow_at_m10} {0}');
     expect(output).toContain('#IF {$powwow_at_m10 != 0}');
-    expect(output).toContain('#WHILE {$powwow_at_1<=(@powwow_word_count{$powwow_dollar_m10})}');
-    expect(output).toContain('#IF {$powwow_dollar_m10:$powwow_at_1 == $powwow_dollar_m11}');
+    expect(output).toContain('#WHILE {$powwow_at_1 <= (@powwow_word_count{$powwow_dollar_m10})}');
+    expect(output).toContain('#IF {@powwow_word{$powwow_dollar_m10;$powwow_at_1} == $powwow_dollar_m11}');
   });
 
   it('converts JMC portkey script', () => {
@@ -50,6 +50,6 @@ describe('Comprehensive Script Conversion', () => {
 
     expect(output).toContain('#ACTION {%1am on %2, the %3 of %4, Year %5 of the Third Age.\\015}');
     expect(output).toContain('#IF {%1 == 12}');
-    expect(output).toContain('emote \'s digital watch displays $p_realtime, which leaves only +(@powwow_to_number{($powwow_at_timeleft)})+ tick left until $p_timeofday!');
+    expect(output).toContain('emote \'s digital watch displays $p_realtime, which leaves only @powwow_to_number{$powwow_at_timeleft} tick left until $p_timeofday!');
   });
 });

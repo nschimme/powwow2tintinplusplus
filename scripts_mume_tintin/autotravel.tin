@@ -1,0 +1,182 @@
+#CLASS {converted} {OPEN}
+#NOP --- POWWOW COMPATIBILITY LAYER ---
+#VARIABLE {powwow_at_lines} {24}
+#VARIABLE {powwow_at_mem} {0}
+#VARIABLE {powwow_at_buffer} {0}
+#FORMAT {powwow_start_time} {%T}
+#FUNCTION {powwow_timer} {#FORMAT {now} {%T};#MATH {result} {($now - $powwow_start_time) * 1000}}
+#FUNCTION {powwow_rand} {#MATH {result} {1d%1 - 1}}
+#FUNCTION {powwow_char_length} {#FORMAT {result} {%x} {%1}}
+#FUNCTION {powwow_search} {#FORMAT {result} {%p} {%2} {%1}}
+#FUNCTION {powwow_word_count} {#LIST {p_words} {EXPLODE} { }; #LIST {p_words} {FILTER} {{.+}}; #RETURN &p_words[]}
+#FUNCTION {powwow_word} {#LIST {p_words} {EXPLODE} { }; #LIST {p_words} {FILTER} {{.+}}; #RETURN $p_words[%2]}
+#FUNCTION {powwow_word_slice_to_end} {#LIST {p_words} {EXPLODE} { }; #LIST {p_words} {FILTER} {{.+}}; #LIST {p_slice} {CREATE} {$p_words[%2..-1]}; #LIST {p_slice} {COLLAPSE} { }; #RETURN $p_slice}
+#FUNCTION {powwow_word_slice_from_start} {#LIST {p_words} {EXPLODE} { }; #LIST {p_words} {FILTER} {{.+}}; #LIST {p_slice} {CREATE} {$p_words[1..%2]}; #LIST {p_slice} {COLLAPSE} { }; #RETURN $p_slice}
+#FUNCTION {powwow_first_char_ascii} {#FORMAT {result} {%a} {%1}}
+#FUNCTION {powwow_to_number} {#MATH {result} {%1}}
+#ALIAS {powwow_reserved_echo} {#IF {"%1" == ""} {#LINE PRINT} {#ELSE} {#SHOWME {%1}}}
+#ALIAS {powwow_reserved_print} {#IF {"%1" == ""} {#LINE PRINT} {#ELSE} {#SHOWME {%1}}}
+#NOP /  ======================================================================================================
+#NOP /  |                                                                                                    |
+#NOP /  |          Stuff todo with making travelling around Arda a little bit easier/convenient              |
+#NOP /  |                                                                                                    |
+#NOP /  ======================================================================================================
+#NOP / Do something after a random delay
+#ALIAS {randdelay} {#MATH {p_exe_tmp} {#in (rand) $0}; #$p_exe_tmp}
+#NOP / Log in automatically
+#NOP / Type "alog <charname>" and it will do the rest
+#ALIAS {alog} {#VARIABLE {p_loginname} {%1}; play %1; #CLASS {autologin1} {OPEN}; #CLASS {autologin2} {OPEN}}
+#CLASS {autologin1} {OPEN}
+#ACTION {^You must wait %1 mins before you can log in this character!} {#TICKER {waitlogin} {play $p_loginname} {%1 * 60 * 1000}}
+#CLASS {autologin1} {CLOSE}
+#CLASS {autologin2} {OPEN}
+#ACTION {^You must wait %1 secs before you can log in this character!} {#TICKER {waitlogin} {+5000) { #send ("play "+$p_loginname) }} {(%1 * 1000)}}
+#CLASS {autologin2} {CLOSE}
+#NOP / Do the right things before renting, and wait for noquite, just type "arent"
+#ALIAS {arent} {usa; gkey all.key; pkey elven; da key; offer; train all; #CLASS {cantrent} {OPEN}; rent}
+#CLASS {cantrent} {OPEN}
+#ACTION {tells you 'I am sorry, but you can't rent now...'} {#TICKER {waitnoquit} {rent; #TICKER {waitnoquit} {} {10.00}} {10.00}}
+#CLASS {cantrent} {CLOSE}
+#CLASS {servclose} {OPEN}
+#ACTION {^Server closed the connection} {#TICKER {waitnoquit} {} {-0.00}; #TICKER {timestamp} {} {-0.00}; #LINE GAG}
+#CLASS {servclose} {CLOSE}
+#NOP / Lorien gates/doors
+#CLASS {greatgates} {OPEN}
+#ACTION {greatgates seem to be closed} {knock greatgates}
+#CLASS {greatgates} {CLOSE}
+#CLASS {talldoors} {OPEN}
+#ACTION {^The talldoors seem to be closed.} {knock talldoors}
+#CLASS {talldoors} {CLOSE}
+#ALIAS {kwd} {knock walldoors}
+#HIGHLIGHT {A feeling of peace envelops you as you enter the enchanted forest.} {green}
+#HIGHLIGHT {The trees confuse you, making you wander around in circles.} {bold white on red}
+#NOP / Say yes to some quests (for the ADD among us)
+#CLASS {anarweny} {OPEN}
+#ACTION {Anarwen says 'Would you help me, %1?} {say yes; #CLASS {anarwend} {OPEN}}
+#CLASS {anarweny} {CLOSE}
+#CLASS {elrondoie1} {OPEN}
+#ACTION {Elrond says 'Would you be willing to help me with a dangerous task?'} {say yes}
+#CLASS {elrondoie1} {CLOSE}
+#CLASS {elrondoie2} {OPEN}
+#ACTION {Elrond gives you %1 key} {pkey key}
+#CLASS {elrondoie2} {CLOSE}
+#CLASS {yerikwave} {OPEN}
+#ACTION {Yerik the Sage says 'Come again!'} {gb note; give note sage}
+#CLASS {yerikwave} {CLOSE}
+#CLASS {harleyes} {OPEN}
+#ACTION {The aloof hobbit says 'Maybe you are experienced enough to be the leader on such a perilous} {say yes}
+#CLASS {harleyes} {CLOSE}
+#NOP / Beechbone the Ent
+#CLASS {beechname} {OPEN}
+#ACTION {Ent asks you 'What are you called in the language of Men, little one?'} {say $p_name}
+#CLASS {beechname} {CLOSE}
+#CLASS {beechyes} {OPEN}
+#ACTION {Ent asks you 'Would you try to get my bowl for me, please?'} {say yes}
+#CLASS {beechyes} {CLOSE}
+#NOP / Niuldor the botanist
+#CLASS {niulberries} {OPEN}
+#ACTION {Niuldor the botanist carefully puts the parchment away.} {gb elderberries; give elderberries botanist}
+#CLASS {niulberries} {CLOSE}
+#NOP / Dagnir's ghost says 'Farewell, Eirien!'
+#TICKER {delayga} {ga} {-0.00}
+#ACTION {>+Dagnir's ghost says 'Farewell, Eirien!'} {#TICKER {delayga} {} {0.10}; #LINE GAG}
+#CLASS {A} {OPEN}
+#ACTION {jade-encrusted key falls on the ground.} {#TICKER {delayga} {} {0.15}; #LINE GAG}
+#CLASS {A} {CLOSE}
+#NOP / Auto-board the white ship and then auto-board the ferry when it arrives
+#NOP / Just type 'sail' once Círdan has led you through to the quay
+#ALIAS {sail} {rest; #CLASS {boardwhiteship1} {OPEN}; message Waiting to auto-board the white ship West}
+#CLASS {boardwhiteship1} {OPEN}
+#ACTION {^The white ship docks at the pier and a gangway is lowered.} {st; w; rest; #CLASS {boardwhiteship1} {KILL}; #CLASS {leavewhiteship1} {OPEN}}
+#CLASS {boardwhiteship1} {CLOSE}
+#CLASS {leavewhiteship1} {OPEN}
+#ACTION {^The ship is now docked at a pier in Avall} {st; n; #CLASS {leavewhiteship1} {KILL}; rest; ferry; #CLASS {leaveferry2} {OPEN}}
+#CLASS {leavewhiteship1} {CLOSE}
+#NOP / Greyhavens & Valar ferry - just type 'ferry' and go make a cup of tea. If Valar, also auto-board white ship
+#ALIAS {ferry} {#CLASS {boardferry1} {OPEN}; #CLASS {boardferry2} {OPEN}; #CLASS {boardferry3} {OPEN}; board; rest; message Waiting to auto-board ferry); look}
+#ALIAS {boardferry} {#LINE PRINT; st; board; rest; #CLASS {boardferry1} {KILL}; #CLASS {boardferry2} {KILL}; #CLASS {boardferry3} {KILL}; #CLASS {leaveferry1} {OPEN}; #CLASS {leaveferry2} {OPEN}; exam}
+#CLASS {boardferry1} {OPEN}
+#ACTION {^The ferry has arrived} {boardferry; #LINE GAG}
+#CLASS {boardferry1} {CLOSE}
+#CLASS {boardferry2} {OPEN}
+#ACTION {^The ferry is docked here, ready to be boarded} {boardferry; #LINE GAG}
+#CLASS {boardferry2} {CLOSE}
+#CLASS {boardferry3} {OPEN}
+#ACTION {^You board the ferry.} {boardferry; #LINE GAG}
+#CLASS {boardferry3} {CLOSE}
+#CLASS {leaveferry1} {OPEN}
+#ACTION {^The ferry pulls slowly into the dock} {st; leave; #CLASS {leaveferry1} {KILL}; #CLASS {leaveferry2} {KILL}}
+#CLASS {leaveferry1} {CLOSE}
+#CLASS {backavallone} {OPEN}
+#ACTION {vessel into the lamplit harbour of Avall} {#CLASS {boardwhiteship2a} {OPEN}}
+#CLASS {backavallone} {CLOSE}
+#CLASS {leaveferry2} {OPEN}
+#ACTION {^Githil wishes you a pleasant visit.} {st; leave; #CLASS {leaveferry1} {KILL}; #CLASS {leaveferry2} {KILL}}
+#CLASS {leaveferry2} {CLOSE}
+#CLASS {boardwhiteship2a} {OPEN}
+#ACTION {^There is an old street-lamp on the border of the street} {#CLASS {aboardwhiteship} {OPEN}; s; #CLASS {boardwhiteship2a} {KILL}; #CLASS {boardwhiteship2b} {OPEN}; message Waiting to auto-board the white ship East}
+#CLASS {boardwhiteship2a} {CLOSE}
+#CLASS {boardwhiteship2b} {OPEN}
+#ACTION {^The white ship docks at one of the piers.} {st; s; #CLASS {boardwhiteship2b} {KILL}}
+#CLASS {boardwhiteship2b} {CLOSE}
+#CLASS {aboardwhiteship} {OPEN}
+#ACTION {Ciryariel} {rest; #CLASS {aboardwhiteship} {KILL}; #CLASS {boardwhiteship2b} {KILL}; #CLASS {leavewhiteship2} {OPEN}; message Waiting to auto-leave the white ship East; #LINE GAG}
+#CLASS {aboardwhiteship} {CLOSE}
+#CLASS {leavewhiteship2} {OPEN}
+#ACTION {^Grey Havens. A gangway is lowered onto the quay.} {st; e; e; #CLASS {leavewhiteship2} {KILL}}
+#CLASS {leavewhiteship2} {CLOSE}
+#NOP / Auto ride/lead/dismount: The group glead needs to be labelled 'glead' for this to work, and your mount to be labelled mine
+#ALIAS {rideoff} {#CLASS {ride} {KILL}; #SHOWME {autoride: OFF}}
+#ALIAS {rideon} {#CLASS {ride} {OPEN}; #SHOWME {autoride: ON}}
+#CLASS {lead1} {OPEN}
+#ACTION {%1 (glead) dismounts from %2 stops riding} {lead mine}
+#CLASS {lead1} {CLOSE}
+#CLASS {ride} {OPEN}
+#ACTION {%1 (glead) picks up %2 reins %3 starts riding} {ride mine}
+#CLASS {ride} {CLOSE}
+#ACTION {>%lead2 .(horse|warg|pony|wolf|mule) now follows %3 (glead).} {lm}
+#CLASS {stand1} {OPEN}
+#ACTION {.[(]glead[)]( stops resting, and)? clambers on (his|her|its) feet\.} {stand}
+#CLASS {stand1} {CLOSE}
+#NOP / Standing / mount / riding / storage
+#CLASS {auto-remount} {OPEN}
+#ACTION {ZBLAM! A %1} {#SHOWME {$p_RED$0$p_NORM}; sr}
+#CLASS {auto-remount} {CLOSE}
+#CLASS {auto-unrest} {OPEN}
+#ACTION {^You feel too relaxed} {stand}
+#CLASS {auto-unrest} {CLOSE}
+#CLASS {auto-stand1} {OPEN}
+#ACTION {^Maybe you should get on your feet first} {stand}
+#CLASS {auto-stand1} {CLOSE}
+#CLASS {auto-stand2} {OPEN}
+#ACTION {^You can't do this sitting} {stand}
+#CLASS {auto-stand2} {CLOSE}
+#CLASS {auto-stand3} {OPEN}
+#ACTION {^You can't concentrate enough while resting} {stand}
+#CLASS {auto-stand3} {CLOSE}
+#CLASS {auto-stand4} {OPEN}
+#ACTION {^Nah... You feel too relaxed to do that.} {stand}
+#CLASS {auto-stand4} {CLOSE}
+#NOP / Just type 'eagle <destination>' and this will do the rest. You can safely rest while waiting
+#CLASS {rideeagle} {OPEN}
+#ACTION {swoops down from the sky and lands} {st; dism; st; ride eagle; whisper eagle $p_eagledest; #CLASS {rideeagle} {KILL}}
+#CLASS {rideeagle} {CLOSE}
+#ALIAS {eagle} {#VARIABLE {p_eagledest} {%1}; #CLASS {rideeagle} {OPEN}; call eagle; message Auto-waiting for eagle to $p_eagledest}
+#SHOWME { Nasty quickwalk - if you zblam or get attacked it will go wrong, be warned! }
+#SHOWME { TODO: Make something neat to work with powwow speedwalk, or use hoopajoo's auto-walker }
+#ALIAS {ghec} {e; s; e; e; s; e; e; e; s; e; e; e; s; e; e; s; e; e; e; e; n; e; n; e; e; e; s; e; e; s; e; e; e; s; e; e; s; s; e; e; e; e; s; e; e; e; s; e; e; e}
+#ALIAS {ecmd} {s; e; e; e; e; e; s; e; e; e; s; e; e; e; e; e; s; e; e; e; e; e; e; e; n; e; e; e; e; e; n; e; e; e; e; e; n; e; e; e; e; e}
+#ALIAS {mdsh} {e; e; e; e; n; e; e; e; e; e; e; e; e; e; n; e; e; e; n; e; e; e; e; e; n; e; n; e; e; e; n; e; n; e; n; e; e; e; n}
+#ALIAS {shbr} {e; e; e; e; e; e; e; e; e; e; e; e; e; e; e; e; e; e; e; e; e; e; e; e; e; e; e; n; e; n; e; e; e; e; n; e; e; e; e; e; s; e; e; e; e; e; e; s; e; e; s; e; e; e}
+#ALIAS {brsh} {w; w; w; n; w; w; n; w; w; w; w; w; w; n; w; w; w; w; w; s; w; w; w; w; s; w; s; w; w; w; w; w; w; w; w; w; w; w; w; w; w; w; w; w; w; w; w; w; w; w; w; w; w; w}
+#ALIAS {shmd} {s; w; w; w; s; w; s; w; s; w; w; w; s; w; s; w; w; w; w; w; s; w; w; w; s; w; w; w; w; w; w; w; w; s; w; w; w; w; w}
+#ALIAS {mdec} {w; w; w; w; w; w; s; w; w; w; w; w; s; w; w; w; w; w; s; w; w; w; w; w; w; w; n; w; w; w; w; w; n; w; w; w; n; w; w; w; w; w; n}
+#ALIAS {ecgh} {w; w; w; n; w; w; w; n; w; w; w; w; n; n; w; w; n; w; w; w; n; w; w; n; w; w; w; s; w; s; w; w; w; w; n; w; w; n; w; w; w; n; w; w; w; n; w; w; n; w}
+#ALIAS {ghbm} {e; n; n; e; n; n; w; n; n; n; n; n; n; n; n; e; n; n; n; n; n; e; n; n; e; n; n; e; n; e; n; e; n; n; e; n; n; w; w; w; s; w; w; s; w; w; n; n; w; w; w; n; n; w; n; n; n; e; n; w; w; lead; w; w; sr; s; d; w; n; w; w; s; s; e; e; s; s; s; w; n; w; w; s; s}
+#ALIAS {bmfo} {s; s; w; w; s; s; s; s; w; s; s; s; w; s; w; s; s; s; s; s; w; s; w; s; s; e; s; s; e; s; e; s; e; s; e; s; s; s}
+#ALIAS {fobm} {n; n; n; w; n; w; n; w; n; w; n; n; w; n; n; e; n; e; n; n; n; n; n; e; n; e; n; n; n; e; n; n; n; n; e; e; n; n}
+#ALIAS {bmgh} {n; n; e; e; s; e; n; n; n; w; w; n; n; e; e; s; e; u; n; lead; e; e; sr; e; e; s; w; s; s; s; e; s; s; e; e; e; s; s; e; e; n; e; e; n; e; e; e; s; s; w; s; s; w; s; w; s; w; s; s; w; s; s; w; s; s; s; s; s; w; s; s; s; s; s; s; s; s; e; s; s; w; s; s; w}
+#ALIAS {brfo} {n; n; n; n; n; n; n; n; e; e; e; n; n; e; n; n; n; n; n; n; n; e; n; n; n; w; n; n; n; n; n; n; n; n; n; n; n; n; e; n; n; n; n; n; n; n; n; e; n; n; n; n; n; n; n; n; n; n; e; n; n}
+#ALIAS {fobr} {s; s; w; s; s; s; s; s; s; s; s; s; s; w; s; s; s; s; s; s; s; s; w; s; s; s; s; s; s; s; s; s; s; s; s; e; s; s; s; w; s; s; s; s; s; s; s; w; s; s; w; w; w; s; s; s; s; s; s; s; s}
+#SHOWME {$p_GREEN ==== autotravel.txt loaded ==== $p_NORM}
+#CLASS {converted} {CLOSE}

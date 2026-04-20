@@ -1,0 +1,192 @@
+#CLASS {converted} {OPEN}
+#NOP --- POWWOW COMPATIBILITY LAYER ---
+#VARIABLE {powwow_at_lines} {24}
+#VARIABLE {powwow_at_mem} {0}
+#VARIABLE {powwow_at_buffer} {0}
+#FORMAT {powwow_start_time} {%T}
+#FUNCTION {powwow_timer} {#FORMAT {now} {%T};#MATH {result} {($now - $powwow_start_time) * 1000}}
+#FUNCTION {powwow_rand} {#MATH {result} {1d%1 - 1}}
+#FUNCTION {powwow_char_length} {#FORMAT {result} {%x} {%1}}
+#FUNCTION {powwow_search} {#FORMAT {result} {%p} {%2} {%1}}
+#FUNCTION {powwow_word_count} {#LIST {p_words} {EXPLODE} { }; #LIST {p_words} {FILTER} {{.+}}; #RETURN &p_words[]}
+#FUNCTION {powwow_word} {#LIST {p_words} {EXPLODE} { }; #LIST {p_words} {FILTER} {{.+}}; #RETURN $p_words[%2]}
+#FUNCTION {powwow_word_slice_to_end} {#LIST {p_words} {EXPLODE} { }; #LIST {p_words} {FILTER} {{.+}}; #LIST {p_slice} {CREATE} {$p_words[%2..-1]}; #LIST {p_slice} {COLLAPSE} { }; #RETURN $p_slice}
+#FUNCTION {powwow_word_slice_from_start} {#LIST {p_words} {EXPLODE} { }; #LIST {p_words} {FILTER} {{.+}}; #LIST {p_slice} {CREATE} {$p_words[1..%2]}; #LIST {p_slice} {COLLAPSE} { }; #RETURN $p_slice}
+#FUNCTION {powwow_first_char_ascii} {#FORMAT {result} {%a} {%1}}
+#FUNCTION {powwow_to_number} {#MATH {result} {%1}}
+#ALIAS {powwow_reserved_echo} {#IF {"%1" == ""} {#LINE PRINT} {#ELSE} {#SHOWME {%1}}}
+#ALIAS {powwow_reserved_print} {#IF {"%1" == ""} {#LINE PRINT} {#ELSE} {#SHOWME {%1}}}
+#SHOWME {========================================================================================================================================}
+#SHOWME {|                 ~~~~ Kate's Auto-open/unlatch/unlock/pick via MMapper ~~~~                                                           |}
+#
+#SHOWME {| To use just type 'o<dir>' (eg 'on' or 'od') and let it do the rest. Reqires that your map knows the door name if secret.             |}
+#
+#SHOWME {| To close, 'cl<dir>' and to close+lock, 'lo<dir>'                                                                                     |}
+#
+#SHOWME {| This is mostly working. If doesn't work first time, just try again- sometimes it gets confused about whether it has finished or not  |}
+#
+#SHOWME {|                                                                                                                                      |}
+#
+#SHOWME {|                   * WARNING: Definitely illegal in PK! *                                                                             |}
+#
+#SHOWME {========================================================================================================================================}
+#ALIAS {autoopen} {capopenon; _open $p_opendir}
+#CLASS {capturedoor} {OPEN}
+#ACTION {^--->open %1} {#VARIABLE {p_autodoor} {%1}}
+#CLASS {capturedoor} {CLOSE}
+#ALIAS {capopenon} {#CLASS {doorlocked1} {OPEN}; #CLASS {doorlocked2} {OPEN}; #CLASS {doorlatched} {OPEN}; #CLASS {alreadyopen} {OPEN}; #CLASS {noexitthere} {OPEN}; #CLASS {opensuccess} {OPEN}}
+#ALIAS {capopenoff} {#CLASS {doorlocked1} {KILL}; #CLASS {doorlocked2} {KILL}; #CLASS {doorlatched} {KILL}; #CLASS {alreadyopen} {KILL}; #CLASS {noexitthere} {KILL}; #CLASS {opensuccess} {KILL}}
+#CLASS {doorlocked1} {OPEN}
+#ACTION {^It seems to be locked.} {#CLASS {doorclick} {OPEN}; #CLASS {nokeyholes} {OPEN}; #CLASS {notgotkey} {OPEN}; capopenoff; _unlock $p_opendir}
+#CLASS {doorlocked1} {CLOSE}
+#CLASS {doorlocked2} {OPEN}
+#ACTION {^They seem to be locked.} {#CLASS {doorclick} {OPEN}; #CLASS {nokeyholes} {OPEN}; #CLASS {notgotkey} {OPEN}; capopenoff; _unlock $p_opendir}
+#CLASS {doorlocked2} {CLOSE}
+#CLASS {doorlatched} {OPEN}
+#ACTION {^It seems to be latched.} {#CLASS {doorclick} {OPEN}; _unlock $p_opendir}
+#CLASS {doorlatched} {CLOSE}
+#CLASS {alreadyopen} {OPEN}
+#ACTION {^It's already open!} {capopenoff; #SHOWME {$p_BKGREEN$0$p_NORM}}
+#CLASS {alreadyopen} {CLOSE}
+#CLASS {noexitthere} {OPEN}
+#ACTION {^You don't see any exit there.} {capopenoff; #SHOWME {$p_BKYELLOW$0$p_NORM}}
+#CLASS {noexitthere} {CLOSE}
+#CLASS {opensuccess} {OPEN}
+#ACTION {^Ok.} {capopenoff; #SHOWME {$p_BKGREEN$0$p_NORM}}
+#CLASS {opensuccess} {CLOSE}
+#SHOWME {You don't see any roof here.}
+#SHOWME {}
+#CLASS {notgotkey} {OPEN}
+#ACTION {^You do not have the proper key for that.} {#CLASS {doorclick} {OPEN}; #CLASS {unabletopick} {OPEN}; #CLASS {pickyield1} {OPEN}; #CLASS {stoppick} {OPEN}; #CLASS {nokeyholes} {KILL}; #CLASS {notgotkey} {KILL}; _pick $p_opendir}
+#CLASS {notgotkey} {CLOSE}
+#CLASS {nokeyholes} {OPEN}
+#ACTION {^You can't seem to spot any keyholes.} {#CLASS {nokeyholes} {KILL}; #CLASS {notgotkey} {KILL}; #SHOWME {$p_BKYELLOW$0$p_NORM}}
+#CLASS {nokeyholes} {CLOSE}
+#CLASS {stoppick} {OPEN}
+#ACTION {^You stop trying to pick the lock.} {#CLASS {doorclick} {KILL}; #CLASS {unabletopick} {KILL}; #CLASS {stoppick} {KILL}; #SHOWME {$p_BKYELLOW$0$p_NORM}}
+#CLASS {stoppick} {CLOSE}
+#CLASS {unabletopick} {OPEN}
+#ACTION {^You seem to be unable to pick this lock.} {#CLASS {doorclick} {KILL}; #CLASS {unabletopick} {KILL}; #CLASS {stoppick} {KILL}; #SHOWME {$p_BKYELLOW$0$p_NORM}}
+#CLASS {unabletopick} {CLOSE}
+#CLASS {pickyield1} {OPEN}
+#ACTION {The lock finally yields to your skill.} {#CLASS {doorclick} {KILL}; #CLASS {unabletopick} {KILL}; #CLASS {stoppick} {KILL}; #SHOWME {$p_BKGREEN$0$p_NORM}; _open $p_opendir}
+#CLASS {pickyield1} {CLOSE}
+#CLASS {doorclick} {OPEN}
+#ACTION {^*click*} {#CLASS {doorclick} {KILL}; #CLASS {unabletopick} {KILL}; #SHOWME {$p_BKGREEN$0$p_NORM}; _open $p_opendir}
+#CLASS {doorclick} {CLOSE}
+#ALIAS {on} {#VARIABLE {p_opendir} {n}; autoopen}
+#ALIAS {os} {#VARIABLE {p_opendir} {s}; autoopen}
+#ALIAS {oe} {#VARIABLE {p_opendir} {e}; autoopen}
+#ALIAS {ow} {#VARIABLE {p_opendir} {w}; autoopen}
+#ALIAS {ou} {#VARIABLE {p_opendir} {u}; autoopen}
+#ALIAS {od} {#VARIABLE {p_opendir} {d}; autoopen}
+#ALIAS {xos} {open exit south}
+#ALIAS {xoe} {open exit east}
+#ALIAS {xow} {open exit west}
+#ALIAS {xou} {open exit up}
+#ALIAS {xod} {open exit down}
+#ALIAS {cloe} {_close $1}
+#ALIAS {cln} {cloe n}
+#ALIAS {cle} {cloe e}
+#ALIAS {cls} {cloe s}
+#ALIAS {clw} {cloe w}
+#ALIAS {clu} {cloe u}
+#ALIAS {cld} {cloe d}
+#CLASS {enablelock} {OPEN}
+#ACTION {^You manage to enable the lock} {#SHOWME {$p_BKMAGENTAYou manage to ENABLE the lock.$p_NORM}}
+#CLASS {enablelock} {CLOSE}
+#ALIAS {lo} {cloe %1; _lock $1}
+#ALIAS {lon} {lo n}
+#ALIAS {loe} {lo e}
+#ALIAS {los} {lo s}
+#ALIAS {low} {lo w}
+#ALIAS {lou} {lo u}
+#ALIAS {lod} {lo d}
+#ALIAS {ul} {unlock %1; open %1}
+#ALIAS {uln} {unlock exit n; open exit n}
+#ALIAS {uls} {unlock exit s; open exit s}
+#ALIAS {ule} {unlock exit e; open exit e}
+#ALIAS {ulw} {unlock exit w; open exit w}
+#ALIAS {ulu} {unlock exit u; open exit u}
+#ALIAS {uld} {unlock exit d; open exit d}
+#NOP / Auto-chest gac. Type "gc" and it does the rest. Experimental! (aka not working :p)
+#VARIABLE {p_autochest} {}
+#ALIAS {gc} {#CLASS {clchest1} {OPEN}; #CLASS {clchest2} {OPEN}; #CLASS {chget1} {OPEN}; #CLASS {chget2} {OPEN}; gf chest; gf sarcophagus}
+#CLASS {clchest1} {OPEN}
+#ACTION {A(n)? ([a-zA-Z ]+ )?([a-zA-Z]+) is closed\.} {#VARIABLE {p_autochest} {$4}; #CLASS {lochest1} {OPEN}; open $p_autochest; #MATH {p_exe_tmp} {gf $p_autochest}; #$p_exe_tmp; #CLASS {clchest1} {KILL}; #CLASS {clchest2} {KILL}}
+#CLASS {clchest1} {CLOSE}
+#CLASS {clchest2} {OPEN}
+#ACTION {It is closed.} {#VARIABLE {p_autochest} {$3}; #CLASS {lochest1} {OPEN}; open $p_autochest; #MATH {p_exe_tmp} {gf $p_autochest}; #$p_exe_tmp; #CLASS {clchest1} {KILL}; #CLASS {clchest2} {KILL}}
+#CLASS {clchest2} {CLOSE}
+#CLASS {lochest1} {OPEN}
+#ACTION {It seems to be locked.} {#CLASS {chwrongk1} {OPEN}; #CLASS {chclick1} {OPEN}; unlock $p_autochest; open $p_autochest; #MATH {p_exe_tmp} {gf $p_autochest}; #$p_exe_tmp; #CLASS {lochest1} {KILL}}
+#CLASS {lochest1} {CLOSE}
+#CLASS {chclick1} {OPEN}
+#ACTION {*click*} {#CLASS {lochest1} {KILL}; #CLASS {chwrongk1} {KILL}; #CLASS {chclick1} {KILL}}
+#CLASS {chclick1} {CLOSE}
+#CLASS {chwrongk1} {OPEN}
+#ACTION {You don't seem to have the proper key.} {pick $p_autochest; open $p_autochest; #MATH {p_exe_tmp} {gf $p_autochest}; #$p_exe_tmp; #CLASS {chwrongk1} {KILL}}
+#CLASS {chwrongk1} {CLOSE}
+#CLASS {chget1} {OPEN}
+#ACTION {You get %1 from %2.} {#CLASS {chget1} {KILL}; #CLASS {chget2} {KILL}; #CLASS {clchest1} {KILL}; #CLASS {clchest2} {KILL}; #CLASS {lochest1} {KILL}}
+#CLASS {chget1} {CLOSE}
+#CLASS {chget2} {OPEN}
+#ACTION {You can't find anything in} {#CLASS {chget1} {KILL}; #CLASS {chget2} {KILL}; #CLASS {clchest1} {KILL}; #CLASS {clchest2} {KILL}; #CLASS {lochest1} {KILL}}
+#CLASS {chget2} {CLOSE}
+#NOP / You can't find anything in the chest.
+#NOP / You don't see a sarcophagus to get things from.
+#NOP / The lock finally yields to your skill.
+#NOP / *click*
+#NOP / Redundant / junk?
+#ALIAS {be} {#CLASS {autodoor} {KILL}; #CLASS {autodoor2} {KILL}; #CLASS {autodoor3} {KILL}; #SHOWME {Exitchange stopped!}}
+#ALIAS {ub} {#CLASS {autodoor} {OPEN}; #CLASS {autodoor2} {OPEN}; #CLASS {autodoor3} {OPEN}; #SHOWME {Exitchange started!}}
+#CLASS {autodoor1} {OPEN}
+#ACTION {The %1 is closed} {#VARIABLE {p_autodoor} {%1}}
+#CLASS {autodoor1} {CLOSE}
+#CLASS {autodoor2} {OPEN}
+#ACTION {The %1 is open} {#VARIABLE {p_autodoor} {%1}}
+#CLASS {autodoor2} {CLOSE}
+#CLASS {autodoor3} {OPEN}
+#ACTION {The %1 seems to be closed} {#VARIABLE {p_autodoor} {%1}}
+#CLASS {autodoor3} {CLOSE}
+#VARIABLE {p_door} {"exit"}
+#VARIABLE {p_opendir} {"north"}
+#ALIAS {o} {open %1; #VARIABLE {p_door} {%1}}
+#CLASS {opendoor1} {OPEN}
+#ACTION {%1 opens the %2.} {#SHOWME {$p_MOBCOL $1 $p_NORM$p_BKGREENOPENS the $2.$p_NORM}; #TAB {%2}}
+#CLASS {opendoor1} {CLOSE}
+#CLASS {closdoor1} {OPEN}
+#ACTION {%1 closes the %2.} {#SHOWME {$p_MOBCOL $1 $p_NORM$p_BKREDCLOSES the $2.$p_NORM}; #TAB {%2}}
+#CLASS {closdoor1} {CLOSE}
+#CLASS {opdooroside} {OPEN}
+#ACTION {The %1 is opened from the other side.} {#SHOWME {$p_BOLDThe $p_ULINE$1$p_NORM$p_BOLD is OPENED from the other side!$p_NORM}}
+#CLASS {opdooroside} {CLOSE}
+#CLASS {doorcloses} {OPEN}
+#ACTION {The %1 closes quietly.} {#SHOWME {$p_BOLDThe $p_ULINE$1$p_NORM$p_BOLD closes quietly.$p_NORM}}
+#CLASS {doorcloses} {CLOSE}
+#NOP / Help any labelled person open stuff - WILL WORK FOR ENEMIES???
+#NOP / hdooron/off to make it automatic/not, in either case can use ho/hc
+#VARIABLE {powwow_at_hdoor} {1}
+#ALIAS {hdooron} {#VARIABLE {powwow_at_hdoor} {1}}
+#ALIAS {hdooroff} {#VARIABLE {powwow_at_hdoor} {0}}
+#CLASS {openhelp1} {OPEN}
+#ACTION {%1 (%2) puts all %3 weight against the %4, trying to open} {#TAB {%3}; #IF {$powwow_at_hdoor} {open %4}; #ALIAS {ho} {open %4}}
+#CLASS {openhelp1} {CLOSE}
+#CLASS {hhdoor} {OPEN}
+#ACTION {%1 (%2) puts all %3 weight against the %4, trying to close} {#TAB {%3}; #IF {$powwow_at_hdoor} {close %4}; #ALIAS {hc} {close %4}}
+#CLASS {hhdoor} {CLOSE}
+#NOP / TODO: Tidy these a bit
+#CLASS {39} {OPEN}
+#ACTION {The exit %1 blurs for a while} {#SHOWME {The exit -- %1 -- \033[1m\033[32m POPPED! \033[0m}}
+#CLASS {39} {CLOSE}
+#CLASS {52} {OPEN}
+#ACTION {The exit %1 seems to blur for a while} {#SHOWME {The exit -- %1 -- was \033[1m\033[32m BLOCKED! \033[0m}}
+#CLASS {52} {CLOSE}
+#CLASS {53a} {OPEN}
+#ACTION {The %1 seems to blur for a while} {#SHOWME {The block on the -- %1 -- was \033[1m\033[32m BROKEN! \033[0m}}
+#CLASS {53a} {CLOSE}
+#CLASS {53b} {OPEN}
+#ACTION {The %1 seem to blur for a while} {#SHOWME {The block on the -- %1 -- was \033[1m\033[32m BROKEN! \033[0m}}
+#CLASS {53b} {CLOSE}
+#SHOWME {$p_GREEN ==== autodoor.txt loaded ==== $p_NORM}
+#CLASS {converted} {CLOSE}

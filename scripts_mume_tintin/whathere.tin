@@ -1,0 +1,861 @@
+#CLASS {converted} {OPEN}
+#NOP --- POWWOW COMPATIBILITY LAYER ---
+#VARIABLE {powwow_at_lines} {24}
+#VARIABLE {powwow_at_mem} {0}
+#VARIABLE {powwow_at_buffer} {0}
+#FORMAT {powwow_start_time} {%T}
+#FUNCTION {powwow_timer} {#FORMAT {now} {%T};#MATH {result} {($now - $powwow_start_time) * 1000}}
+#FUNCTION {powwow_rand} {#MATH {result} {1d%1 - 1}}
+#FUNCTION {powwow_char_length} {#FORMAT {result} {%x} {%1}}
+#FUNCTION {powwow_search} {#FORMAT {result} {%p} {%2} {%1}}
+#FUNCTION {powwow_word_count} {#LIST {p_words} {EXPLODE} { }; #LIST {p_words} {FILTER} {{.+}}; #RETURN &p_words[]}
+#FUNCTION {powwow_word} {#LIST {p_words} {EXPLODE} { }; #LIST {p_words} {FILTER} {{.+}}; #RETURN $p_words[%2]}
+#FUNCTION {powwow_word_slice_to_end} {#LIST {p_words} {EXPLODE} { }; #LIST {p_words} {FILTER} {{.+}}; #LIST {p_slice} {CREATE} {$p_words[%2..-1]}; #LIST {p_slice} {COLLAPSE} { }; #RETURN $p_slice}
+#FUNCTION {powwow_word_slice_from_start} {#LIST {p_words} {EXPLODE} { }; #LIST {p_words} {FILTER} {{.+}}; #LIST {p_slice} {CREATE} {$p_words[1..%2]}; #LIST {p_slice} {COLLAPSE} { }; #RETURN $p_slice}
+#FUNCTION {powwow_first_char_ascii} {#FORMAT {result} {%a} {%1}}
+#FUNCTION {powwow_to_number} {#MATH {result} {%1}}
+#ALIAS {powwow_reserved_echo} {#IF {"%1" == ""} {#LINE PRINT} {#ELSE} {#SHOWME {%1}}}
+#ALIAS {powwow_reserved_print} {#IF {"%1" == ""} {#LINE PRINT} {#ELSE} {#SHOWME {%1}}}
+#SHOWME {======================================================================================================}
+#SHOWME {|    Highlighting mobs vs. items in room - object/mob/friend/container etc                            }
+#SHOWME {|     - a herculean project still very much in progress!                                              }
+#SHOWME {|     - Would be quicked to adjust code, but then I'd not have an excuse to catalogue every beast :p  }
+#SHOWME {|    Objective is to make MUME more dyslexic-friendly (ie. quick identification of stuff)             }
+#SHOWME {======================================================================================================}
+#SHOWME {Labelled mobs/mounts/players}
+#HIGHLIGHT {$p_glowing} {white on magenta}
+#HIGHLIGHT {and glowing)} {white on magenta}
+#HIGHLIGHT {$p_hidden} {black on yellow}
+#HIGHLIGHT {$p_shrouded} {black on yellow}
+#HIGHLIGHT {[blue]} {blue}
+#HIGHLIGHT {$p_blue} {blue}
+#HIGHLIGHT {$p_red} {red}
+#HIGHLIGHT {it glows blue} {blue}
+#HIGHLIGHT {it glows red} {red}
+#HIGHLIGHT {it glows purple} {magenta}
+#HIGHLIGHT {$p_flawless} {green}
+#HIGHLIGHT {$p_well - $p_maintained} {green}
+#HIGHLIGHT {$p_satisfactory} {yellow}
+#HIGHLIGHT {$p_used} {yellow}
+#HIGHLIGHT {$p_worn} {red}
+#HIGHLIGHT {$p_neglected} {red}
+#HIGHLIGHT {$p_marred} {red}
+#HIGHLIGHT {$p_unavailing} {red}
+#HIGHLIGHT {$p_deteriorating} {red}
+#HIGHLIGHT {$p_worn} {red}
+#HIGHLIGHT {, new)} {green}
+#HIGHLIGHT {, fresh)} {green}
+#HIGHLIGHT {, seasoned)} {green}
+#HIGHLIGHT {, well-seasoned)} {yellow}
+#HIGHLIGHT {, aged)} {yellow}
+#HIGHLIGHT {, old)} {yellow}
+#HIGHLIGHT {, hoary)} {red}
+#HIGHLIGHT {, timeworn)} {red}
+#HIGHLIGHT {, age-old)} {red}
+#HIGHLIGHT {, antiquated)} {red}
+#NOP / Special...
+#CLASS {saruman} {OPEN}
+#ACTION {old man, swathed in a great light-coloured cloak} {#SHOWME {$0 $p_BKCYAN$p_DARK (Saruman)$p_NORM}}
+#CLASS {saruman} {CLOSE}
+#CLASS {lookaround1} {OPEN}
+#ACTION {^You see some (light|smoke) to the ([a-z]+)\.} {#SHOWME {$p_BOLDYou see some $2 to the $p_YELLOW$p_CAPDIR_%3$p_NORM}}
+#CLASS {lookaround1} {CLOSE}
+#CLASS {fcont1} {OPEN}
+#ACTION {You failed to control%1} {#SHOWME {You $p_ULINE$p_BOLD$p_MOBCOLfailed to control$p_NORM$1}}
+#CLASS {fcont1} {CLOSE}
+#HIGHLIGHT {You stopped training in this} {yellow}
+#HIGHLIGHT {You achieved something new!} {bold green on magenta}
+#NOP / Enemies, friends & special mobs
+#NOP / Disabled these as were making a mess in prompt etc
+#NOP / #mark *& the &*=bold red
+#NOP / #mark *&Orc*=bold red
+#NOP / #mark *&Troll*=bold red
+#NOP / #mark *&Man*=bold red
+#NOP / #mark *&Woman*=bold red
+#NOP / #mark *&Elf*=bold red
+#NOP / #mark *&Dwarf*=bold red
+#NOP / #mark *&Hobbit*=bold red
+#CLASS {whohere_e1} {OPEN}
+#ACTION {*%1* is her%2.} {#SHOWME {$p_BOLD$p_RED*$1*$p_NORM is her$2.); #action >+whohere_e2 *&1*, wielding &2, is her&3.=#print ($BOLD+$RED+ * %1 * +$NORM+ , $p_wielding}}
+#CLASS {whohere_e1} {CLOSE}
+#CLASS {whohere_em} {OPEN}
+#ACTION {%1 %2 is %3ere, ridden by *%4*.} {#SHOWME {$1 $p_BOLD$p_MOBCOL$2$p_NORM is $3ere, ridden by $p_BOLD$p_RED*$4*$p_NORM}}
+#CLASS {whohere_em} {CLOSE}
+#NOP / brief off:
+#NOP / Vehement the Man, wielding a blackened spear, is here, riding a warhorse (vehm).
+#NOP / Vehement the Man, wielding a blackened spear, is standing here.
+#NOP / Xarfax the Dwarf (leader), wielding the silvery broadsword, is standing here.
+#NOP / Xarfax the Dwarf (leader), wielding the silvery broadsword, is here, riding a dales-pony (xarm).
+#NOP / brief on:
+#NOP / Xarfax the Dwarf (leader) is here, riding a dales-pony (xarm).
+#NOP / Vehement the Man (veh) is here, riding a warhorse (vehm).
+#NOP / Taryn the Man (leader) is standing here.
+#CLASS {whohere_pg1} {OPEN}
+#ACTION {^([^ ]+) the ([^ ]+) ([(][a-zA-Z]+[)])(, wielding [a-zA-Z ]+,)? is( standing)? here(.*)?\.} {#SHOWME {$p_BOLD$p_LABELCOL$2$p_NORM$p_LABELCOL the $3 $4$p_NORM$5 is$6 here$7.}}
+#CLASS {whohere_pg1} {CLOSE}
+#CLASS {whohere_pn2} {OPEN}
+#ACTION {^([^ ]+) the ([^ ]+)(, wielding [a-zA-Z ]+,)? is( standing)? here(.*)?\.} {#SHOWME {$p_MOBCOL$2 the $3$p_NORM$4 is$5 here$6.}}
+#CLASS {whohere_pn2} {CLOSE}
+#CLASS {whohere_p2} {OPEN}
+#ACTION {^%1 the %2, wielding %3, is standing her%4.} {#SHOWME {$p_BOLD$p_MOBCOL$1$p_NORM the $2, wielding $p_ITEMCOL$3$p_NORM, is her$4.}}
+#CLASS {whohere_p2} {CLOSE}
+#CLASS {whohere_p4} {OPEN}
+#ACTION {^%1 the %2, wielding %3, is her%4, riding %5.} {#SHOWME {$p_BOLD$p_MOBCOL$1$p_NORM the $2, wielding $p_ITEMCOL$3$p_NORM, is her$4, riding $p_MOBCOL$5$p_NORM.}}
+#CLASS {whohere_p4} {CLOSE}
+#CLASS {whohere_p1} {OPEN}
+#ACTION {^%1 the %2 is standing her%3.} {#SHOWME {$p_BOLD$p_MOBCOL$1$p_NORM the $2 is her$3.}}
+#CLASS {whohere_p1} {CLOSE}
+#CLASS {whohere_p3} {OPEN}
+#ACTION {^%1 the %2 is her%3, riding %4.} {#SHOWME {$p_BOLD$p_MOBCOL$1$p_NORM the $2 is her$3, riding $p_MOBCOL$4$p_NORM.}}
+#CLASS {whohere_p3} {CLOSE}
+#CLASS {whohereP1} {OPEN}
+#ACTION {^([a-zA-Z]+) is standing here(.*)\.} {#SHOWME {$p_MOBCOL$2$p_NORM is standing here$3.}}
+#CLASS {whohereP1} {CLOSE}
+#NOP / Enemies
+#CLASS {whohere_e1} {OPEN}
+#ACTION {^.{0,9}([[*][^*]+[*])[^ ,]{0,4}(, wielding [a-zA-Z ]+,)? is( standing)? here(.*)?\.} {#LINE GAG}
+#CLASS {whohere_e1} {CLOSE}
+#SHOWME {$p_ENEMYCOL$2$p_NORM$3 is$4 here$5.}
+#NOP / Movement
+#VARIABLE {p_CAPDIR_north} {^^^ NORTH ^^^}
+#VARIABLE {p_CAPDIR_east} {>>> EAST >>>}
+#VARIABLE {p_CAPDIR_south} {vvv SOUTH vvv}
+#VARIABLE {p_CAPDIR_west} {<<< WEST <<<}
+#VARIABLE {p_CAPDIR_up} {ooo UP ooo}
+#VARIABLE {p_CAPDIR_down} {xxx DOWN xxx}
+#VARIABLE {p_CAPDIR_northwest} {^^^ NORTH WEST <<<}
+#VARIABLE {p_CAPDIR_northeast} {^^^ NORTH EAST >>>}
+#VARIABLE {p_CAPDIR_southwest} {vvv SOUTH WEST <<<}
+#VARIABLE {p_CAPDIR_southeast} {vvv SOUTH EAST >>>}
+#VARIABLE {p_CAPADIR_north} {vvv NORTH vvv}
+#VARIABLE {p_CAPADIR_east} {<<< EAST <<<}
+#VARIABLE {p_CAPADIR_south} {^^^ SOUTH ^^^}
+#VARIABLE {p_CAPADIR_west} {>>> WEST >>>}
+#VARIABLE {p_CAPADIR_above} {xxx ABOVE xxx}
+#VARIABLE {p_CAPADIR_below} {ooo BELOW ooo}
+#VARIABLE {p_GOBACK_down} {u}
+#VARIABLE {p_GOBACK_east} {w}
+#VARIABLE {p_GOBACK_north} {s}
+#VARIABLE {p_GOBACK_south} {n}
+#VARIABLE {p_GOBACK_up} {d}
+#VARIABLE {p_GOBACK_west} {e}
+#CLASS {leaves_hiding1} {OPEN}
+#ACTION {^%1 %2 leaves %3 hiding place.} {#SHOWME {$1 $p_BOLD$p_MOBCOL$2 $p_NORM$p_ULINEleaves $3 hiding place.$p_NORM}}
+#CLASS {leaves_hiding1} {CLOSE}
+#CLASS {leaves_hiding2} {OPEN}
+#ACTION {^%1 %2 suddenly leaves its place%3} {#SHOWME {$1 $p_BOLD$p_MOBCOL$2 $p_NORM$p_ULINEsuddenly leaves its place$3$p_NORM}}
+#CLASS {leaves_hiding2} {CLOSE}
+#CLASS {found_hiding1} {OPEN}
+#ACTION {^You found %1 %2!} {#SHOWME {$p_NORM$p_ULINEYou found $1 $p_BOLD$p_MOBCOL$2$p_NORM!}}
+#CLASS {found_hiding1} {CLOSE}
+#CLASS {leaves_fix1} {OPEN}
+#ACTION {%1 tree%2 leaves%3} {}
+#CLASS {leaves_fix1} {CLOSE}
+#CLASS {leaves_fix2} {OPEN}
+#ACTION {%1 leaves%2valley} {}
+#CLASS {leaves_fix2} {CLOSE}
+#CLASS {leaves_fix3} {OPEN}
+#ACTION {%1 silvery-green%2leaves%3} {}
+#CLASS {leaves_fix3} {CLOSE}
+#CLASS {leaves_fix4} {OPEN}
+#ACTION {%1 rose %2 leaves%3} {}
+#CLASS {leaves_fix4} {CLOSE}
+#CLASS {leaves_fix5} {OPEN}
+#ACTION {%1 green leaves%3} {}
+#CLASS {leaves_fix5} {CLOSE}
+#CLASS {earr1} {OPEN}
+#ACTION {*%1*\033[0m %2 has arrived from the %3 riding %4.} {#SHOWME {*$1* $p_BOLD$p_RED$2$p_NORM $2 has arrived from $p_ARRIVESCOL$p_CAPADIR_%3$p_NORM riding $p_BOLD$p_MOBCOL$4$p_NORM}}
+#CLASS {earr1} {CLOSE}
+#CLASS {earr2} {OPEN}
+#ACTION {*%1*\033[0m %2 has arrived from the %3.} {#SHOWME {*$1* $p_BOLD$p_RED$2$p_NORM $2 has arrived from $p_ARRIVESCOL$p_CAPADIR_%3$p_NORM}}
+#CLASS {earr2} {CLOSE}
+#CLASS {earr3} {OPEN}
+#ACTION {*%1*\033[0m has arrived from the %2 riding %3.} {#SHOWME {$p_BOLD$p_RED*$1*$p_NORM has arrived from $p_ARRIVESCOL$p_CAPADIR_%2$p_NORM riding $p_BOLD$p_MOBCOL$3$p_NORM}}
+#CLASS {earr3} {CLOSE}
+#CLASS {earr4} {OPEN}
+#ACTION {*%1*\033[0m has arrived from the %2.} {#SHOWME {$p_BOLD$p_RED*$1*$p_NORM has arrived from $p_ARRIVESCOL$p_CAPADIR_%2$p_NORM}}
+#CLASS {earr4} {CLOSE}
+#CLASS {eleaves1} {OPEN}
+#ACTION {*%1*\033[0m leaves %2.} {#SHOWME {$p_BOLD$p_RED*$1*$p_NORM leaves $p_LEAVESCOL$p_CAPDIR_%2$p_NORM}}
+#CLASS {eleaves1} {CLOSE}
+#CLASS {eleaves_riding} {OPEN}
+#ACTION {*%1*\033[0m leaves %2 riding %3.} {#SHOWME {$p_BOLD$p_RED*$1*$p_NORM leaves $p_LEAVESCOL$p_CAPDIR_%2$p_NORM riding $p_BOLD$p_MOBCOL}}
+#CLASS {eleaves_riding} {CLOSE}
+#CLASS {eleaves_sneaking} {OPEN}
+#ACTION {*%1*\033[0m leaves %2 sneaking.} {#SHOWME {$p_BOLD$p_RED*$1*$p_NORM leaves $p_LEAVESCOL$p_CAPDIR_%2 $p_STATUSCOLsneaking$p_NORM.}}
+#CLASS {eleaves_sneaking} {CLOSE}
+#CLASS {eleaves_ff} {OPEN}
+#ACTION {*%1*\033[0m %2 leaves %3.} {#SHOWME {$p_BOLD$p_RED*$1*$p_NORM$2 leaves $p_LEAVESCOL$p_CAPDIR_%3$p_NORM}}
+#CLASS {eleaves_ff} {CLOSE}
+#CLASS {eleaves_riding_ff} {OPEN}
+#ACTION {*%1*\033[0m %2 leaves %3 riding %4.} {#SHOWME {$p_BOLD$p_RED*$1*$p_NORM $2 leaves  $p_}}
+#CLASS {eleaves_riding_ff} {CLOSE}
+#NOP / Ilmari (ilm) leaves west.
+#NOP / A horse of the Rohirrim (ilmm) leaves west.
+#NOP / A mother eagle (tank) IS TRYING TO ESCAPE!
+#NOP / A mother eagle (tank) leaves west.
+#NOP / A horse of the Rohirrim (mine) has arrived from the south.
+#CLASS {labptryesc} {OPEN}
+#ACTION {^([A-Z][^ ]+ \\([a-z]+\\)) IS TRYING TO ESCAPE!} {#SHOWME {$p_BOLD$p_LABELCOL$2$p_YELLOW IS TRYING TO ESCAPE!$p_NORM}}
+#CLASS {labptryesc} {CLOSE}
+#CLASS {labmtryesc} {OPEN}
+#ACTION {^(The|A|An) ([a-zA-Z ,\\-]+ \\([a-z]+\\)) IS TRYING TO ESCAPE!} {#SHOWME {$2$p_LABELCOL $3 $p_YELLOW$p_ULINEIS TRYING TO ESCAPE!$p_NORM}}
+#CLASS {labmtryesc} {CLOSE}
+#CLASS {mobtryesc} {OPEN}
+#ACTION {^(.+) IS TRYING TO ESCAPE!} {#SHOWME {$p_BOLD$p_MOBCOL$2 $p_YELLOW$p_ULINEIS TRYING TO ESCAPE!$p_NORM}}
+#CLASS {mobtryesc} {CLOSE}
+#NOP / TODO: Enemy flee
+#CLASS {labparrives1} {OPEN}
+#ACTION {^([A-Z][^ ]+)( the [^ ]+)? ([(][a-z]+[)]) has( suddenly)? arrived( from [a-zA-Z ]+)?\.} {#SHOWME {$p_DARK$p_BOLD$p_LABELCOL$2$3 $4$p_NORM$p_DARK has$5 arrived$6.$p_NORM}}
+#CLASS {labparrives1} {CLOSE}
+#CLASS {labmarrives1} {OPEN}
+#ACTION {^(The|A|An) ([a-zA-Z ,\\-]+ [(][a-z]+[)]) has( suddenly)? arrived( from [a-zA-Z ]+)?\.} {#SHOWME {$p_DARK$p_LABELCOL$2 $3$p_NORM$p_DARK has$4 arrived$5.$p_NORM}}
+#CLASS {labmarrives1} {CLOSE}
+#CLASS {labpleaves} {OPEN}
+#ACTION {^([A-Z][^ ]+ [(][a-z]+[)]) leaves (north|east|south|west|up|down)( sneaking)?\.} {#SHOWME {$p_LABELCOL$2$p_NORM leaves $p_LEAVESCOL$p_CAPDIR_%3$p_NORM$4.}}
+#CLASS {labpleaves} {CLOSE}
+#CLASS {labmleaves} {OPEN}
+#ACTION {^(The|An|A) ([a-zA-Z ,\\-]+ [(][a-z]+[)]) leaves (north|east|south|west|up|down)( sneaking)?\.} {#SHOWME {$2 $p_LABELCOL$3$p_NORM leaves $p_LEAVESCOL$p_CAPDIR_%4$p_NORM$5.}}
+#CLASS {labmleaves} {CLOSE}
+#CLASS {namleaves} {OPEN}
+#ACTION {^([a-zA-Z \\'\\-]+) leaves (north|east|south|west|up|down)( sneaking)?\.} {#SHOWME {$p_MOBCOL$2$p_NORM leaves $p_LEAVESCOL$p_CAPDIR_%3$p_NORM$4.}}
+#CLASS {namleaves} {CLOSE}
+#CLASS {namleavesr} {OPEN}
+#ACTION {^([a-zA-Z \\'\\-]+) leaves (north|east|south|west|up|down)\.} {#SHOWME {$p_MOBCOL$2$p_NORM leaves $p_LEAVESCOL$p_CAPDIR_%3$p_NORM riding $p_MOBCOL$4$p_NORM.}}
+#CLASS {namleavesr} {CLOSE}
+#CLASS {mobleaves} {OPEN}
+#ACTION {^(The|An|A) leaves (north|east|south|west|up|down)( sneaking)?\.} {#SHOWME {$2 $p_MOBCOL$3$p_NORM leaves $p_LEAVESCOL$p_CAPDIR_%4$p_NORM$5.}}
+#CLASS {mobleaves} {CLOSE}
+#CLASS {mobleavesr} {OPEN}
+#ACTION {^(The|An|A) leaves (north|east|south|west|up|down)\.} {#SHOWME {$2 $p_MOBCOL$3$p_NORM leaves $p_LEAVESCOL$p_CAPDIR_%4$p_NORM riding $p_MOBCOL$5$p_NORM.}}
+#CLASS {mobleavesr} {CLOSE}
+#CLASS {mobarrivesr} {OPEN}
+#ACTION {^(The|An|A) ([a-zA-Z \\'\\-]+) has arrived from( the)? (north|east|south|west|above|below) riding ([a-zA-Z \-]+).} {#SHOWME {$2 $p_BOLD$p_MOBCOL$3$p_NORM has arrived from the $p_ARRIVESCOL$p_CAPADIR_%5$p_NORM riding $p_MOBCOL$6$p_NORM.}}
+#CLASS {mobarrivesr} {CLOSE}
+#CLASS {mobarrives} {OPEN}
+#ACTION {^(The|An|A) ([a-zA-Z \\'\\-]+) has arrived from( the)? (north|east|south|west|above|below)\.} {#SHOWME {$2 $p_BOLD$p_MOBCOL$3$p_NORM has arrived from the $p_ARRIVESCOL$p_CAPADIR_%5$p_NORM}}
+#CLASS {mobarrives} {CLOSE}
+#NOP / sneaking arrivals??
+#CLASS {namarrivesr} {OPEN}
+#ACTION {^([^ ]+) has arrived from( the)? (north|east|south|west|above|below) riding ([a-zA-Z -]+)\.} {#SHOWME {$p_BOLD$p_MOBCOL$2$p_NORM has arrived from the $p_ARRIVESCOL$p_CAPADIR_%4$p_NORM riding $p_MOBCOL$5$p_NORM\.}}
+#CLASS {namarrivesr} {CLOSE}
+#CLASS {namarrives1} {OPEN}
+#ACTION {^([^ ]+) has arrived from( the)? (north|east|south|west|above|below)\.} {#SHOWME {$p_BOLD$p_MOBCOL$2$p_NORM has arrived from the $p_ARRIVESCOL$p_CAPADIR_%4$p_NORM}}
+#CLASS {namarrives1} {CLOSE}
+#CLASS {namarrives2} {OPEN}
+#ACTION {^([A-Z].+ the .+) has arrived from( the)? (north|east|south|west|above|below)\.} {#SHOWME {$p_BOLD$p_MOBCOL$2$p_NORM has arrived from the $p_ARRIVESCOL$p_CAPADIR_%4$p_NORM}}
+#CLASS {namarrives2} {CLOSE}
+#CLASS {tracksleading} {OPEN}
+#ACTION {- %1 track%2of %3 leading %4 done less than %5 hour%6ago} {#VARIABLE {p_trackdir} {%4}; #SHOWME {  - $1 track$2of $p_MOBCOL$3$p_NORM leading $p_LEAVESCOL$p_CAPDIR_%4$p_NORM less than $p_BOLD$5$p_NORM hour$6ago}}
+#CLASS {tracksleading} {CLOSE}
+#CLASS {FleeGag} {OPEN}
+#ACTION {You flee head over heels} {#LINE GAG}
+#CLASS {FleeGag} {CLOSE}
+#CLASS {flee1} {OPEN}
+#ACTION {^You flee %1.} {#SHOWME {}; #SHOWME {$p_BOLD         You fled $p_CYAN$p_CAPDIR_%1$p_NORM}; #SHOWME {}; #ALIAS {goback} {$p_GOBACK_%1}}
+#CLASS {flee1} {CLOSE}
+#NOP / Combat
+#NOP / An animated skeleton is here, fighting YOU.
+#CLASS {fightyou1} {OPEN}
+#ACTION {^%1 is her%2, fighting YOU.} {#SHOWME {$p_BOLD$p_MOBCOL$1$p_NORM is her$2, $p_BOLD$p_REDFIGHTING $p_BKCYAN$p_ULINEYOU$p_NORM.}}
+#CLASS {fightyou1} {CLOSE}
+#CLASS {fightyou2} {OPEN}
+#ACTION {^%1 is her%2, riding %3, fighting YOU.} {#SHOWME {$p_BOLD$p_MOBCOL$1$p_NORM is her$2, riding $p_MOBCOL$3$p_NORM, $p_BOLD$p_REDFIGHTING $p_BKCYAN$p_ULINEYOU$p_NORM.}}
+#CLASS {fightyou2} {CLOSE}
+#CLASS {labelledf1} {OPEN}
+#ACTION {%1 (%2) is %3, fighting %4.} {#SHOWME {$p_LABELCOL$1 ($2)$p_NORM is $3,$p_REDfighting$p_MOBCOL $4.}}
+#CLASS {labelledf1} {CLOSE}
+#CLASS {fighting1} {OPEN}
+#ACTION {^%1 is her%2, fighting %3.} {#SHOWME {$p_MOBCOL$1$p_NORM is her$2, $p_REDfighting $p_MOBCOL$3$p_NORM.}}
+#CLASS {fighting1} {CLOSE}
+#CLASS {fighting2} {OPEN}
+#ACTION {^%1 is her%2, riding %3, fighting %4.} {#SHOWME {$p_MOBCOL$1$p_NORM is her$2, riding $p_MOBCOL$3$p_NORM, $p_REDfighting $p_MOBCOL$4$p_NORM.}}
+#CLASS {fighting2} {CLOSE}
+#CLASS {fgt2sit} {OPEN}
+#ACTION {%1 is sitting here, trying to fight%2YOU%3} {#SHOWME {$p_BOLD$p_MOBCOL$1$p_NORM is $p_STATUSCOLSITTING$p_NORM here,$p_BOLD$p_RED trying to FIGHT $p_BKCYAN$p_ULINEYOU$p_NORM.}}
+#CLASS {fgt2sit} {CLOSE}
+#CLASS {didntfol} {OPEN}
+#ACTION {^ACK! %1 didn't follow you, you lost %2.} {#SHOWME {$p_BKRED$p_BOLDACK! $p_LABELCOL$1 $p_NORM$p_BKRED$p_BOLD$p_ULINEdidn't follow you, you lost $2.$p_NORM}}
+#CLASS {didntfol} {CLOSE}
+#CLASS {pintercept} {OPEN}
+#ACTION {^%1 (%2) intercepts %3's blow.} {#SHOWME {$p_BKRED$p_BOLD$p_LABELCOL$1 $p_NORM$p_BKRED$p_BOLDintercepts $p_MOBCOL$3's$p_NORM$p_BOLD$p_BKRED blow.$p_NORM}}
+#CLASS {pintercept} {CLOSE}
+#CLASS {labelledrest1} {OPEN}
+#ACTION {%1 (%2) sits down and rests.} {#SHOWME {$p_BKRED$p_BOLD$p_LABELCOL$1 ($2) $p_NORM$p_BKRED$p_ULINEsits down and rests$p_NORM.}}
+#CLASS {labelledrest1} {CLOSE}
+#CLASS {labelledh1} {OPEN}
+#ACTION {%1 (%2) is her%3.} {#SHOWME {$p_LABELCOL$1 ($2)$p_NORM is her$3.}}
+#CLASS {labelledh1} {CLOSE}
+#CLASS {labelledh2} {OPEN}
+#ACTION {%1 (%2) is standing her%3.} {#SHOWME {$p_LABELCOL$1 ($2)$p_NORM is standing$p_NORM her$3.}}
+#CLASS {labelledh2} {CLOSE}
+#CLASS {labelledh3} {OPEN}
+#ACTION {%1 (%2) is sleeping her%3.} {#SHOWME {$p_LABELCOL$1 ($2)$p_NORM is $p_STATUSCOLsleeping$p_NORM her$3.}}
+#CLASS {labelledh3} {CLOSE}
+#NOP / Status / position
+#CLASS {PosF1} {OPEN}
+#ACTION {^%1 (%2) is sitting %3} {#SHOWME {$p_LABELCOL$1 ($2)$p_NORM is $p_STATUSCOLSITTING$p_NORM $3}}
+#CLASS {PosF1} {CLOSE}
+#CLASS {PosF2} {OPEN}
+#ACTION {^%1 (%2) is resting %3} {#SHOWME {$p_LABELCOL$1 ($2)$p_NORM is $p_STATUSCOLRESTING$p_NORM $3}}
+#CLASS {PosF2} {CLOSE}
+#CLASS {PosF3} {OPEN}
+#ACTION {^%1 (%2) is sleeping %3} {#SHOWME {$p_LABELCOL$1 ($2) $p_NORM is $p_STATUSCOLSLEEPING$p_NORM $3}}
+#CLASS {PosF3} {CLOSE}
+#CLASS {PosF4} {OPEN}
+#ACTION {^%1 (%2) is lying here, stunned%3} {#SHOWME {$p_LABELCOL$1 ($2)$p_NORM is lying here, $p_BOLD$p_STATUSCOLSTUNNED$3$p_NORM}}
+#CLASS {PosF4} {CLOSE}
+#CLASS {PosF5} {OPEN}
+#ACTION {^%1 (%2) is lying here, incapacitated%3} {#SHOWME {$p_LABELCOL$1 ($2)$p_NORM is lying here, $p_BOLD$p_STATUSCOLINCAPACITATED$p_NORM$3}}
+#CLASS {PosF5} {CLOSE}
+#CLASS {PosF6} {OPEN}
+#ACTION {^%1 (%2) is lying here, mortally wounded%3} {#SHOWME {$p_LABELCOL$1 ($2)$p_NORM is lying here, $p_BOLD$p_STATUSCOLMORTALLY WOUNDED$p_NORM$3}}
+#CLASS {PosF6} {CLOSE}
+#CLASS {Pos1} {OPEN}
+#ACTION {^%1 is sitting %2} {#SHOWME {$p_MOBCOL$1$p_NORM is $p_STATUSCOLSITTING$p_NORM $2}}
+#CLASS {Pos1} {CLOSE}
+#CLASS {Pos2} {OPEN}
+#ACTION {^%1 is resting %2} {#SHOWME {$p_MOBCOL$1$p_NORM is $p_STATUSCOLRESTING$p_NORM $2}}
+#CLASS {Pos2} {CLOSE}
+#CLASS {Pos3} {OPEN}
+#ACTION {^%1 is sleeping %2} {#SHOWME {$p_MOBCOL$1$p_NORM is $p_STATUSCOLSLEEPING$p_NORM $2}}
+#CLASS {Pos3} {CLOSE}
+#CLASS {Pos4} {OPEN}
+#ACTION {^%1 is lying here, stunned%2} {#SHOWME {$1 is lying here, $p_BOLD$p_STATUSCOLSTUNNED$2$p_NORM}}
+#CLASS {Pos4} {CLOSE}
+#CLASS {Pos5} {OPEN}
+#ACTION {^%1 is lying here, incapacitated%2} {#SHOWME {$1 is lying here, $p_BOLD$p_STATUSCOLINCAPACITATED<099>$2$p_NORM}}
+#CLASS {Pos5} {CLOSE}
+#CLASS {Pos6} {OPEN}
+#ACTION {^%1 is lying here, mortally wounded%2} {#SHOWME {$1 is lying here, $p_BOLD$p_STATUSCOLMORTALLY WOUNDED<099>$2$p_NORM}}
+#CLASS {Pos6} {CLOSE}
+#NOP / Weather / environmental effects
+#CLASS {thunder1} {OPEN}
+#ACTION {^You hear a crackle of thunder in the distance} {#SHOWME {$p_WEATHERCOL$0$p_NORM}}
+#CLASS {thunder1} {CLOSE}
+#CLASS {ferrynoise} {OPEN}
+#ACTION {^Whoosh! Whoosh! You hear the waves lap against the sides of the ferry.} {#SHOWME {$p_WEATHERCOL$0$p_NORM}}
+#CLASS {ferrynoise} {CLOSE}
+#CLASS {windswept1} {OPEN}
+#ACTION {^A cold hard wind lashes at your clothes, making it difficult to move.} {#SHOWME {$p_WEATHERCOL$0$p_NORM}}
+#CLASS {windswept1} {CLOSE}
+#CLASS {weatherhere1} {OPEN}
+#ACTION {^There is ([a-z ]+) (snow|water) on the ground.} {#SHOWME {$p_WEATHERCOL$0$p_NORM}}
+#CLASS {weatherhere1} {CLOSE}
+#CLASS {weather2} {OPEN}
+#ACTION {\033[43m%1\033[0m} {#SHOWME {$p_WEATHERCOL$1$p_NORM}}
+#CLASS {weather2} {CLOSE}
+#CLASS {whathere_b1} {OPEN}
+#ACTION {%1 bulletin board, entitled "%2", is %3 here.} {}
+#CLASS {whathere_b1} {CLOSE}
+#CLASS {avalance1} {OPEN}
+#ACTION {You hear a loud rumbling sound from the %1!} {#SHOWME {$p_DARK$p_BOLD$p_BLUE$p_BKWHITEYou hear a loud rumbling sound from the $p_CAPDIR_%1$p_NORM}}
+#CLASS {avalance1} {CLOSE}
+#CLASS {avalance2} {OPEN}
+#ACTION {You hear a loud rumbling sound all around you!} {#SHOWME {$p_DARK$p_BOLD$p_BLUE$p_BKWHITE$0$p_NORM}}
+#CLASS {avalance2} {CLOSE}
+#CLASS {avalance3} {OPEN}
+#ACTION {Looking down, you see that the side of the mountain has slipped away.} {#SHOWME {$p_DARK$p_BOLD$p_BLUE$p_BKWHITE$0$p_NORM}}
+#CLASS {avalance3} {CLOSE}
+#HIGHLIGHT {You are trapped by some roots.} {bold white on red}
+#SHOWME { Was loading keys.txt at this point - can't remember how important the order is... }
+#NOP / Stuff in  Containers
+#CLASS {whathere_in1} {OPEN}
+#ACTION {^On the ([a-zA-Z ]+), there (is|are) ([a-zA-Z ,-]+)\.} {#SHOWME {On the $2, there $3 $p_ITEMCOL$4$p_NORM.}}
+#CLASS {whathere_in1} {CLOSE}
+#CLASS {whathere_inrack} {OPEN}
+#ACTION {^In the rack %1 %2.} {#SHOWME {In the rack is $1 $p_ITEMCOL$2$p_NORM.}}
+#CLASS {whathere_inrack} {CLOSE}
+#CLASS {whathere_inrack1} {OPEN}
+#ACTION {^Standing in the rack %1 %2.} {#SHOWME {Standing in the rack $1 $p_ITEMCOL$2$p_NORM.}}
+#CLASS {whathere_inrack1} {CLOSE}
+#CLASS {whathere_intree1} {OPEN}
+#ACTION {^On %1 branches%2 is %3.} {#SHOWME {On $1 branches$2 is $p_ITEMCOL$3$p_NORM.}}
+#CLASS {whathere_intree1} {CLOSE}
+#CLASS {whathere_intree2} {OPEN}
+#ACTION {^On %1 branches%2 are %3.} {#SHOWME {On $1 branches$2 are $p_ITEMCOL$3$p_NORM.}}
+#CLASS {whathere_intree2} {CLOSE}
+#CLASS {whathere_inbush1} {OPEN}
+#ACTION {^(Scattered in and on|Inside|Deep inside) the (shrub|bush), there (are|is) ([a-zA-Z ,-]+)\.} {#SHOWME {$2nside the $3, there $4 $p_ITEMCOL$5$p_NORM.}}
+#CLASS {whathere_inbush1} {CLOSE}
+#CLASS {whathere_inbush2} {OPEN}
+#ACTION {^Partly covered by the (shrub|bush)\'s ([a-zA-Z ]+)eaves, there (is|are) ([a-zA-Z ,-]+)\.} {#SHOWME {Partly covered by the $2's $3eaves, there $4 $p_ITEMCOL$5$p_NORM.}}
+#CLASS {whathere_inbush2} {CLOSE}
+#CLASS {whathere_inbook1} {OPEN}
+#ACTION {^%1bookshelf, there %2 %3.} {#SHOWME {$1bookshelf, there $2 $p_ITEMCOL$3$p_NORM.}}
+#CLASS {whathere_inbook1} {CLOSE}
+#CLASS {whathere_incabinet1} {OPEN}
+#ACTION {^In %1 cabinet, there %2 %3.} {#SHOWME {In $1 cabinet, there $2 $p_ITEMCOL$3$p_NORM.}}
+#CLASS {whathere_incabinet1} {CLOSE}
+#NOP / Containers
+#CLASS {containerhere1} {OPEN}
+#ACTION {^(A|An) ([a-z ,]+)?(box|desk|chest|cupboard|alcove)([a-z ,]+) (stands here|stands in|lies on|is standing here|rests on|sits on|sits it)([^\.]+)\.} {#SHOWME {$2 $p_CONTAINERCOL$3$4$p_NORM$5 $6 $7$8.}}
+#CLASS {containerhere1} {CLOSE}
+#CLASS {containerhere3} {OPEN}
+#ACTION {^A %1 chest is standing here.} {#SHOWME {A $p_CONTAINERCOL$1 chest$p_NORM is standing here.}}
+#CLASS {containerhere3} {CLOSE}
+#CLASS {containerhere4} {OPEN}
+#ACTION {^A %1 sarcophagus lies on the %2.} {#SHOWME {A $p_CONTAINERCOL$1 sarcophagus$p_NORM lies on the $2.}}
+#CLASS {containerhere4} {CLOSE}
+#CLASS {containerhere5} {OPEN}
+#ACTION {^A %1 chest is here.} {#SHOWME {A $p_CONTAINERCOL$1 chest$p_NORM is here.}}
+#CLASS {containerhere5} {CLOSE}
+#CLASS {containerhere6} {OPEN}
+#ACTION {^A %1 crate %2 sits on the floor.} {#SHOWME {A $p_CONTAINERCOL$1 crate$p_NORM $2 sits on the floor.}}
+#CLASS {containerhere6} {CLOSE}
+#CLASS {containerhere7} {OPEN}
+#ACTION {^A %1 desk%2 stands here.} {#SHOWME {A $p_CONTAINERCOL$1 desk$p_NORM$2 stands here.}}
+#CLASS {containerhere7} {CLOSE}
+#CLASS {containerhere8} {OPEN}
+#ACTION {^A %1 box%2 rests on the ground.} {#SHOWME {A $p_CONTAINERCOL$1 box$p_NORM$2 rests on the ground.}}
+#CLASS {containerhere8} {CLOSE}
+#NOP / A large bookshelf sits against the wall.
+#NOP / A hollow tree is growing upright here.
+#NOP / A heavy desk, made of solid oak, stands here.
+#NOP / A wooden box, made from rich wood, rests on the ground.
+#NOP / A large stone chest with ebony bands stands here.
+#NOP / A large, engraved sarcophagus sits on a raised dais.
+#NOP / A small oaken table has been set here.
+#NOP / An old and rickety wooden chest stands in a forgotten corner.
+#NOP / A wooden cupboard stands here.
+#NOP / A large, dusty alcove sits in a wall, smelling of soot. <-- not working
+#CLASS {cabinethere1} {OPEN}
+#ACTION {^A %1 cabinet %2s here.} {#SHOWME {A $p_CONTAINERCOL$1 cabinet$p_NORM is here.}}
+#CLASS {cabinethere1} {CLOSE}
+#CLASS {rackhere1} {OPEN}
+#ACTION {^A weapons rack %1 the wall.} {#SHOWME {A $p_CONTAINERCOLweapons rack$p_NORM $1 the wall.}}
+#CLASS {rackhere1} {CLOSE}
+#CLASS {peghere1} {OPEN}
+#ACTION {^A sturdy peg %1 is on the wall.} {#SHOWME {A $p_CONTAINERCOL$1 chest$p_NORM $1 is on the wall.}}
+#CLASS {peghere1} {CLOSE}
+#CLASS {whathere_bush1} {OPEN}
+#ACTION {^(An|A) ([a-zA-Z ,-]+) bush is (growing|blooming) here.} {#SHOWME {$2 $p_CONTAINERCOL$3 bush$p_NORM is $4 here.}}
+#CLASS {whathere_bush1} {CLOSE}
+#CLASS {whathere_bush2} {OPEN}
+#ACTION {^(An|A) ([a-zA-Z ,-]+) has established itself here.} {#SHOWME {$2 $p_CONTAINERCOL$3$p_NORM established itself here.}}
+#CLASS {whathere_bush2} {CLOSE}
+#NOP / Miscellaneous fixes for item/mob/other confusion
+#VARIABLE {p_CONTAINERCOL} {$p_ITEMCOL$p_ULINE}
+#CLASS {lamphere1} {OPEN}
+#ACTION {^A finely crafted crystal lamp is here.} {}
+#CLASS {lamphere1} {CLOSE}
+#CLASS {ferryhere1} {OPEN}
+#ACTION {^A ferry in the shape of a great white swan is here.} {#SHOWME {A $p_CONTAINERCOLferry$p_NORM in the shape of a great white swan is here.}}
+#CLASS {ferryhere1} {CLOSE}
+#CLASS {mailboxhere1} {OPEN}
+#ACTION {^A mailbox stands here stuffed full of messages.} {#SHOWME {A $p_CONTAINERCOLmailbox$p_NORM stands here stuffed full of messages.}}
+#CLASS {mailboxhere1} {CLOSE}
+#CLASS {signhere1} {OPEN}
+#ACTION {^A ([a-z]+ )?sign(,| )([a-zA-Z, ]+)( is| stand)([a-zA-Z, ]+) here} {#SHOWME {A $2$p_ITEMCOL$p_BOLDsign$p_NORM$3$4$5$6$7 here.}}
+#CLASS {signhere1} {CLOSE}
+#NOP / A wooden sign stands next to the path here.
+#NOP / A wooden sign, attached to a strong pole, is standing here.
+#NOP / A sign, reading Building Permit Information, is here
+#NOP / A large bulletin board, entitled "Legendhomes", is mounted here.
+#NOP / A large and finely decorated harp of white marble has been built here.
+#NOP / There is an old street-lamp on the border of the street.
+#NOP / A large fountain, made from grey stone, pours water from its centre.
+#CLASS {whathere_whofix1} {OPEN}
+#ACTION {%1 bench is here.} {}
+#CLASS {whathere_whofix1} {CLOSE}
+#SHOWME { General stuff on the ground}
+#CLASS {whathere1} {OPEN}
+#ACTION {^%1 %2 is lying here%3} {#SHOWME {$1 $p_ITEMCOL$2$p_NORM is lying here$3}}
+#CLASS {whathere1} {CLOSE}
+#CLASS {whathere2} {OPEN}
+#ACTION {^%1 %2 are lying here%3} {#SHOWME {$1 $p_ITEMCOL$2$p_NORM are lying here$3}}
+#CLASS {whathere2} {CLOSE}
+#CLASS {whathere4} {OPEN}
+#ACTION {^%1 %2 is on the ground%3} {#SHOWME {$1 $p_ITEMCOL$2$p_NORM is on the ground$3}}
+#CLASS {whathere4} {CLOSE}
+#CLASS {whathere3} {OPEN}
+#ACTION {^%1 %2 are on the ground%3} {#SHOWME {$1 $p_ITEMCOL$2$p_NORM are on the ground$3}}
+#CLASS {whathere3} {CLOSE}
+#CLASS {whathere5} {OPEN}
+#ACTION {^%1 %2 lies in the dust%3} {#SHOWME {$1 $p_ITEMCOL$2$p_NORM lies in the dust$3}}
+#CLASS {whathere5} {CLOSE}
+#CLASS {whathere6} {OPEN}
+#ACTION {^%1 %2 lies here%3} {#SHOWME {$1 $p_ITEMCOL$2$p_NORM lies here$3}}
+#CLASS {whathere6} {CLOSE}
+#CLASS {whathere9a} {OPEN}
+#ACTION {^%1 %2 lies on the ground%3} {#SHOWME {$1 $p_ITEMCOL$2$p_NORM lies on the ground$3}}
+#CLASS {whathere9a} {CLOSE}
+#CLASS {whathere9b} {OPEN}
+#ACTION {^%1 %2 lies on the floor%3} {#SHOWME {$1 $p_ITEMCOL$2$p_NORM lies on the floor$3}}
+#CLASS {whathere9b} {CLOSE}
+#CLASS {whathere10} {OPEN}
+#ACTION {^%1 %2 has been%3left here%4} {#SHOWME {$1 $p_ITEMCOL$2$p_NORM has been left$3here$4}}
+#CLASS {whathere10} {CLOSE}
+#CLASS {whathere11a} {OPEN}
+#ACTION {^A %1 has been%2placed here%3} {#SHOWME {A $p_ITEMCOL$1$p_NORM has been placed$2here$3}}
+#CLASS {whathere11a} {CLOSE}
+#CLASS {whathere11d} {OPEN}
+#ACTION {^An %1 has been%2placed here%3} {#SHOWME {An $p_ITEMCOL$1$p_NORM has been placed$2here$3}}
+#CLASS {whathere11d} {CLOSE}
+#CLASS {whathere11c} {OPEN}
+#ACTION {^The %1 has been%2placed here%3} {#SHOWME {The $p_ITEMCOL$1$p_NORM has been placed$2here$3}}
+#CLASS {whathere11c} {CLOSE}
+#CLASS {whathere12a} {OPEN}
+#ACTION {^A %1 has been%2set here%3} {#SHOWME {A $p_ITEMCOL$1$p_NORM has been set$2here$3}}
+#CLASS {whathere12a} {CLOSE}
+#CLASS {whathere12d} {OPEN}
+#ACTION {^An %1 has been%2set here%3} {#SHOWME {An $p_ITEMCOL$1$p_NORM has been set$2here$3}}
+#CLASS {whathere12d} {CLOSE}
+#CLASS {whathere12c} {OPEN}
+#ACTION {^The %1 %2 been%3set here%4} {#SHOWME {The $p_ITEMCOL$1$p_NORM $2 been set$3here$4}}
+#CLASS {whathere12c} {CLOSE}
+#CLASS {whathere13} {OPEN}
+#ACTION {^%1 %2 has been%3abandoned here%4} {#SHOWME {$1 $p_ITEMCOL$2$p_NORM has been abandoned$3here$4}}
+#CLASS {whathere13} {CLOSE}
+#CLASS {whathere14} {OPEN}
+#ACTION {^There is %1 %2 lying on the ground%3} {#SHOWME {There is $1 $p_ITEMCOL$2$p_NORM on the ground$3}}
+#CLASS {whathere14} {CLOSE}
+#CLASS {whathere15m} {OPEN}
+#ACTION {^%1 are lying on the ground%2} {#SHOWME {$p_ITEMCOL$1$p_NORM are lying on the ground$2}}
+#CLASS {whathere15m} {CLOSE}
+#CLASS {whathere15a} {OPEN}
+#ACTION {^A %1 is lying on the ground%2} {#SHOWME {A $p_ITEMCOL$1$p_NORM is lying on the ground$3}}
+#CLASS {whathere15a} {CLOSE}
+#CLASS {whathere15n} {OPEN}
+#ACTION {^An %1 is lying on the ground%2} {#SHOWME {An $p_ITEMCOL$1$p_NORM is lying on the ground$2}}
+#CLASS {whathere15n} {CLOSE}
+#CLASS {whathere15t} {OPEN}
+#ACTION {^The %1 %2 lying on the ground%2} {#SHOWME {The $p_ITEMCOL$1$p_NORM $2 lying on the ground$3}}
+#CLASS {whathere15t} {CLOSE}
+#CLASS {whathere16} {OPEN}
+#ACTION {^%1 %2 has been left %3the ground%4} {#SHOWME {$1 $p_ITEMCOL$2$p_NORM has been left $3the ground$4}}
+#CLASS {whathere16} {CLOSE}
+#CLASS {whathere17} {OPEN}
+#ACTION {^%1 %2 has been set on the ground%3} {#SHOWME {$1 $p_ITEMCOL$2$p_NORM has been set on the ground$3}}
+#CLASS {whathere17} {CLOSE}
+#CLASS {whathere_rem1} {OPEN}
+#ACTION {^The remains of %1 lie here%2.} {#SHOWME {The $p_ITEMCOLremains of $1$p_NORM lie here$2.}}
+#CLASS {whathere_rem1} {CLOSE}
+#CLASS {whathere100} {OPEN}
+#ACTION {^%1 %2 is here, spun into a spiralling wheel-shape%3} {#SHOWME {$1 $p_ITEMCOL$2$p_NORM is here, spun into a spiralling wheel-shape$3}}
+#CLASS {whathere100} {CLOSE}
+#CLASS {whathere51} {OPEN}
+#ACTION {^You see %1 %2 the ground.} {#SHOWME {You see $p_ITEMCOL$1 $2$p_NORM the ground.}}
+#CLASS {whathere51} {CLOSE}
+#CLASS {whathere52} {OPEN}
+#ACTION {^On the ground, there are %1 %2.} {#SHOWME {On the ground, there are $p_ITEMCOL$1 $2$p_NORM.}}
+#CLASS {whathere52} {CLOSE}
+#CLASS {whathere53} {OPEN}
+#ACTION {^There are %1 %2 here.} {#SHOWME {There are $p_ITEMCOL$1 $2$p_NORM here.}}
+#CLASS {whathere53} {CLOSE}
+#SHOWME { Veggies / foods / plants }
+#CLASS {whathere_v1} {OPEN}
+#ACTION {%1 %2 grows here.} {#SHOWME {$1 $p_ITEMCOL$2$p_NORM grows here.}}
+#CLASS {whathere_v1} {CLOSE}
+#CLASS {whathere_v2} {OPEN}
+#ACTION {%1 %2 is growing here.} {#SHOWME {$1 $p_ITEMCOL$2$p_NORM is growing here.}}
+#CLASS {whathere_v2} {CLOSE}
+#CLASS {whathere_v3} {OPEN}
+#ACTION {%1 are growing here.} {#SHOWME {$p_ITEMCOL$1$p_NORM are growing here.}}
+#CLASS {whathere_v3} {CLOSE}
+#CLASS {whathere_v4} {OPEN}
+#ACTION {%1 %2 grows nearby.} {#SHOWME {$1 $p_ITEMCOL$2$p_NORM grows nearby.}}
+#CLASS {whathere_v4} {CLOSE}
+#CLASS {whathere_r1} {OPEN}
+#ACTION {%1 %2 is blossoming here.} {#SHOWME {$1 $p_ITEMCOL$2$p_NORM is blossoming here.}}
+#CLASS {whathere_r1} {CLOSE}
+#CLASS {whathere_vo} {OPEN}
+#ACTION {A %2 onion%3} {#SHOWME {A $p_ITEMCOL$2 onion$p_NORM$3}}
+#CLASS {whathere_vo} {CLOSE}
+#CLASS {whathere_vc} {OPEN}
+#ACTION {A %2 cabbage%3} {#SHOWME {A $p_ITEMCOL$2 cabbage$p_NORM$3}}
+#CLASS {whathere_vc} {CLOSE}
+#CLASS {whathere_vg} {OPEN}
+#ACTION {A %2 garlic%3} {#SHOWME {A $p_ITEMCOL$2 garlic$p_NORM$3}}
+#CLASS {whathere_vg} {CLOSE}
+#CLASS {whathere_vt} {OPEN}
+#ACTION {A %2 turnip%3} {#SHOWME {A $p_ITEMCOL$2 turnip$p_NORM$3}}
+#CLASS {whathere_vt} {CLOSE}
+#NOP / Named mobs
+#CLASS {whohereN1} {OPEN}
+#ACTION {^([A-Z][a-zA-Z'\]+ [A-Z][a-zA-Z'-]+) (is )?(standing |stands )?here(.*).} {#SHOWME {$p_MOBCOL$2$p_NORM $3$4here$5.}}
+#CLASS {whohereN1} {CLOSE}
+#CLASS {whohereN2} {OPEN}
+#ACTION {^([a-zA-Z-]+) the ([a-zA-Z -]+) (is|stands|is standing) here(.*).} {#SHOWME {$p_MOBCOL$2 the $3$p_NORM $4 here$5.}}
+#CLASS {whohereN2} {CLOSE}
+#NOP / General mobs
+#CLASS {whohere_s1} {OPEN}
+#ACTION {^%1 %2snake%3 is lying here%4} {#SHOWME {$1 $p_MOBCOL$1$p_NORM$2snake$3 is lying here$4}}
+#CLASS {whohere_s1} {CLOSE}
+#CLASS {whohere4} {OPEN}
+#ACTION {^%1 %2 stands%3here%4} {#SHOWME {$1 $p_MOBCOL$2$p_NORM stands$3here$4}}
+#CLASS {whohere4} {CLOSE}
+#CLASS {whohere4b} {OPEN}
+#ACTION {^%1 %2 stands%3before you%4} {#SHOWME {$1 $p_MOBCOL$2$p_NORM stands$3before you$4}}
+#CLASS {whohere4b} {CLOSE}
+#CLASS {whohere4c} {OPEN}
+#ACTION {^%1 %2 stands%3menacingly%4} {#SHOWME {$1 $p_MOBCOL$2$p_NORM stands$3menacingly$4}}
+#CLASS {whohere4c} {CLOSE}
+#CLASS {whohere4d} {OPEN}
+#ACTION {^%1 stands here carrying%2} {#SHOWME {$p_MOBCOL$1$p_NORM stands here carrying $2}}
+#CLASS {whohere4d} {CLOSE}
+#CLASS {whohere4e} {OPEN}
+#ACTION {^%1 stands here wielding%2} {#SHOWME {$p_MOBCOL$1$p_NORM stands here carrying $2}}
+#CLASS {whohere4e} {CLOSE}
+#CLASS {whohereG1} {OPEN}
+#ACTION {^(The|An|A) ([a-zA-Z ,'-]+) is here(.*)\.} {#SHOWME {$2 $p_MOBCOL$3$p_NORM is here$4.}}
+#CLASS {whohereG1} {CLOSE}
+#CLASS {whohereG2} {OPEN}
+#ACTION {^(The|An|A|Some) ([a-zA-Z, '-]+) (lurks|floats|crawls|is standing|paces|stands|bounces|is playing|splashes playfully|is walking|walks|is wandering|is running|is strolling|is staggering|is working|is playing|shuffles|is hobbling|flies|is circling|is fluttering|is buzzing|are buzzing|scampers|waddles|is waddling|writhing|is strutting|is slithering|slithers|is digging|scurries) (about|about here|around|here|around here|above)(.*)\.} {#SHOWME {$2 $p_MOBCOL$3$p_NORM $4 $5$6.}}
+#CLASS {whohereG2} {CLOSE}
+#CLASS {whohereG1} {OPEN}
+#ACTION {^(The|An|A) ([a-zA-Z ,'-]+) is here(.*)\.} {#SHOWME {$2 $p_MOBCOL$3$p_NORM is here$4.}}
+#CLASS {whohereG1} {CLOSE}
+#CLASS {whohereR1} {OPEN}
+#ACTION {^(The|An|A) ([a-zA-Z ,'-]+) innkeeper (is here|stands ready)(.*)\.} {#SHOWME {$2 $p_MOBCOL$3 inkeeper$p_NORM $4$5.}}
+#CLASS {whohereR1} {CLOSE}
+#CLASS {whohereR2} {OPEN}
+#ACTION {^([a-zA-Z ,'-]+) the innkeeper (is here|stands ready)(.*)\.} {#SHOWME {$p_MOBCOL$2 the inkeeper$p_NORM $3$4.}}
+#CLASS {whohereR2} {CLOSE}
+#CLASS {whohere28} {OPEN}
+#ACTION {^%1 %2 noses about hungrily%3} {#SHOWME {$1 $p_MOBCOL$2$p_NORM noses about hungrily$3}}
+#CLASS {whohere28} {CLOSE}
+#CLASS {whohere28z} {OPEN}
+#ACTION {^(The|An|A|Some) ([a-zA-Z, '-]+) (are |is )? (scuttling|staggering|noses) about (here|hungrily)(.+)\.} {#SHOWME {$2 $p_MOBCOL$3$p_NORM $4$5 about $6$7.}}
+#CLASS {whohere28z} {CLOSE}
+#CLASS {whohere2} {OPEN}
+#ACTION {^%1 %2 pads%3here%4} {#SHOWME {$1 $p_MOBCOL$2$p_NORM pads$3here$4}}
+#CLASS {whohere2} {CLOSE}
+#CLASS {whohere2a} {OPEN}
+#ACTION {^%1 %2 pads restlessly%3} {#SHOWME {$1 $p_MOBCOL$2$p_NORM pads restlessly$3}}
+#CLASS {whohere2a} {CLOSE}
+#CLASS {whohere2b} {OPEN}
+#ACTION {^%1 %2 pads quietly%3} {#SHOWME {$1 $p_MOBCOL$2$p_NORM pads quietly$3}}
+#CLASS {whohere2b} {CLOSE}
+#CLASS {whohere5} {OPEN}
+#ACTION {^%1 %2 smothers the%3} {#SHOWME {$1 $p_MOBCOL$2$p_NORM smothers the$3}}
+#CLASS {whohere5} {CLOSE}
+#CLASS {whohere6z} {OPEN}
+#ACTION {^(The|An|A|Some) ([a-zA-Z, '-]+) (are |is )?(lunges|looks|stares|glares|gazes|bares|glaring|grins|gleam)(.+)at you(.*)\.} {#SHOWME {$2 $p_MOBCOL$3$p_NORM $4$5$6at you$7.}}
+#CLASS {whohere6z} {CLOSE}
+#NOP / stares bitterly into the shadows
+#CLASS {whohere7d} {OPEN}
+#ACTION {^%1 %2 is sprawled on the ground%3} {#SHOWME {$1 $p_MOBCOL$2$p_NORM is sprawled on the ground$3}}
+#CLASS {whohere7d} {CLOSE}
+#CLASS {whohere11} {OPEN}
+#ACTION {^%1 %2 watches you%3} {#SHOWME {$1 $p_MOBCOL$2$p_NORM watches you$3}}
+#CLASS {whohere11} {CLOSE}
+#CLASS {whohere11a} {OPEN}
+#ACTION {^%1 watches you with%3} {#SHOWME {$1 $p_MOBCOL$2$p_NORM watches you with$3}}
+#CLASS {whohere11a} {CLOSE}
+#CLASS {whohere11b} {OPEN}
+#ACTION {^%1 %2 is watching %3here%4} {#SHOWME {$1 $p_MOBCOL$2$p_NORM is watching $3here$4}}
+#CLASS {whohere11b} {CLOSE}
+#CLASS {whohere11c} {OPEN}
+#ACTION {^%1 %2 is watching %3warily%4} {#SHOWME {$1 $p_MOBCOL$2$p_NORM is watching $3warily$4}}
+#CLASS {whohere11c} {CLOSE}
+#CLASS {whohere16} {OPEN}
+#ACTION {^%1 %2 is sizing up%3} {#SHOWME {$1 $p_MOBCOL$2$p_NORM sizing up$3}}
+#CLASS {whohere16} {CLOSE}
+#CLASS {whohere17a} {OPEN}
+#ACTION {^%1 %2 eyes you%3} {#SHOWME {$1 $p_MOBCOL$2$p_NORM eyes you$3}}
+#CLASS {whohere17a} {CLOSE}
+#CLASS {whohere50a} {OPEN}
+#ACTION {^%1 %2 turns to face you you.} {#SHOWME {$1 $p_MOBCOL$2$p_NORM turns to face you.}}
+#CLASS {whohere50a} {CLOSE}
+#CLASS {whohere50b} {OPEN}
+#ACTION {^%1 %2 challenges you.} {#SHOWME {$1 $p_MOBCOL$2$p_NORM challenges you.}}
+#CLASS {whohere50b} {CLOSE}
+#CLASS {whohere34a} {OPEN}
+#ACTION {^%1 %2 floats towards you%3} {#SHOWME {$1 $p_MOBCOL$2$p_NORM floats towards you$3}}
+#CLASS {whohere34a} {CLOSE}
+#CLASS {whohere8} {OPEN}
+#ACTION {^%1 %2 is stamping%3} {#SHOWME {$1 $p_MOBCOL$2$p_NORM is stamping$3}}
+#CLASS {whohere8} {CLOSE}
+#CLASS {whohere9a} {OPEN}
+#ACTION {^%1 %2 slithers%3.} {#SHOWME {$1 $p_MOBCOL$2$p_NORM slithers$3.}}
+#CLASS {whohere9a} {CLOSE}
+#CLASS {whohere9b} {OPEN}
+#ACTION {^%1 %2 is slithering%3} {#SHOWME {$1 $p_MOBCOL$2$p_NORM is slithering towards you$3}}
+#CLASS {whohere9b} {CLOSE}
+#CLASS {whohere9c} {OPEN}
+#ACTION {^%1 %2snake%3is coiled here%4} {#SHOWME {$1 $p_MOBCOL$2snake$3$p_NORMis coiled here$4}}
+#CLASS {whohere9c} {CLOSE}
+#CLASS {whohere9d} {OPEN}
+#ACTION {^%1 %2 lies wrapped around%3} {#SHOWME {$1 $p_MOBCOL$2$p_NORM lies wrapped around$3}}
+#CLASS {whohere9d} {CLOSE}
+#CLASS {whohere10} {OPEN}
+#ACTION {^%1 %2 scuttling across the floor%3} {#SHOWME {$1 $p_MOBCOL$2$p_NORM scuttling across the floor$3}}
+#CLASS {whohere10} {CLOSE}
+#CLASS {whohere12a} {OPEN}
+#ACTION {^%1 %2 soar%3} {#SHOWME {$1 $p_MOBCOL$2$p_NORM soar$3}}
+#CLASS {whohere12a} {CLOSE}
+#CLASS {whohere12b} {OPEN}
+#ACTION {^%1 %2 is circling above%3} {#SHOWME {$1 $p_MOBCOL$2$p_NORM is circling above$3}}
+#CLASS {whohere12b} {CLOSE}
+#CLASS {whohere12c} {OPEN}
+#ACTION {^%1 %2 is flying around%3} {#SHOWME {$1 $p_MOBCOL$2$p_NORM is flying around$3}}
+#CLASS {whohere12c} {CLOSE}
+#CLASS {whohere12d} {OPEN}
+#ACTION {^%1 %2 is flapping on the ground%2} {#SHOWME {$1 $p_MOBCOL$2$p_NORM is flapping on the ground$3}}
+#CLASS {whohere12d} {CLOSE}
+#CLASS {whohere13a} {OPEN}
+#ACTION {^(The|An|A) ([a-zA-Z -]+) flies (high above|by|in the sky|low)(.*)\.} {#SHOWME {$2 $p_MOBCOL$3$p_NORM flies $4$5.}}
+#CLASS {whohere13a} {CLOSE}
+#CLASS {whohere13b} {OPEN}
+#ACTION {^(The|A|An) ([a-zA-Z -]+) rests near(.+)\.} {#SHOWME {$2 $p_MOBCOL$3$p_NORM rests near$4}}
+#CLASS {whohere13b} {CLOSE}
+#CLASS {whohere15a} {OPEN}
+#ACTION {^Some %1 lie here%2 ensnare%3} {#SHOWME {Some $p_MOBCOL$1$p_NORM lie here$2 ensnare$3}}
+#CLASS {whohere15a} {CLOSE}
+#CLASS {whohere15b} {OPEN}
+#ACTION {^%1 shift uneasily all around you.} {#SHOWME {$p_MOBCOL$1$p_NORM shift uneasily all around you.}}
+#CLASS {whohere15b} {CLOSE}
+#CLASS {whohere60f} {OPEN}
+#ACTION {^(A|An|Some) ([a-z ]+) vines (whip|entangles|drops) (.+)\.} {#SHOWME {$2 $p_MOBCOL$3 vines$p_NORM $4 all $5.}}
+#CLASS {whohere60f} {CLOSE}
+#CLASS {whohere18} {OPEN}
+#ACTION {^%1 %2 seems ready to charge%3} {#SHOWME {$1 $p_MOBCOL$2$p_NORM seems ready to charge$3}}
+#CLASS {whohere18} {CLOSE}
+#CLASS {whohere19} {OPEN}
+#ACTION {^%1 %2 is searching for fresh meat%3} {#SHOWME {$1 $p_MOBCOL$2$p_NORM is searching for fresh meat$3}}
+#CLASS {whohere19} {CLOSE}
+#CLASS {whohere21} {OPEN}
+#ACTION {^%1 %2 is looking for tracks%3} {#SHOWME {$1 $p_MOBCOL$2$p_NORM is looking for tracks$3}}
+#CLASS {whohere21} {CLOSE}
+#CLASS {whohere22} {OPEN}
+#ACTION {^%1 %2 is on sentry here%3} {#SHOWME {$1 $p_MOBCOL$2$p_NORM is on sentry here$3}}
+#CLASS {whohere22} {CLOSE}
+#CLASS {whohere32a} {OPEN}
+#ACTION {^%1 %2 passes by%3} {#SHOWME {$1 $p_MOBCOL$2$p_NORM passes by$3}}
+#CLASS {whohere32a} {CLOSE}
+#CLASS {whohere32c} {OPEN}
+#ACTION {^%1 %2 has set up an inn here%3} {#SHOWME {$1 $p_MOBCOL$2$p_NORM has set up an inn here$3}}
+#CLASS {whohere32c} {CLOSE}
+#CLASS {whohere26} {OPEN}
+#ACTION {^%1 %2 is walking around%3} {#SHOWME {$1 $p_MOBCOL$2$p_NORM is walking around$3}}
+#CLASS {whohere26} {CLOSE}
+#CLASS {whohere27} {OPEN}
+#ACTION {^%1 %2 advances towards you%3} {#SHOWME {$1 $p_MOBCOL$2$p_NORM advances towards you$3}}
+#CLASS {whohere27} {CLOSE}
+#CLASS {whohere29} {OPEN}
+#ACTION {^Some %1 are buzzing around%2} {#SHOWME {Some $p_MOBCOL$1$p_NORM are buzzing around$2}}
+#CLASS {whohere29} {CLOSE}
+#CLASS {whohere30} {OPEN}
+#ACTION {^%1 %2 looks eager to fight%3} {#SHOWME {$1 $p_MOBCOL$2$p_NORM looks eager to fight$3}}
+#CLASS {whohere30} {CLOSE}
+#CLASS {whohere31} {OPEN}
+#ACTION {^%1 %2 is coming out of its nest%3} {#SHOWME {$1 $p_MOBCOL$2$p_NORM is coming out of its nest$3}}
+#CLASS {whohere31} {CLOSE}
+#CLASS {whohere35} {OPEN}
+#ACTION {^%1 %2 patters against you%3} {#SHOWME {$1 $p_MOBCOL$2$p_NORM patters against you$3}}
+#CLASS {whohere35} {CLOSE}
+#CLASS {whohere25a} {OPEN}
+#ACTION {^(The|An|A) ([a-zA-Z -]+) swims here%3} {#SHOWME {$2 $p_MOBCOL$3$p_NORM swims here$3}}
+#CLASS {whohere25a} {CLOSE}
+#CLASS {whohere25b} {OPEN}
+#ACTION {^%1 %2 is lurking in the mud%3} {#SHOWME {$1 $p_MOBCOL$2$p_NORM is lurking in the mud$3}}
+#CLASS {whohere25b} {CLOSE}
+#CLASS {whohere25b} {OPEN}
+#ACTION {^%1 %2 croaks loudl%3.} {#SHOWME {$1 $p_MOBCOL$2$p_NORM croaks loudl$3.}}
+#CLASS {whohere25b} {CLOSE}
+#CLASS {whohere25c} {OPEN}
+#ACTION {^(The|An|A) ([a-zA-Z -]+) creeps slowly through([\w\s]+)\.} {#SHOWME {$2 $p_MOBCOL$3$p_NORM creeps slowly through$4}}
+#CLASS {whohere25c} {CLOSE}
+#CLASS {whohere40c} {OPEN}
+#ACTION {^(The|An|A) ([a-zA-Z -]+) (is frolicking )?playfully( charges [\w\s]+)?\.} {#SHOWME {$2 $p_MOBCOL$3$p_NORM $4playfully$5.}}
+#CLASS {whohere40c} {CLOSE}
+#CLASS {whohere37b} {OPEN}
+#ACTION {^(The|An|A) ([a-zA-Z -]+) (is )?graz(ing|es) (peacefully )?here\.} {#SHOWME {$2 $p_MOBCOL$3$p_NORM $4graz$5 $6here.}}
+#CLASS {whohere37b} {CLOSE}
+#CLASS {whohere33} {OPEN}
+#ACTION {^%1 %2 watches the surroundings%3} {#SHOWME {$1 $p_MOBCOL$2$p_NORM watches the surroundings$3}}
+#CLASS {whohere33} {CLOSE}
+#CLASS {whohere37a} {OPEN}
+#ACTION {^%1 %2 is warily browsing %3} {#SHOWME {$1 $p_MOBCOL$2$p_NORM is warily browsing$3}}
+#CLASS {whohere37a} {CLOSE}
+#CLASS {whohere37c} {OPEN}
+#ACTION {^%1 %2 keeps an eye out for danger%3} {#SHOWME {$1 $p_MOBCOL$2$p_NORM keeps an eye out for danger$3}}
+#CLASS {whohere37c} {CLOSE}
+#CLASS {whohere39b} {OPEN}
+#ACTION {^%1 %2 looks around timidly%3} {#SHOWME {$1 $p_MOBCOL$2$p_NORM looks around timidly$3}}
+#CLASS {whohere39b} {CLOSE}
+#CLASS {whohere39c} {OPEN}
+#ACTION {^%1 %2 clings%3ready to spring%4} {#SHOWME {$1 $p_MOBCOL$2$p_NORM clings$3ready to spring$4}}
+#CLASS {whohere39c} {CLOSE}
+#CLASS {whohere40a} {OPEN}
+#ACTION {^%1 %2 runs swiftly from place to place%3} {#SHOWME {$1 $p_MOBCOL$2$p_NORM runs swiftly from place to place$3}}
+#CLASS {whohere40a} {CLOSE}
+#CLASS {whohere40b} {OPEN}
+#ACTION {^%1 %2 is jumping from%3} {#SHOWME {$1 $p_MOBCOL$2$p_NORM is jumping from$3}}
+#CLASS {whohere40b} {CLOSE}
+#CLASS {whohere40c} {OPEN}
+#ACTION {^(The|An|A) ([a-zA-Z ,\\-]+) moves (silently|stealthily) (through|among)(.+)\.} {#SHOWME {$2 $p_MOBCOL$3$p_NORM moves $4 $5$6.}}
+#CLASS {whohere40c} {CLOSE}
+#CLASS {whohere40d} {OPEN}
+#ACTION {^%1 %2 sits here, singing%3} {#SHOWME {$1 $p_MOBCOL$2$p_NORM sits here, singing$3}}
+#CLASS {whohere40d} {CLOSE}
+#CLASS {whohere40e} {OPEN}
+#ACTION {^(The|An|A) ([a-zA-Z ,\\-]+) (snuffles amongst|attempts to hide in) the undergrowth(.*)\.} {#SHOWME {$2 $p_MOBCOL$3$p_NORM $4 the undergrowth$5.}}
+#CLASS {whohere40e} {CLOSE}
+#CLASS {whohere40z} {OPEN}
+#ACTION {^(The|An|A) ([a-zA-Z \\-]+) (wanders peacefully|romps harmlessly)(.+)\.} {#SHOWME {$2 $p_MOBCOL$3$p_NORM $4$5.}}
+#CLASS {whohere40z} {CLOSE}
+#CLASS {whohere41} {OPEN}
+#ACTION {^(The|An|A) ([a-zA-Z \\-]+) (is )?stalking (the area|here|its prey)(.*)\.} {#SHOWME {$2 $p_MOBCOL$3$p_NORM $4stalking $5$6.}}
+#CLASS {whohere41} {CLOSE}
+#CLASS {whohere42} {OPEN}
+#ACTION {^%1 %2 is hunting here%3} {#SHOWME {$1 $p_MOBCOL$2$p_NORM is hunting here$3}}
+#CLASS {whohere42} {CLOSE}
+#CLASS {whohere43} {OPEN}
+#ACTION {^%1 %2 suddenly turns to life%3} {#SHOWME {$1 $p_MOBCOL$2$p_NORM suddenly turns to life$3}}
+#CLASS {whohere43} {CLOSE}
+#CLASS {whohere38} {OPEN}
+#ACTION {^%1 %2, looking at your nice purse%3} {#SHOWME {$1 $p_MOBCOL$2$p_NORM, looking at your nice purse$3}}
+#CLASS {whohere38} {CLOSE}
+#CLASS {whohere60a} {OPEN}
+#ACTION {^%1 %2 pokes its blooms out of the soil%3.} {#SHOWME {$1 $p_MOBCOL$2$p_NORM pokes its blooms out of the soil$3.}}
+#CLASS {whohere60a} {CLOSE}
+#CLASS {whohere60b} {OPEN}
+#ACTION {^%1 %2 hangs here, clinging %3.} {#SHOWME {$1 $p_MOBCOL$2$p_NORM hangs here, clinging$3}}
+#CLASS {whohere60b} {CLOSE}
+#CLASS {whohere60c} {OPEN}
+#ACTION {^%1 %2 looms threateningly over its surroundings%3.} {#SHOWME {$1 $p_MOBCOL$2$p_NORM looms threateningly over its surroundings$3.}}
+#CLASS {whohere60c} {CLOSE}
+#CLASS {whohere60d} {OPEN}
+#ACTION {^%1 %2 drops down on you from %3.} {#SHOWME {$1 $p_MOBCOL$2$p_NORM drops down on you from $3.}}
+#CLASS {whohere60d} {CLOSE}
+#CLASS {whohere60e} {OPEN}
+#ACTION {^%1 %2 quivers on the ground%3.} {#SHOWME {$1 $p_MOBCOL$2$p_NORM quivers on the ground$3.}}
+#CLASS {whohere60e} {CLOSE}
+#CLASS {whohere61a} {OPEN}
+#ACTION {^%1 %2 extends %3 legs to you.} {#SHOWME {$1 $p_MOBCOL$2$p_NORM extends $3 legs to you.}}
+#CLASS {whohere61a} {CLOSE}
+#CLASS {whohere_hidden} {OPEN}
+#ACTION {^You feel a hidden presence.} {#SHOWME {You feel a $p_REDhidden presence$p_NORM.}}
+#CLASS {whohere_hidden} {CLOSE}
+#CLASS {whohere_found} {OPEN}
+#ACTION {^You have found %1!} {#SHOWME {You have found $p_MOBCOL$1$p_NORM!}}
+#CLASS {whohere_found} {CLOSE}
+#NOP / Lock pick upgrades
+#CLASS {picks1} {OPEN}
+#ACTION {^Two of the lockpicks have shallow notches on them.} {#SHOWME {$0 $p_DARK($p_SCROLLCOLAssassin Guildmaster$p_NORM$p_DARK)$p_NORM}}
+#CLASS {picks1} {CLOSE}
+#CLASS {picks2} {OPEN}
+#ACTION {^A couple of lockpicks have a small bump near the tip.} {#SHOWME {$0 $p_DARK($p_SCROLLCOLMaster Assassin$p_NORM$p_DARK)$p_NORM}}
+#CLASS {picks2} {CLOSE}
+#CLASS {picks3} {OPEN}
+#ACTION {^The edges of most picks have been carefully sharpened.} {#SHOWME {$0 $p_DARK($p_SCROLLCOLAndgil$p_NORM$p_DARK)$p_NORM}}
+#CLASS {picks3} {CLOSE}
+#CLASS {picks4} {OPEN}
+#ACTION {^The lockpicks are extremely well tempered.} {#SHOWME {$0 $p_DARK($p_SCROLLCOLDwarven Locksmith$p_NORM$p_DARK)$p_NORM}}
+#CLASS {picks4} {CLOSE}
+#CLASS {picks5} {OPEN}
+#ACTION {^There is a strange lockpick, with a sharp protrusion on one side, in the set.} {#SHOWME {$0 $p_DARK($p_SCROLLCOLKraksh$p_NORM$p_DARK)$p_NORM}}
+#CLASS {picks5} {CLOSE}
+#CLASS {picks6} {OPEN}
+#ACTION {^The lockpicks feel oddly light in your hand.} {#SHOWME {$0 $p_DARK($p_SCROLLCOLGrey Cloaked Man$p_NORM$p_DARK)$p_NORM}}
+#CLASS {picks6} {CLOSE}
+#CLASS {picks7} {OPEN}
+#ACTION {^Several of the picks have long, smooth grooves along their length.} {#SHOWME {$0 $p_DARK($p_SCROLLCOLHalf-elven Cut-throat$p_NORM$p_DARK)$p_NORM}}
+#CLASS {picks7} {CLOSE}
+#CLASS {picks8} {OPEN}
+#ACTION {^A finely shaped lockpick has been engraved with a white hand.} {#SHOWME {$0 $p_DARK($p_SCROLLCOLSaruman$p_NORM$p_DARK)$p_NORM}}
+#CLASS {picks8} {CLOSE}
+#SHOWME {$p_GREEN ==== whathere.txt loaded ==== $p_NORM}
+#CLASS {converted} {CLOSE}

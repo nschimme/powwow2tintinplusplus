@@ -1,3 +1,5 @@
+import { ExpressionParser } from './expression.js';
+
 /**
  * Powwow-specific conversion methods
  */
@@ -20,6 +22,11 @@ export const powwowMethods = {
         const targetClass = group1 || group2 || label;
         let out = '';
         if (targetClass) out += `#CLASS {${targetClass}} {OPEN}\n`;
+
+        // Handle $(0) in Powwow aliases which means all arguments
+        if (cmds.includes('$(0)') || cmds.includes('$0')) {
+            options.hasAllArgs = true;
+        }
         out += `#ALIAS {${convertedName}} {${convertedCmds}}`;
         if (targetClass) out += `\n#CLASS {${targetClass}} {CLOSE}`;
         return { text: out };
@@ -52,8 +59,17 @@ export const powwowMethods = {
              return { text: `#NOP UNCONVERTED ACTION ARGS: ${args}` };
         }
 
-        const [, op, label, group1, pattern, group2, cmds] = match;
+        const [, op, label, group1, pattern, group2, rawCmdsInput] = match;
         let rawPattern = pattern.trim();
+
+        // Handle Powwow regex with capture groups: $1 becomes %2 in TinTin++
+        // if it's a standard regex (%) action.
+        if (op === '%') {
+             // Protect existing $N that should be %N
+             rawPattern = rawPattern.replace(/\$(\d)/g, '___V$1___');
+             rawPattern = rawPattern.replace(/\\m/g, '___M___');
+        }
+
         let ttPattern = '';
         let isAnchored = false;
 
@@ -77,11 +93,21 @@ export const powwowMethods = {
             }
         }
 
+        rawPattern = rawPattern.replace(/\\,/g, ',');
+
         ttPattern = isAnchored ? '^' : '';
-        const newOptions = { ...options };
+        const newOptions = { ...options, isRegexAction: (op === '%') };
         if (leadingVar) {
             ttPattern += (rawPattern.startsWith(' ') || rawPattern === '') ? '%1' : '{%1}';
             newOptions.indexOffset = (options.indexOffset || 0) + 1;
+        }
+
+        if (op === '%') {
+             newOptions.isRegexAction = true;
+        }
+
+        if (leadingVar) {
+             newOptions.indexOffset = (options.indexOffset || 0) + 1;
         }
 
         const parts = rawPattern.split(/([&$]\d+)/);
@@ -95,13 +121,35 @@ export const powwowMethods = {
                     ttPattern += '%' + (val + (leadingVar ? 1 : 0));
                 }
             } else {
-                ttPattern += this.convertSyntax(part, newOptions);
+                // If we have indexOffset, it means we are already in a nested context?
+                // Actually leadingVar adds an offset.
+                let p = part;
+                if (op === '%') {
+                    let newP = '';
+                    let parenCount = leadingVar ? 1 : 0;
+                    for (let i = 0; i < p.length; i++) {
+                        if (p[i] === '(' && p[i+1] !== '?') {
+                             newP += `(%${++parenCount}`;
+                        } else {
+                             newP += p[i];
+                        }
+                    }
+                    p = newP.replace(/___V(\d)___/g, '$$$1');
+                    p = p.replace(/___M___/g, '\\m');
+                }
+                ttPattern += this.convertSyntax(p, newOptions);
             }
         });
 
-        const rawCmds = cmds || '';
+        const rawCmds = (rawCmdsInput || '').trim();
         const hasPrint = rawCmds.toLowerCase().includes('#print');
-        let ttCmds = this.processCommands(rawCmds, newOptions);
+        let ttCmds = '';
+
+        if (rawCmds === '') {
+            ttCmds = '#LINE GAG';
+        } else {
+            ttCmds = this.processCommands(rawCmds, newOptions);
+        }
 
         if (leadingVar) {
             const check = isAnchored ? `\"%1\" == \"$${leadingVar}\"` : `\"%1\" ~ \"^$${leadingVar}\"`;
@@ -110,16 +158,30 @@ export const powwowMethods = {
 
         const targetClass = group1 || group2 || label;
         let out = '';
+
+        // Split commands by ; to check for #print separately
+        const individualCmds = ttCmds.split('; ');
+        const filteredCmds = individualCmds.filter(c => c !== '#LINE PRINT').join('; ');
+
         if (targetClass) out += `#CLASS {${targetClass}} {OPEN}\n`;
-        if (rawCmds.trim() === '') {
-            out += `#GAG {${ttPattern}}`;
-        } else {
-            if (this.state.powwow.autoprint || hasPrint) {
-                out += `#ACTION {${ttPattern}} {${ttCmds}}`;
-            } else {
-                out += `#ACTION {${ttPattern}} {${ttCmds}${ttCmds ? '; ' : ''}#LINE GAG}`;
-            }
+
+        // Final check: if commands were JUST #print, and we filtered them, and it's not a gag...
+        let finalCmds = filteredCmds;
+        if (finalCmds === '' && rawCmds !== '' && !hasPrint && !this.state.powwow.autoprint) {
+             // This might happen if all commands were somehow invalid but they were there originally
+             // But if hasPrint is false and autoprint is false, we want to gag.
+             finalCmds = '#LINE GAG';
+        } else if (finalCmds === '' && rawCmds !== '' && (hasPrint || this.state.powwow.autoprint)) {
+             // It had print but nothing else
+             finalCmds = '';
+        } else if (rawCmds !== '' && !hasPrint && !this.state.powwow.autoprint) {
+             if (!finalCmds.includes('#LINE GAG')) {
+                 finalCmds = (finalCmds ? finalCmds + '; ' : '') + '#LINE GAG';
+             }
         }
+
+        out += `#ACTION {${ttPattern}} {${finalCmds}}`;
+
         if (targetClass) out += `\n#CLASS {${targetClass}} {CLOSE}`;
         return { text: out };
     },
@@ -139,11 +201,18 @@ export const powwowMethods = {
         }
 
         if (val.startsWith('(')) {
-            let evaled = this.convertSyntax(val, options);
-            // If it's a display string or color-coded, use #VARIABLE
-            // \x01STR indicates it contained a protected literal string
-            if (val.includes('"') || evaled.includes('<') || evaled.includes('\x01STR')) {
-                return { text: `#VARIABLE {${name}} {${evaled}}` };
+            const parser = new ExpressionParser(val, this, options);
+            const ast = parser.parse();
+            const isString = parser.isStringy(ast);
+            const evaled = parser.translate(ast);
+
+            if (isString) {
+                // Remove outer parentheses for #VARIABLE but keep for #MATH
+                let cleanEvaled = evaled;
+                if (cleanEvaled.startsWith('(') && cleanEvaled.endsWith(')')) {
+                    cleanEvaled = cleanEvaled.substring(1, cleanEvaled.length - 1);
+                }
+                return { text: `#VARIABLE {${name}} {${cleanEvaled}}` };
             }
             return { text: `#MATH {${name}} {${evaled}}` };
         }
