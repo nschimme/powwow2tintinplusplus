@@ -122,7 +122,7 @@ export class ExpressionParser {
             if (/[a-zA-Z_]/.test(char)) {
                 let word = '';
                 while (i < input.length && /[a-zA-Z0-9_]/.test(input[i])) {
-                    word += word === '' && input[i] === '_' ? '' : ''; // Allow leading underscore?
+                    // Leading underscores are allowed and treated the same as other identifier characters
                     word += input[i++];
                 }
                 const lower = word.toLowerCase();
@@ -162,7 +162,7 @@ export class ExpressionParser {
     getPrecedence(op) {
         const prec = {
             ',': 1,
-            '=': 2, '+=': 2, '-=': 2, '*=': 2, '/=': 2, '%=': 2,
+            '=': 2, '+=': 2, '-=': 2, '*=': 2, '/=': 2, '%=': 2, '&=': 2, '|=': 2, '^=': 2,
             '||': 3, '^^': 3,
             '&&': 4,
             '|': 5,
@@ -172,7 +172,7 @@ export class ExpressionParser {
             '>': 9, '>=': 9, '<': 9, '<=': 9,
             '+': 10, '-': 10,
             '*': 11, '/': 11, '%': 11,
-            ':': 12, '.': 12, '?>': 12, '?>': 12, ':>': 12, ':<': 12, '.>': 12, '.<': 12, '?': 12,
+            ':': 12, '.': 12, ':>': 12, ':<': 12, '.>': 12, '.<': 12, '?': 12,
             'unary': 13
         };
         return prec[op] || 0;

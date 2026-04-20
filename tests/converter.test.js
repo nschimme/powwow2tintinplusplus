@@ -24,7 +24,9 @@ describe('TinTinConverter - Powwow Mode', () => {
     expect(output).toContain('#ACTION {^You parry.} {say Nice parry!}');
     // Important: check it doesn't contain #LINE PRINT *within the action block*
     // Received output contains it in the compatibility layer!
-    const actionBlock = output.match(/#ACTION {.*} {(.*)}/)[1];
+    const actionMatch = output.match(/#ACTION {\^You parry\.} {(.*?)}(?:\r?\n|$)/m);
+    expect(actionMatch).not.toBeNull();
+    const actionBlock = actionMatch[1];
     expect(actionBlock).not.toContain('#LINE PRINT');
     expect(actionBlock).not.toContain('#LINE GAG');
   });
@@ -66,10 +68,16 @@ describe('TinTinConverter - Powwow Mode', () => {
     expect(output).toContain('#VARIABLE {p_x} {%hp+%mana$p_name}');
   });
 
-  it('preserves numeric addition in Powwow', () => {
+  it('chooses string concatenation when operands are potentially stringy', () => {
     const input = '#var x=($val + 5)';
     const output = converter.convert(input);
     expect(output).toContain('#VARIABLE {p_x} {$p_val5}');
+  });
+
+  it('preserves true numeric addition in Powwow', () => {
+    const input = '#var x=(10 + 20)';
+    const output = converter.convert(input);
+    expect(output).toContain('#MATH {p_x} {(10 + 20)}');
   });
 
   it('converts numbered variables', () => {

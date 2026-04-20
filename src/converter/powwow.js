@@ -96,18 +96,14 @@ export const powwowMethods = {
         rawPattern = rawPattern.replace(/\\,/g, ',');
 
         ttPattern = isAnchored ? '^' : '';
-        const newOptions = { ...options, isRegexAction: (op === '%') };
+        const isRegexAction = (op === '%');
+        const newOptions = {
+            ...options,
+            isRegexAction,
+            indexOffset: (options.indexOffset || 0) + (leadingVar ? 1 : 0)
+        };
         if (leadingVar) {
             ttPattern += (rawPattern.startsWith(' ') || rawPattern === '') ? '%1' : '{%1}';
-            newOptions.indexOffset = (options.indexOffset || 0) + 1;
-        }
-
-        if (op === '%') {
-             newOptions.isRegexAction = true;
-        }
-
-        if (leadingVar) {
-             newOptions.indexOffset = (options.indexOffset || 0) + 1;
         }
 
         const parts = rawPattern.split(/([&$]\d+)/);

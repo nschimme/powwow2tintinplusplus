@@ -2,11 +2,14 @@ import fs from 'fs';
 import path from 'path';
 import { TinTinConverter } from './converter.js';
 
-const inputDir = 'scripts_mume';
-const outputDir = 'scripts_mume_tintin';
+const inputDir = process.argv[2] || 'scripts_mume';
+const outputDir = process.argv[3] || 'scripts_mume_tintin';
+
+console.log(`Using input directory: ${inputDir}`);
+console.log(`Using output directory: ${outputDir}`);
 
 if (!fs.existsSync(outputDir)) {
-    fs.mkdirSync(outputDir);
+    fs.mkdirSync(outputDir, { recursive: true });
 }
 
 const converter = new TinTinConverter({ mode: 'powwow' });
