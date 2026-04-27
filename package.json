@@ -18,7 +18,7 @@
     "autoprefixer": "^10.4.17",
     "glob": "^13.0.6",
     "markdown-it": "^14.1.1",
-    "postcss": "^8.4.35",
+    "postcss": "^8.5.12",
     "tailwindcss": "^4.2.2",
     "vite": "^8.0.9",
     "vitest": "^4.1.4"
