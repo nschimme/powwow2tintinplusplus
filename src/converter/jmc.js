@@ -1,4 +1,21 @@
 /**
+ * Maps a JMC color name to a TinTin++ color tag.
+ * JMC uses "fg" or "fg,b bg" (foreground, background); TinTin++ uses <fg> or <fg,bg>.
+ */
+function mapJMCColor(color) {
+    const c = color.trim().toLowerCase();
+    if (c.startsWith('<') && c.endsWith('>')) return color;
+    // Handle JMC "fg,b bg" or "fg,bg" format -> TinTin++ "<fg,bg>"
+    const bgMatch = c.match(/^(.+?),\s*b?\s*(.+)$/);
+    if (bgMatch) {
+        const fg = bgMatch[1].trim();
+        const bg = bgMatch[2].trim();
+        return `<${fg},${bg}>`;
+    }
+    return `<${c}>`;
+}
+
+/**
  * JMC-specific conversion methods
  */
 export const jmcMethods = {
@@ -116,9 +133,12 @@ export const jmcMethods = {
             const op = match[1].toLowerCase();
             const label = match[2];
             if (op === 'enable') return { text: `#CLASS {${label}} {OPEN}` };
-            if (op === 'disable') return { text: `#CLASS {${label}} {KILL}` };
+            if (op === 'disable') return { text: `#CLASS {${label}} {CLOSE}` };
             if (op === 'list') return { text: `#CLASS` };
             if (op === 'delete') return { text: `#CLASS {${label}} {KILL}` };
+            if (op === 'info') return { text: `#NOP JMC GROUP INFO: #group info ${label || ''}` };
+            if (op === 'global') return { text: `#NOP JMC GROUP GLOBAL: #group global ${label || ''}` };
+            if (op === 'local') return { text: `#NOP JMC GROUP LOCAL: #group local ${label || ''}` };
         }
         return { text: `#NOP JMC GROUP COMMAND: #group ${args}` };
     },
@@ -143,7 +163,7 @@ export const jmcMethods = {
             let out = '';
             if (group) out += `#CLASS {${group}} {OPEN}\n`;
             const hlOptions = { ...options, isTrigger: true };
-            out += `#HIGHLIGHT {${this.convertSyntax(pattern, hlOptions)}} {${color}}`;
+            out += `#HIGHLIGHT {${this.convertSyntax(pattern, hlOptions)}} {${mapJMCColor(color)}}`;
             if (group) out += `\n#CLASS {${group}} {CLOSE}`;
             return { text: out };
         }

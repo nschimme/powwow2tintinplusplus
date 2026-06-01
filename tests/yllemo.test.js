@@ -19,7 +19,7 @@ describe('Real-world scripts from mume.yllemo.com', () => {
     const output = jmcConverter.convert(input);
     expect(output).toContain('#CONFIG {VERBOSE} {OFF}');
     expect(output).toContain('#NOP JMC PRESUB ON');
-    expect(output).toContain('#IGNORE {off}');
+    expect(output).toContain('#NOP JMC IGNORE OFF');
     expect(output).toContain('#CONFIG {SPEEDWALK} {OFF}');
     expect(output).toContain('#CONFIG {VERBATIM} {OFF}');
     expect(output).toContain('#NOP JMC COLON: #colon leave');
@@ -53,7 +53,7 @@ describe('Real-world scripts from mume.yllemo.com', () => {
     const output = jmcConverter.convert(input);
     expect(output).toContain('#VARIABLE {j_target} {dwarf}');
     expect(output).toContain('#CLASS {default} {OPEN}');
-    expect(output).toContain('#HIGHLIGHT {Thanks for playing!!!} {green}');
+    expect(output).toContain('#HIGHLIGHT {Thanks for playing!!!} {<green>}');
   });
 
   it('converts JMC Set 1 substitutions and hotkeys', () => {

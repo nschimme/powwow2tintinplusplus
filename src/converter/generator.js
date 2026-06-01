@@ -74,13 +74,21 @@ export class TinTinGenerator {
         ];
 
         // Combine handler-based commands with the built-in list
-        const allCommands = Array.from(
-            new Set(
-                Object.keys(handlers)
-                    .map(k => '#' + k)
-                    .concat(ttppBuiltinCommands)
-            )
+        const handlerCommandSet = new Set(
+            Object.keys(handlers).map(k => '#' + k).concat(ttppBuiltinCommands)
         );
+        const allCommands = Array.from(handlerCommandSet);
+
+        // Any unambiguous prefix of a handler key is also a recognized command
+        const isKnownCommand = (name) => {
+            if (handlerCommandSet.has(name)) return true;
+            if (name.startsWith('#')) {
+                const cmd = name.slice(1);
+                if (this.mode === 'jmc') return this.converter.resolveJMCCommand(cmd) !== null;
+                if (this.mode === 'powwow') return this.converter.resolvePowwowCommand(cmd) !== null;
+            }
+            return false;
+        };
 
         const controlCommands = ['#if', '#else', '#while', '#for', '#at', '#in', '#do'];
 
@@ -107,7 +115,7 @@ export class TinTinGenerator {
                             shouldSplit = true;
                         } else {
                             const firstCmdName = firstCmdNode.value.toLowerCase();
-                            if (!allCommands.includes(firstCmdName)) {
+                            if (!isKnownCommand(firstCmdName)) {
                                 shouldSplit = true;
                             } else if (currentCommandNodes.some(n => n.type === 'BracedBlock')) {
                                 shouldSplit = true;

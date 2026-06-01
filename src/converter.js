@@ -293,6 +293,25 @@ export class TinTinConverter {
         return args.trim().replace(/^{|}$/g, '').trim();
     }
 
+    /**
+     * Resolves a command name (possibly abbreviated) to a known handler key via prefix matching.
+     * Returns the matched key for an exact match or a unique prefix, otherwise null.
+     */
+    resolveCommand(command, handlers) {
+        if (handlers[command]) return command;
+        const matches = Object.keys(handlers).filter(k => k.startsWith(command));
+        if (matches.length === 1) return matches[0];
+        return null;
+    }
+
+    resolveJMCCommand(command) {
+        return this.resolveCommand(command, this.jmcHandlers);
+    }
+
+    resolvePowwowCommand(command) {
+        return this.resolveCommand(command, this.powwowHandlers);
+    }
+
     convertSingleCommand(line, options = {}) {
         line = line.trim();
 
@@ -369,12 +388,12 @@ export class TinTinConverter {
                 }
             }
 
-            const handler = this.powwowHandlers[command];
-            if (handler) return handler(args, options);
+            const resolved = this.resolvePowwowCommand(command);
+            if (resolved) return this.powwowHandlers[resolved](args, options);
             return { text: `#NOP UNSUPPORTED: ${line}` };
         } else if (this.mode === 'jmc') {
-            const handler = this.jmcHandlers[command];
-            if (handler) return handler(args, options);
+            const resolved = this.resolveJMCCommand(command);
+            if (resolved) return this.jmcHandlers[resolved](args, options);
             return { text: `#${command.toUpperCase()} {${this.convertSyntax(args, options)}}` };
         }
 

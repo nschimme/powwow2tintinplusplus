@@ -218,7 +218,7 @@ describe('TinTinConverter - JMC Mode', () => {
 
     const inputDisable = '#group disable combat';
     const outputDisable = converter.convert(inputDisable);
-    expect(outputDisable).toContain('#CLASS {combat} {KILL}');
+    expect(outputDisable).toContain('#CLASS {combat} {CLOSE}');
   });
 
   it('converts JMC gag', () => {
@@ -236,7 +236,7 @@ describe('TinTinConverter - JMC Mode', () => {
     const aliasInput = '#alias {do} {say %0;#show %1 %9}';
     const aliasOutput = converter.convert(aliasInput, { mode: 'jmc' });
     expect(aliasOutput).toContain('say %0');
-    expect(aliasOutput).toContain('#SHOW {%1 %9}');
+    expect(aliasOutput).toContain('#SHOWME {%1 %9}');
   });
 
   it('handles JMC #log modes and no-argument behavior', () => {
@@ -282,7 +282,7 @@ describe('TinTinConverter - JMC Mode', () => {
   it('converts JMC highlights', () => {
     const input = '#highlight {red} {trolls}';
     const output = converter.convert(input);
-    expect(output).toContain('#HIGHLIGHT {trolls} {red}');
+    expect(output).toContain('#HIGHLIGHT {trolls} {<red>}');
   });
 
   it('converts JMC comments', () => {

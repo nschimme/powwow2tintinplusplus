@@ -1,0 +1,89 @@
+## JMC Sample Script - representative real-world usage
+
+## Basic aliases
+#alias {k} {kill %1}
+#alias {h} {#if {$j_hp < 50} {flee} {kill %1}}
+#alias {n} {north}
+#alias {s} {south}
+#alias {e} {east}
+#alias {w} {west}
+
+## Variables
+#variable {hp} {100}
+#variable {maxhp} {100}
+#variable {mana} {50}
+#variable {gold} {0}
+
+## Math
+#math {hp} {$hp - 10}
+#math {gold} {$gold + $reward}
+
+## Actions
+#action {^%0 arrives from the %1.} {#showme {*** %1 arrived from %2}}
+#action {^You are dead!} {#showme {YOU DIED!}}
+#action {^%0 hits YOU for %1 damage.} {#math {hp} {$hp - %2}}
+
+## HP bar trigger
+#action {^<HP:%0/%1>} {#variable {hp} {%1}; #variable {maxhp} {%2}}
+
+## Conditional logic
+#if {$hp < 20} {flee}
+#if {$gold > 1000} {#showme {You are rich!}} {#showme {Keep grinding.}}
+
+## Groups
+#group enable combat
+#alias {atk} {kill %1}
+#action {^You engage %0.} {#showme {In combat with %1}}
+#group disable combat
+
+## Highlights
+#highlight {bold} {You hit}
+#highlight {red} {You are hit}
+#highlight {light green} {You gain}
+#highlight {yellow} {arrives from}
+
+## Gag
+#gag {You feel slightly drowsy.}
+#gag {The door is already open.}
+
+## Substitutions
+#substitute {Orc} {ork}
+#antisubstitute {safe zone}
+
+## Hotkeys
+#hotkey {F1} {north}
+#hotkey {F2} {south}
+#hotkey {F3} {east}
+#hotkey {F4} {west}
+#hotkey {Ctrl+H} {#showme {HP: $hp/$maxhp  Gold: $gold}}
+
+## Ticker
+#ticksize 60
+#tickon
+
+## Loop example
+#loop {1,3} {#showme {Count: %0}}
+
+## String manipulation
+#tolower {name_lower} {%1}
+#toupper {name_upper} {%1}
+
+## Display
+#showme {Script loaded successfully.}
+#output {Welcome to the MUD!}
+
+## Logging
+#log {session.log} {append}
+
+## Tab completion
+#tabadd {goblin}
+#tabadd {orc}
+#tabadd {troll}
+
+## Misc
+#speedwalk on
+#verbatim off
+#echo on
+
+## Comments using double hash
+## End of script

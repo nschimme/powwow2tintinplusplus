@@ -152,13 +152,9 @@ export function getPowwowHandlers(converter) {
         }
     };
 
+    // True synonyms (non-prefix): these cannot be resolved by prefix matching alone
     const aliases = {
-        'al': 'alias',
-        'ac': 'action',
-        'setvar': 'var',
-        'bi': 'bind',
-        'emu': 'emulate',
-        'ex': 'exe'
+        'setvar': 'var'  // setvar is not a prefix of var
     };
 
     for (const [alias, target] of Object.entries(aliases)) {
@@ -212,14 +208,14 @@ export function getJMCHandlers(converter) {
             const parts = converter.tokenize(args, ' ');
             if (parts.length >= 2) {
                 const file = parts[0].trim().replace(/^{|}$/g, '');
-                const mode = parts[1].trim().toLowerCase() === 'overwrite' ? 'OVERWRITE' : 'APPEND';
+                const mode = parts[1].trim().replace(/^{|}$/g, '').toLowerCase() === 'overwrite' ? 'OVERWRITE' : 'APPEND';
                 return { text: `#LOG {${mode}} {${file}}` };
             }
             if (args.trim() === '') return { text: `#LOG OFF` };
-            return { text: `#LOG APPEND {${args}}` };
+            return { text: `#LOG APPEND {${converter.cleanJMCArgs(args)}}` };
         },
-        'textin': (args, options) => ({ text: `#TEXTIN {${args}}` }),
-        'systemexec': (args, options) => ({ text: `#SYSTEM {${args}}` }),
+        'textin': (args, options) => ({ text: `#TEXTIN {${converter.cleanJMCArgs(args)}}` }),
+        'systemexec': (args, options) => ({ text: `#SYSTEM {${converter.cleanJMCArgs(args)}}` }),
         'speedwalk': (args, options) => {
             const cleaned = converter.cleanJMCArgs(args);
             const lower = cleaned.toLowerCase();
@@ -230,8 +226,13 @@ export function getJMCHandlers(converter) {
         'hotkey': (args, options) => converter.convertHotkeyJMC(args, options),
         'unhotkey': (args, options) => ({ text: `#UNMACRO {${args}}` }),
         'message': (args, options) => {
-            if (args.toLowerCase().includes('off')) return { text: `#CONFIG {VERBOSE} {OFF}` };
-            if (args.toLowerCase().includes('on')) return { text: `#CONFIG {VERBOSE} {ON}` };
+            const cleaned = converter.cleanJMCArgs(args).toLowerCase();
+            // #message all off/on -> map to TT++ VERBOSE config
+            if (cleaned === 'off' || cleaned === 'all off') return { text: `#CONFIG {VERBOSE} {OFF}` };
+            if (cleaned === 'on' || cleaned === 'all on') return { text: `#CONFIG {VERBOSE} {ON}` };
+            // #message alias/action/subst/hotkey off/on -> NOP (TT++ verbose is all-or-nothing)
+            if (cleaned.includes('off')) return { text: `#NOP JMC MESSAGE OFF: ${args} (TT++ verbose is global)` };
+            if (cleaned.includes('on')) return { text: `#NOP JMC MESSAGE ON: ${args} (TT++ verbose is global)` };
             return { text: `#NOP JMC MESSAGE: #message ${args}` };
         },
         'multiaction': (args, options) => {
@@ -270,25 +271,148 @@ export function getJMCHandlers(converter) {
         'daa': (args, options) => convertSecureSendJMC(args),
         'hide': (args, options) => convertSecureSendJMC(args),
         'whisper': (args, options) => convertSecureSendJMC(args),
-        'ignore': (args, options) => ({ text: args ? `#IGNORE {${converter.convertSyntax(converter.cleanJMCArgs(args), options)}}` : `#IGNORE` })
+        'ignore': (args, options) => {
+            const v = converter.cleanJMCArgs(args).toLowerCase();
+            if (v === 'on') return { text: `#NOP JMC IGNORE ON (triggers disabled; TT++ has no global trigger toggle)` };
+            if (v === 'off') return { text: `#NOP JMC IGNORE OFF (triggers enabled; TT++ default)` };
+            return { text: args ? `#IGNORE {${converter.convertSyntax(v, options)}}` : `#IGNORE` };
+        },
+
+        // Tab completion
+        'tabadd': (args, options) => ({ text: `#TAB {${converter.convertSyntax(converter.cleanJMCArgs(args), options)}}` }),
+        'tabdel': (args, options) => ({ text: `#UNTAB {${converter.convertSyntax(converter.cleanJMCArgs(args), options)}}` }),
+
+        // Antisubstitute management
+        'unantisubstitute': (args, options) => ({ text: `#UNANTISUBSTITUTE {${converter.convertSyntax(converter.cleanJMCArgs(args), options)}}` }),
+
+        // Line display control
+        'nodrop': () => ({ text: `#LINE PRINT` }),
+
+        // External execution
+        'run': (args, options) => ({ text: `#SYSTEM {${converter.cleanJMCArgs(args)}}` }),
+
+        // Path/movement saving
+        'savepath': (args, options) => {
+            const parts = converter.tokenize(args, ' ');
+            const name = parts[0] ? parts[0].trim().replace(/^{|}$/g, '') : '';
+            const reverse = parts[1] && parts[1].trim().toLowerCase() === 'reverse';
+            if (name) return { text: `#SAVEPATH {${name}}${reverse ? ' {REVERSE}' : ''}` };
+            return { text: `#NOP JMC SAVEPATH: missing alias name` };
+        },
+
+        // Connection
+        'connect': (args, options) => {
+            const cleaned = converter.cleanJMCArgs(args).trim();
+            const colonMatch = cleaned.match(/^(\S+):(\d+)$/);
+            const spaceMatch = cleaned.match(/^(\S+)\s+(\d+)$/);
+            if (colonMatch) return { text: `#SESSION {jmc} {${colonMatch[1]}} {${colonMatch[2]}}` };
+            if (spaceMatch) return { text: `#SESSION {jmc} {${spaceMatch[1]}} {${spaceMatch[2]}}` };
+            if (cleaned) return { text: `#SESSION {jmc} {${cleaned}} {23}` };
+            return { text: `#NOP JMC CONNECT: missing address` };
+        },
+
+        // Substitution toggles (no direct TT++ equivalent)
+        'multisubstitute': (args, options) => {
+            const v = converter.cleanJMCArgs(args).toLowerCase();
+            if (v === 'on') return { text: `#NOP JMC MULTISUBSTITUTE ON (TT++ default: multiple substitutions apply)` };
+            if (v === 'off') return { text: `#NOP JMC MULTISUBSTITUTE OFF (not directly supported in TT++)` };
+            return { text: `#NOP JMC MULTISUBSTITUTE: #multisubstitute ${args}` };
+        },
+        'togglesubs': () => ({ text: `#NOP JMC TOGGLESUBS (toggle substitutions on/off)` }),
+
+        // Auto reconnect
+        'autoreconnect': (args, options) => {
+            const v = converter.cleanJMCArgs(args).toLowerCase();
+            if (v === 'on') return { text: `#NOP JMC AUTORECONNECT ON (consider a #ACTION {^} reconnect trigger)` };
+            if (v === 'off') return { text: `#NOP JMC AUTORECONNECT OFF` };
+            return { text: `#NOP JMC AUTORECONNECT: #autoreconnect ${args}` };
+        },
+
+        // Sound
+        'play': (args, options) => ({ text: `#NOP JMC PLAY: play sound ${converter.cleanJMCArgs(args)}` }),
+
+        // Logging extras
+        'logadd': (args, options) => ({ text: `#NOP JMC LOGADD (manually add line to log)` }),
+        'logpass': () => ({ text: `#NOP JMC LOGPASS (prevent line from being logged)` }),
+
+        // File sending to MUD
+        'spit': (args, options) => ({ text: `#NOP JMC SPIT (send file to MUD): #spit ${args}` }),
+
+        // Trigger control
+        'next': () => ({ text: `#NOP JMC NEXT (allow one more trigger iteration)` }),
+
+        // Info/status display
+        'info': () => ({ text: `#NOP JMC INFO (display trigger/alias/variable counts)` }),
+        'status': (args, options) => ({ text: `#NOP JMC STATUS: #status ${args}` }),
+
+        // Prefix for all MUD sends
+        'prefix': (args, options) => ({ text: `#NOP JMC PREFIX: #prefix ${converter.cleanJMCArgs(args)}` }),
+
+        // Loop management
+        'llist': () => ({ text: `#NOP JMC LLIST (list active loops)` }),
+        'tmlist': () => ({ text: `#NOP JMC TMLIST (list active loop timers)` }),
+        'pinch': () => ({ text: `#NOP JMC PINCH (resume paused loop)` }),
+        'resume': () => ({ text: `#NOP JMC RESUME (resume paused loop)` }),
+
+        // Template management
+        'sos': (args, options) => ({ text: `#NOP JMC SOS (template management): #sos ${args}` }),
+
+        // Speedwalk formatting
+        'race': (args, options) => ({ text: `#NOP JMC RACE (speedwalk formatting): #race ${args}` }),
+
+        // File line reading
+        'grab': (args, options) => ({ text: `#NOP JMC GRAB (read line from file): #grab ${args}` }),
+
+        // Internal/undocumented
+        'clean': () => ({ text: `#NOP JMC CLEAN (internal WM_USER+600 message)` }),
+
+        // Scripting (JScript/VBScript)
+        'scriptlet': (args, options) => ({ text: `#NOP JMC SCRIPTLET (external script engine): #scriptlet ${args}` }),
+        'use': (args, options) => ({ text: `#NOP JMC USE (load script file): #use ${args}` }),
+        'unuse': (args, options) => ({ text: `#NOP JMC UNUSE (remove script file): #unuse ${args}` }),
+        'reloadscripts': () => ({ text: `#NOP JMC RELOADSCRIPTS (reload active script files)` }),
+
+        // Window management (Windows-specific)
+        'hidewindow': () => ({ text: `#NOP JMC HIDEWINDOW (minimize to taskbar)` }),
+        'restorewindow': () => ({ text: `#NOP JMC RESTOREWINDOW (restore from minimized)` }),
+        'tray': (args, options) => ({ text: `#NOP JMC TRAY (system tray): #tray ${args}` }),
+
+        // Output window commands (Windows-specific)
+        'woutput': (args, options) => ({ text: `#NOP JMC WOUTPUT (output window): #woutput ${args}` }),
+        'wlog': (args, options) => ({ text: `#NOP JMC WLOG (output window log): #wlog ${args}` }),
+        'wname': (args, options) => ({ text: `#NOP JMC WNAME (output window name): #wname ${args}` }),
+        'wpos': (args, options) => ({ text: `#NOP JMC WPOS (output window position): #wpos ${args}` }),
+        'wshow': (args, options) => ({ text: `#NOP JMC WSHOW (output window visibility): #wshow ${args}` }),
+        'wdock': (args, options) => ({ text: `#NOP JMC WDOCK (output window docking): #wdock ${args}` }),
+
+        // WinAMP control (Windows-specific)
+        'winamp': (args, options) => ({ text: `#NOP JMC WINAMP (WinAMP control): #winamp ${args}` }),
+
+        // Path recording
+        'mark': (args, options) => ({ text: `#NOP JMC MARK (path recording): #mark ${args}` }),
+        'map': (args, options) => ({ text: `#NOP JMC MAP (add to path buffer): #map ${args}` }),
+        'path': () => ({ text: `#NOP JMC PATH (display path buffer)` }),
+        'return': () => ({ text: `#NOP JMC RETURN (reverse last recorded direction)` }),
+        'unpath': () => ({ text: `#NOP JMC UNPATH (remove last path entry)` }),
+
+        // Help
+        'help': (args, options) => ({ text: `#HELP${args ? ' ' + converter.cleanJMCArgs(args) : ''}` }),
+
+        // Process management (systemexec processes)
+        'terminate': (args, options) => ({ text: `#NOP JMC TERMINATE (kill systemexec process): #terminate ${args}` }),
+        'ps': () => ({ text: `#NOP JMC PS (list systemexec processes)` })
     };
 
+    // True synonyms (non-prefix): these cannot be resolved by prefix matching alone
     const aliases = {
-        'al': 'alias',
-        'ac': 'action',
-        'act': 'action',
-        'var': 'variable',
-        'va': 'variable',
-        'sub': 'substitute',
-        'antisub': 'antisubstitute',
-        'unsub': 'unsubstitute',
-        'unali': 'unalias',
-        'unac': 'unaction',
-        'unact': 'unaction',
-        'wt': 'wait',
-        'hot': 'hotkey',
-        'verbat': 'verbatim',
-        'nop': 'nope'
+        'wt': 'wait',       // wt is not a prefix of wait (starts with wa-)
+        'feed': 'spit',     // synonym, not a prefix
+        'lick': 'spit',     // synonym, not a prefix
+        'stick': 'spit',    // synonym, not a prefix
+        'wamp': 'winamp',   // wamp != prefix of winamp (wi-)
+        'tskill': 'terminate',  // tskill != prefix of terminate
+        'tslist': 'ps',         // tslist != prefix of ps
+        'kickall': 'killall'    // kickall != prefix of killall
     };
 
     for (const [alias, target] of Object.entries(aliases)) {
