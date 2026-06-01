@@ -11,3 +11,9 @@ playwright-report/
 blob-report/
 playwright/.cache/
 build_tt/
+
+# Generated documentation files
+/jmc_help.html
+/powwow.html
+/tintinplusplus_help.html
+/tintinplusplus_tutorial.html

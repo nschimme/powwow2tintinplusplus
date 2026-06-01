@@ -1,0 +1,19 @@
+#("=====> MUME MERCENARY MANAGEMENT ")
+
+#alias hire_merc={say help;give 10 silver mercenary}
+
+#alias merc_health={ask mercenary health;ask mercenary hits;ask mercenary hurt}
+#alias merc_moves={ask mercenary moves;ask mercenary tired}
+#alias merc_pay={ask mercenary payment;ask mercenary pay;ask mercenary time}
+
+#alias merc_stand={ask mercenary stand}
+#alias merc_flee={ask mercenary flee}
+
+#alias merc_ride={ask mercenary ride $1}
+
+#action >+merc_yell ^&1 yells '&2'={#print ("Mercenary yelled from "+$1)}
+
+#action >+merc_assist ^&1 assists you.={#print ("Mercenary is now assisting you.")}
+#action >+merc_fumble ^&1 fumbles and retreats from battle.={#print;say assist}
+
+#alias report_merc={merc_health;merc_moves;merc_pay}
