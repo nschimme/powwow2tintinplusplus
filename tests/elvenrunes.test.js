@@ -9,8 +9,8 @@ describe('Real-world scripts from elvenrunes.com', () => {
     const input = '#alias tel={#(@-10=0);#($-11=\\$1);kremsub1;#if (\\@-10!=0) cast n \'teleport\' ${key_$0}; #else #print ("%% " +attr "yellow" + "Location not found. Locate first"+noattr)}';
     const output = pwConverter.convert(input);
     expect(output).toContain('#MATH {powwow_at_m10} {0}');
-    // Special case: $1 is parameter 1, which maps to %1 in Powwow alias
-    expect(output).toContain('#MATH {powwow_dollar_m11} {%1}');
+    // $-11 is a string-type variable ($-prefix), so use #VARIABLE not #MATH
+    expect(output).toContain('#VARIABLE {powwow_dollar_m11} {%1}');
     expect(output).toContain('#IF {$powwow_at_m10 != 0}');
     expect(output).toContain('cast n \'teleport\' $p_key_%0');
   });

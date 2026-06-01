@@ -54,6 +54,20 @@ export class ExpressionParser {
                 continue;
             }
 
+            // Multi-char operators — must be checked before single-char variable prefixes
+            // so that && is not consumed as two separate & variable tokens
+            const doubleOps = ['++', '--', '==', '!=', '>=', '<=', '&&', '||', '^^', '+=', '-=', '*=', '/=', '%=', '&=', '|=', '^=', ':>', ':<', '.>', '.<', ':?', '.?'];
+            let foundDouble = false;
+            for (const op of doubleOps) {
+                if (input.startsWith(op, i)) {
+                    tokens.push({ type: 'OPERATOR', value: op });
+                    i += op.length;
+                    foundDouble = true;
+                    break;
+                }
+            }
+            if (foundDouble) continue;
+
             // Variables and Parameters
             // Note: % is only a variable/parameter if followed by a digit
             if (char === '$' || char === '@' || char === '&' || (char === '%' && i + 1 < input.length && /[0-9]/.test(input[i+1]))) {
@@ -97,19 +111,6 @@ export class ExpressionParser {
                 }
                 continue;
             }
-
-            // Multi-char operators
-            const doubleOps = ['++', '--', '==', '!=', '>=', '<=', '&&', '||', '^^', '+=', '-=', '*=', '/=', '%=', '&=', '|=', '^=', ':>', ':<', '.>', '.<', ':?', '.?'];
-            let foundDouble = false;
-            for (const op of doubleOps) {
-                if (input.startsWith(op, i)) {
-                    tokens.push({ type: 'OPERATOR', value: op });
-                    i += op.length;
-                    foundDouble = true;
-                    break;
-                }
-            }
-            if (foundDouble) continue;
 
             // Single char operators / delimiters
             if ('+-*/%><=!&|^?,:().'.includes(char)) {
@@ -234,7 +235,7 @@ export class ExpressionParser {
         // Handle suffix operators
         while (true) {
             const next = this.peek();
-            if (next.type === 'OPERATOR' && [':?', '.?'].includes(next.value)) {
+            if (next.type === 'OPERATOR' && [':?', '.?', '++', '--'].includes(next.value)) {
                 this.eat();
                 node = { type: 'UnaryExpression', operator: next.value, argument: node, prefix: false };
             } else {
@@ -291,8 +292,10 @@ export class ExpressionParser {
                      if ([':?', '.?', ':', '.', '>', '<', '+', '-', '*', '/', '%', '==', '!=', '&&', '||'].includes(content)) {
                          return node.value;
                      }
-                     // Special case: if it's JUST a space, let's keep it quoted if it's not a concatenation
-                     // Actually, if it's a string literal, we usually want to keep it or handle it.
+                     // Apply variable substitution so $1 → %1, $var → $var, etc.
+                     if (this.converter && (content.includes('$') || content.includes('@'))) {
+                         return this.converter.convertSyntax(content, this.options);
+                     }
                      return content;
                 }
                 // Handle hex and other bases
@@ -368,6 +371,8 @@ export class ExpressionParser {
                 if (node.operator === 'attr') return this.converter.mapAttributes(arg);
                 if (node.operator === ':?') return `@powwow_word_count{${arg}}`;
                 if (node.operator === '.?') return `@powwow_char_length{${arg}}`;
+                if (node.operator === '++') return node.prefix ? `${arg} + 1` : `${arg} + 1`;
+                if (node.operator === '--') return node.prefix ? `${arg} - 1` : `${arg} - 1`;
                 if (node.operator === '%') {
                     // Strip outer parens from arg if any, to avoid (@powwow_to_number{(%var)})
                     let cleanArg = arg;
@@ -400,6 +405,9 @@ export class ExpressionParser {
                         // Avoid stripping quotes from single spaces or operators
                         if (l.startsWith('"') && l.endsWith('"') && l.length > 2) l = l.substring(1, l.length - 1);
                         if (r.startsWith('"') && r.endsWith('"') && r.length > 2) r = r.substring(1, r.length - 1);
+                        // Strip outer parens from concatenation operands (e.g. "Members:"+($var) → Members:$var)
+                        if (l.startsWith('(') && l.endsWith(')')) l = l.substring(1, l.length - 1);
+                        if (r.startsWith('(') && r.endsWith(')')) r = r.substring(1, r.length - 1);
                         return `${l}${r}`;
                     }
                     return `${left} + ${right}`;

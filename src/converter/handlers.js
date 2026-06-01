@@ -58,16 +58,77 @@ export function getPowwowHandlers(converter) {
         'identify': (args, options) => ({ text: `#NOP IDENTIFY ignored: #identify ${args}` }),
         '!': (args, options) => ({ text: `#SYSTEM {${args}}` }),
         'request': (args, options) => ({ text: `#NOP REQUEST ignored: #request ${args}` }),
-        'option': (args, options) => {
-            const match = args.match(/^([+-])(\w+)/);
-            if (match) {
-                const [, op, name] = match;
-                if (name.toLowerCase() === 'autoprint') {
-                    converter.state.powwow.autoprint = (op === '+' || op === '=');
-                    return { text: `#NOP OPTION autoprint set to ${op === '-' ? 'OFF' : 'ON'}` };
+        'isprompt': (args, options) => ({ text: `#NOP ISPROMPT (TT++ #PROMPT handles prompt detection)` }),
+        'module': (args, options) => ({ text: `#NOP MODULE not supported: #module ${args}` }),
+        'perl': (args, options) => ({ text: `#NOP PERL not supported: #perl ${args}` }),
+        'speed': (args, options) => {
+            const seq = args.trim().replace(/^{|}$/g, '').trim();
+            return { text: `#SEND {${seq}}` };
+        },
+        'write': (args, options) => {
+            const overwrite = args.trimStart().startsWith('>');
+            const rest = overwrite ? args.trimStart().substring(1).trim() : args.trim();
+            const block = converter.extractBlock(rest, '(', ')');
+            if (block) {
+                const semi = block.inner.indexOf(';');
+                if (semi !== -1) {
+                    const rawData = block.inner.substring(0, semi).trim();
+                    const rawFile = block.inner.substring(semi + 1).trim();
+                    const data = converter.convertSyntax(rawData, options);
+                    const file = converter.convertSyntax(rawFile, options).replace(/^"|"$/g, '');
+                    const redirect = overwrite ? '>' : '>>';
+                    return { text: `#SYSTEM {printf '%s\\n' "${data}" ${redirect} ${file}}` };
                 }
             }
-            return { text: `#NOP OPTION ignored: #option ${args}` };
+            return { text: `#NOP WRITE not directly supported: #write ${args}` };
+        },
+        'rawsend': (args, options) => {
+            const inner = args.trim();
+            if (inner.startsWith('(') && inner.endsWith(')')) {
+                const val = converter.convertSyntax(inner, options);
+                return { text: `#SEND {${val.replace(/^\(|\)$/g, '')}}` };
+            }
+            return { text: `#SEND {${converter.convertSyntax(inner, options)}}` };
+        },
+        'zap': (args, options) => {
+            const name = args.trim();
+            return { text: name ? `#CLOSE {${name}}` : `#ZAP` };
+        },
+        'connect': (args, options) => {
+            const parts = args.trim().split(/\s+/);
+            if (parts.length >= 3) {
+                const [name, host, port] = parts;
+                return { text: `#SESSION {${name}} {${host}} {${port}}` };
+            }
+            return { text: `#NOP UNCONVERTED CONNECT: #connect ${args}` };
+        },
+        'delim': (args, options) => ({ text: `#NOP DELIM ignored (TT++ uses ; by default): #delim ${args}` }),
+        'file': (args, options) => ({ text: `#NOP FILE ignored: #file ${args}` }),
+        'savefile-version': (args, options) => ({ text: `#NOP savefile-version ${args}` }),
+        'option': (args, options) => {
+            const OPTION_MAP = {
+                'compact': ['#CONFIG {COMPACT} {ON}', '#CONFIG {COMPACT} {OFF}'],
+                'echo': ['#CONFIG {VERBOSE} {ON}', '#CONFIG {VERBOSE} {OFF}'],
+                'speedwalk': ['#CONFIG {SPEEDWALK} {ON}', '#CONFIG {SPEEDWALK} {OFF}'],
+                'wrap': ['#CONFIG {WORDWRAP} {ON}', '#CONFIG {WORDWRAP} {OFF}'],
+            };
+            const tokens = args.trim().split(/\s+/);
+            const lines = [];
+            for (const token of tokens) {
+                const match = token.match(/^([+-=])(\w+)/);
+                if (!match) continue;
+                const [, op, name] = match;
+                const lower = name.toLowerCase();
+                if (lower === 'autoprint') {
+                    converter.state.powwow.autoprint = (op === '+' || op === '=');
+                    lines.push(`#NOP OPTION autoprint set to ${op === '-' ? 'OFF' : 'ON'}`);
+                } else if (OPTION_MAP[lower]) {
+                    lines.push(op === '-' ? OPTION_MAP[lower][1] : OPTION_MAP[lower][0]);
+                } else {
+                    lines.push(`#NOP OPTION ignored: ${token}`);
+                }
+            }
+            return { text: lines.length ? lines.join('\n') : `#NOP OPTION ignored: #option ${args}` };
         },
         'sep': (args, options) => {
             converter.setSeparator(args);
@@ -76,7 +137,10 @@ export function getPowwowHandlers(converter) {
         'quit': () => ({ text: `#END` }),
         'exe': (args, options) => {
             if (args.startsWith('!')) return { text: `#SCRIPT {${args.substring(1).trim()}}` };
-            if (args.startsWith('<')) return { text: `#READ {${args.substring(1).trim()}}` };
+            if (args.startsWith('<')) {
+                const file = args.substring(1).trim().replace(/\.pow$/i, '.tin');
+                return { text: `#READ {${file}}` };
+            }
             if (args.startsWith('(')) {
                 const lastParen = args.lastIndexOf(')');
                 if (lastParen !== -1) {

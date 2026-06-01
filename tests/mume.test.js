@@ -30,7 +30,7 @@ describe('TinTinConverter MUME Conversion', () => {
   it('preserves color variables in mob say actions', () => {
     const input = '#action %+mobsay1 m(The|An|A) ([a-zA-Z ,\\-\']+) tells you (.+)=#print ("$2 "+$MOBCOL+"$3"+$NORM+" $4")';
     const output = converter.convert(input);
-    expect(output).toContain('$2 $p_MOBCOL$3$p_NORM $4');
+    expect(output).toContain('%2 $p_MOBCOL%3$p_NORM %4');
   });
 
   it('handles auto-print behavior for actions with flags', () => {
@@ -51,6 +51,6 @@ describe('TinTinConverter MUME Conversion', () => {
     const input = '#action >+BlockResist ^Your power blocking the $1 resisted!={#print (attr "cyan" + "Your power " + attr "yellow" + ">> $1 <<" + attr "cyan" + " resisted!" + noattr+$NORM)}';
     const output = converter.convert(input);
     // Yellow matches <039> in our utility
-    expect(output).toContain('<069>Your power <039>>> $1 <<<069> resisted!<099>$p_NORM');
+    expect(output).toContain('<069>Your power <039>>> %1 <<<069> resisted!<099>$p_NORM');
   });
 });

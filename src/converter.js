@@ -158,9 +158,13 @@ export class TinTinConverter {
         const indexOffset = options.indexOffset || 0;
 
         if (this.mode === 'powwow') {
-            // 1. Delayed parameter substitution: \$1 -> %%1
+            // 1. Delayed parameter substitution: \$1 -> %%1 (aliases), or %1 (action bodies)
+            // In action bodies, \$N still refers to the capture group — no further delay needed.
             str = str.replace(/\\([$&])(\d+)/g, (match, type, n) => {
                 const val = parseInt(n);
+                if (options.inActionBody) {
+                    return val === 0 ? '%0' : '%' + (val + indexOffset);
+                }
                 if (val === 0) return '%%0';
                 return '%%' + (val + indexOffset);
             });
@@ -320,15 +324,39 @@ export class TinTinConverter {
                 const exprMatch = line.match(/^#\s*\((.*)\)$/s);
                 if (exprMatch) {
                     const expr = exprMatch[1].trim();
-                    const assignMatch = expr.match(/^([@$][a-zA-Z0-9_%$-]+)\s*=(.*)$/s);
+                    // Handle @var++ / @var-- / ++@var / --@var (increment/decrement)
+                    const postfixMatch = expr.match(/^\\?([@$][a-zA-Z0-9_%$-]+)\s*(\+\+|--)$/);
+                    if (postfixMatch) {
+                        const name = this.convertVarName(postfixMatch[1]);
+                        const delta = postfixMatch[2] === '++' ? '+ 1' : '- 1';
+                        return { text: `#MATH {${name}} {$${name} ${delta}}` };
+                    }
+                    const prefixMatch = expr.match(/^(\+\+|--)\s*\\?([@$][a-zA-Z0-9_%$-]+)$/);
+                    if (prefixMatch) {
+                        const name = this.convertVarName(prefixMatch[2]);
+                        const delta = prefixMatch[1] === '++' ? '+ 1' : '- 1';
+                        return { text: `#MATH {${name}} {$${name} ${delta}}` };
+                    }
+                    // Handle compound assignments @var += N, @var -= N, etc.
+                    const compoundMatch = expr.match(/^\\?([@$][a-zA-Z0-9_%$-]+)\s*(\+=|-=|\*=|\/=|%=)(.*)$/s);
+                    if (compoundMatch) {
+                        const name = this.convertVarName(compoundMatch[1]);
+                        const opMap = { '+=': '+', '-=': '-', '*=': '*', '/=': '/', '%=': '%' };
+                        const op = opMap[compoundMatch[2]];
+                        const convertedVal = this.convertSyntax('(' + compoundMatch[3].trim() + ')', options);
+                        return { text: `#MATH {${name}} {$${name} ${op} ${convertedVal}}` };
+                    }
+                    const assignMatch = expr.match(/^\\?([@$][a-zA-Z0-9_%$-]+)\s*=(.*)$/s);
                     if (assignMatch) {
                         const name = this.convertVarName(assignMatch[1]);
+                        const origVarType = assignMatch[1].replace(/^\\/, '')[0]; // '@' or '$'
                         const val = assignMatch[2].trim();
                         if (val === '') {
                             return { text: `#UNVARIABLE {${name}}` };
                         }
                         const convertedVal = this.convertSyntax('(' + val + ')', options);
-                        if (val.includes('"') || convertedVal.includes('<') || convertedVal.includes('\x01STR')) {
+                        // Use #VARIABLE for $-prefix (string) vars; #MATH for @-prefix (numeric) vars
+                        if (origVarType === '$' || val.includes('"') || convertedVal.includes('<') || convertedVal.includes('\x01STR')) {
                             return { text: `#VARIABLE {${name}} {${convertedVal.replace(/^"|"$/g, '')}}` };
                         }
                         return { text: `#MATH {${name}} {${convertedVal}}` };

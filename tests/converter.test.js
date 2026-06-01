@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { TinTinConverter } from '../src/converter.js';
 
 describe('TinTinConverter - Powwow Mode', () => {
@@ -372,5 +372,133 @@ describe('TinTinConverter - JMC Mode', () => {
     expect(converter.convert('#output {hello}')).toContain('#SHOWME {hello}');
     expect(converter.convert('#pathdir {n} {s} {1}')).toContain('#PATHDIR {n} {s} {1}');
     expect(converter.convert('#wait 1.5')).toContain('#DELAY {1.5}');
+  });
+});
+
+describe('TinTinConverter - Powwow Compatibility Fixes', () => {
+  let converter;
+  beforeEach(() => { converter = new TinTinConverter({ mode: 'powwow' }); });
+
+  it('#rawsend maps to #SEND', () => {
+    expect(converter.convert('#rawsend ("hello")')).toContain('#SEND {hello}');
+    expect(converter.convert('#rawsend hello')).toContain('#SEND {hello}');
+  });
+
+  it('#zap with name maps to #CLOSE, without name to #ZAP', () => {
+    expect(converter.convert('#zap mume')).toContain('#CLOSE {mume}');
+    expect(converter.convert('#zap')).toContain('#ZAP');
+  });
+
+  it('#connect maps to #SESSION', () => {
+    expect(converter.convert('#connect mume mume.org 4242')).toContain('#SESSION {mume} {mume.org} {4242}');
+  });
+
+  it('#option handles multiple flags on one line', () => {
+    const out = converter.convert('#option -echo +compact -speedwalk');
+    expect(out).toContain('#CONFIG {VERBOSE} {OFF}');
+    expect(out).toContain('#CONFIG {COMPACT} {ON}');
+    expect(out).toContain('#CONFIG {SPEEDWALK} {OFF}');
+  });
+
+  it('#option handles wrap and unrecognized flags', () => {
+    const out = converter.convert('#option +wrap -exit');
+    expect(out).toContain('#CONFIG {WORDWRAP} {ON}');
+    expect(out).toContain('#NOP OPTION ignored: -exit');
+  });
+
+  it('#delim, #file, #savefile-version produce #NOP', () => {
+    expect(converter.convert('#delim normal')).toContain('#NOP');
+    expect(converter.convert('#file =')).toContain('#NOP');
+    expect(converter.convert('#savefile-version 6')).toContain('#NOP');
+  });
+
+  it('#exe <file.pow produces #READ with .tin extension', () => {
+    expect(converter.convert('#exe <autolog.pow')).toContain('#READ {autolog.tin}');
+    expect(converter.convert('#exe <myscript.POW')).toContain('#READ {myscript.tin}');
+    expect(converter.convert('#exe <helper.tin')).toContain('#READ {helper.tin}');
+  });
+
+  it('labeled #in produces #DELAY (one-shot), not #TICKER', () => {
+    const out = converter.convert('#in tick (60000) say tick');
+    expect(out).toContain('#DELAY {tick} {60.00} {say tick}');
+    expect(out).not.toContain('#TICKER');
+  });
+
+  it('#in -name cancellation produces #UNDELAY', () => {
+    expect(converter.convert('#in -tick')).toContain('#UNDELAY {tick}');
+  });
+
+  it('labeled #at still produces #TICKER (repeating)', () => {
+    const out = converter.convert('#at heartbeat (30000) say pulse');
+    expect(out).toContain('#TICKER {heartbeat}');
+  });
+
+  it('#bind with Powwow built-in editing function produces #NOP', () => {
+    expect(converter.convert('#bind C-a ^A=&begin-of-line')).toContain('#NOP POWWOW BUILTIN KEY');
+    expect(converter.convert('#bind C-e ^E=&end-of-line')).toContain('#NOP POWWOW BUILTIN KEY');
+  });
+
+  it('#bind with real command still produces #MACRO', () => {
+    expect(converter.convert('#bind KP1 ^[[4~=open exit')).toContain('#MACRO');
+  });
+
+  it('% action modifier with POSIX character classes converts to PCRE', () => {
+    const out = converter.convert('#action %>+test ^[[:digit:]]+ damage={#print; say took damage}');
+    expect(out).toContain('[0-9]');
+    expect(out).not.toContain('[[:digit:]]');
+  });
+
+  it('%>+ combined action modifier works', () => {
+    const out = converter.convert('#action %>+compact@compact ^$={}');
+    expect(out).not.toContain('#NOP UNCONVERTED');
+  });
+
+  it('#speed maps to #SEND', () => {
+    expect(converter.convert('#speed nnnee')).toContain('#SEND {nnnee}');
+    expect(converter.convert('#speed {3nesw}')).toContain('#SEND {3nesw}');
+  });
+
+  it('#write with overwrite produces #SYSTEM with >', () => {
+    const out = converter.convert('#write >($last_line;"/tmp/out.txt")');
+    expect(out).toContain('#SYSTEM');
+    expect(out).toContain('>');
+    expect(out).toContain('/tmp/out.txt');
+  });
+
+  it('#write without > produces #SYSTEM with >>', () => {
+    const out = converter.convert('#write ($last_line;"/tmp/out.txt")');
+    expect(out).toContain('#SYSTEM');
+    expect(out).toContain('>>');
+  });
+
+  it('#isprompt produces #NOP', () => {
+    expect(converter.convert('#isprompt -1')).toContain('#NOP');
+    expect(converter.convert('#isprompt')).toContain('#NOP');
+  });
+
+  it('#prompt +/-name toggles the class', () => {
+    expect(converter.convert('#prompt +time')).toContain('#CLASS {time} {OPEN}');
+    expect(converter.convert('#prompt -time')).toContain('#CLASS {time} {KILL}');
+  });
+
+  it('#module and #perl produce #NOP', () => {
+    expect(converter.convert('#module perl')).toContain('#NOP MODULE not supported');
+    expect(converter.convert('#perl do "./foo.pl"')).toContain('#NOP PERL not supported');
+  });
+
+  it('all ~/powwow/*.pow files convert with zero UNSUPPORTED/UNCONVERTED', async () => {
+    const { default: fs } = await import('fs');
+    const { default: path } = await import('path');
+    const { default: os } = await import('os');
+    const powDir = path.join(os.homedir(), 'powwow');
+    if (!fs.existsSync(powDir)) return;
+    const files = fs.readdirSync(powDir).filter(f => f.endsWith('.pow'));
+    for (const file of files) {
+      const content = fs.readFileSync(path.join(powDir, file), 'utf8');
+      const c = new TinTinConverter({ mode: 'powwow' });
+      const out = c.convert(content);
+      expect(out, `${file} has UNSUPPORTED`).not.toMatch(/#NOP UNSUPPORTED:/);
+      expect(out, `${file} has UNCONVERTED`).not.toMatch(/UNCONVERTED/);
+    }
   });
 });

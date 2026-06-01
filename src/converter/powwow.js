@@ -5,7 +5,7 @@ import { ExpressionParser } from './expression.js';
  */
 export const powwowMethods = {
     convertAliasPowwow(args, options) {
-        const match = args.match(/^(?:([<=>%][+-]?)?([\w_-]+(?:[+-])?)(?:@([\w_-]+))?\s+)?([^=]+?)(?:@([\w_-]+))?=(.*)/is);
+        const match = args.match(/^(?:([<=>%][>]*[+-]?)?([\w_-]+(?:[+-])?)(?:@([\w_-]+))?\s+)?([^=]+?)(?:@([\w_-]+))?=(.*)/is);
         if (!match) {
             if (args.trim() === '') return { text: '#ALIAS' };
             const simpleMatch = args.match(/^([^=]+)=(.*)/is);
@@ -39,7 +39,7 @@ export const powwowMethods = {
             return { text: op === '+' ? `#CLASS {${label}} {OPEN}` : `#CLASS {${label}} {KILL}` };
         }
 
-        const match = args.match(/^(?:([<=>%][+-]?)?([\w_-]+(?:[+-])?)(?:@([\w_-]+))?\s+)?([^=]+?)(?:@([\w_-]+))?=(.*)?/is);
+        const match = args.match(/^(?:([<=>%][>]*[+-]?)?([\w_-]+(?:[+-])?)(?:@([\w_-]+))?\s+)?([^=]+?)(?:@([\w_-]+))?=(.*)?/is);
         if (!match) {
              const simpleMatch = args.match(/^([^=]+)=(.*)?/is);
              if (simpleMatch) {
@@ -64,7 +64,17 @@ export const powwowMethods = {
 
         // Handle Powwow regex with capture groups: $1 becomes %2 in TinTin++
         // if it's a standard regex (%) action.
-        if (op === '%') {
+        if (op && op.includes('%')) {
+             // Convert POSIX character classes to PCRE equivalents
+             rawPattern = rawPattern
+                 .replace(/\[\[:digit:\]\]/g, '[0-9]')
+                 .replace(/\[\[:alpha:\]\]/g, '[a-zA-Z]')
+                 .replace(/\[\[:alnum:\]\]/g, '[a-zA-Z0-9]')
+                 .replace(/\[\[:space:\]\]/g, '\\s')
+                 .replace(/\[\[:upper:\]\]/g, '[A-Z]')
+                 .replace(/\[\[:lower:\]\]/g, '[a-z]')
+                 .replace(/\[\[:print:\]\]/g, '[\\x20-\\x7E]')
+                 .replace(/\[\[:punct:\]\]/g, '[!-/:-@[-`{-~]');
              // Protect existing $N that should be %N
              rawPattern = rawPattern.replace(/\$(\d)/g, '___V$1___');
              rawPattern = rawPattern.replace(/\\m/g, '___M___');
@@ -96,14 +106,23 @@ export const powwowMethods = {
         rawPattern = rawPattern.replace(/\\,/g, ',');
 
         ttPattern = isAnchored ? '^' : '';
-        const isRegexAction = (op === '%');
+        const isRegexAction = !!(op && op.includes('%'));
         const newOptions = {
             ...options,
             isRegexAction,
+            inActionBody: true,
             indexOffset: (options.indexOffset || 0) + (leadingVar ? 1 : 0)
         };
         if (leadingVar) {
-            ttPattern += (rawPattern.startsWith(' ') || rawPattern === '') ? '%1' : '{%1}';
+            // If rawPattern starts with &N or $N (captures the separator between the var and the rest,
+            // e.g. the space in "^${leader}&1 slashes"), use %* so the pattern handles both
+            // "Dorien slashes..." and "Dorien (leader) slashes..." (optional label).
+            if (rawPattern.match(/^[&$]\d+/)) {
+                ttPattern += '%1%*';
+                rawPattern = rawPattern.replace(/^[&$]\d+/, '');
+            } else {
+                ttPattern += '%1';
+            }
         }
 
         const parts = rawPattern.split(/([&$]\d+)/);
@@ -120,7 +139,7 @@ export const powwowMethods = {
                 // If we have indexOffset, it means we are already in a nested context?
                 // Actually leadingVar adds an offset.
                 let p = part;
-                if (op === '%') {
+                if (op && op.includes('%')) {
                     let newP = '';
                     let parenCount = leadingVar ? 1 : 0;
                     for (let i = 0; i < p.length; i++) {
@@ -292,6 +311,7 @@ export const powwowMethods = {
     },
 
     convertTickerPowwow(args, command, options) {
+        // Anonymous (unlabeled) form: #in (ms) cmd or #at (ms) cmd
         if (command === 'at' || command === 'in') {
             const match = args.match(/^\((.*?)\)\s*(.*)/is);
             if (match) {
@@ -309,6 +329,12 @@ export const powwowMethods = {
                 }
                 return { text: `#DELAY {${delayVal}} {${this.processCommands(cmds, options)}}` };
             }
+
+            // Cancellation: #in -name → #UNDELAY {name}
+            const cancelMatch = args.match(/^-([\w_-]+)\s*$/);
+            if (cancelMatch) {
+                return { text: `#UNDELAY {${cancelMatch[1]}}` };
+            }
         }
 
         const match = args.match(/^(?:([<=>%][+-]?)?([\w_-]+)(?:@([\w_-]+))?\s+)?([\w_-]+)\s*\((.*?)\)\s*(.*)/is);
@@ -320,7 +346,14 @@ export const powwowMethods = {
         const targetClass = group || label;
         let out = '';
         if (targetClass) out += `#CLASS {${targetClass}} {OPEN}\n`;
-        out += `#TICKER {${tickerName}} {${this.processCommands(cmds)}} {${delayVal}}`;
+
+        // #in creates a one-shot named delay; #at creates a repeating ticker
+        if (command === 'in') {
+            out += `#DELAY {${tickerName}} {${delayVal}} {${this.processCommands(cmds, options)}}`;
+        } else {
+            out += `#TICKER {${tickerName}} {${this.processCommands(cmds, options)}} {${delayVal}}`;
+        }
+
         if (targetClass) out += `\n#CLASS {${targetClass}} {CLOSE}`;
         return { text: out };
     },
@@ -331,6 +364,11 @@ export const powwowMethods = {
             const name = match[1];
             const seq = match[2];
             const cmd = match[3] || '';
+            // Powwow built-in line-editing functions (&begin-of-line, &prev-char, etc.)
+            // are already handled by TinTin++'s default keybindings.
+            if (/^&[\w-]+$/.test(cmd.trim())) {
+                return { text: `#NOP POWWOW BUILTIN KEY (built into TT++): ${name} = ${cmd.trim()}` };
+            }
             const macroKey = seq || name;
             const processedCmd = this.processCommands(cmd, options);
             const labelComment = (seq && name && name !== seq) ? `#NOP ORIGINAL BIND LABEL: ${name}\n` : '';
@@ -340,6 +378,12 @@ export const powwowMethods = {
     },
 
     convertPromptPowwow(args, options) {
+        if (args.match(/^[+-][\w_-]+$/)) {
+            const label = args.substring(1);
+            const op = args[0];
+            return { text: op === '+' ? `#CLASS {${label}} {OPEN}` : `#CLASS {${label}} {KILL}` };
+        }
+
         const match = args.match(/^(?:([<=>%][+-]?)?([\w_-]+)(?:@([\w_-]+))?\s+)?([^=]+)=(.+)?/is);
         if (!match) {
              const simpleMatch = args.match(/^([^=]+)=(.*)?/is);
