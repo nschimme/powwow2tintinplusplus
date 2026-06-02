@@ -17,7 +17,7 @@
     "@types/node": "^25.6.0",
     "autoprefixer": "^10.4.17",
     "glob": "^13.0.6",
-    "markdown-it": "^14.1.1",
+    "markdown-it": "^14.2.0",
     "postcss": "^8.5.15",
     "tailwindcss": "^4.2.4",
     "vite": "^8.0.16",
