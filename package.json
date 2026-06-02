@@ -14,7 +14,7 @@
     "@playwright/test": "^1.59.1",
     "@tailwindcss/postcss": "^4.2.4",
     "@tailwindcss/typography": "^0.5.19",
-    "@types/node": "^25.6.0",
+    "@types/node": "^25.9.1",
     "autoprefixer": "^10.4.17",
     "glob": "^13.0.6",
     "markdown-it": "^14.1.1",
